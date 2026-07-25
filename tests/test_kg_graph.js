@@ -75,6 +75,9 @@ console.log(`  ${graph.entities.length} entities, ${graph.relations.length} rela
 console.log(`  over ${graph.sourceDocIds.length} document(s), ` +
             `${graph.chunksProcessed} chunk(s) in ${graph.calls} call(s), ` +
             `${graph.callsFailed} call(s) failed`);
+console.log(`  tokens: ${graph.totalTokens ?? 0} ` +
+            `(${graph.promptTokens ?? 0} prompt + ${graph.outputTokens ?? 0} output) ` +
+            `over ${graph.modelRequests ?? 0} model request(s)`);
 console.log(`  kg_view.html: ${viewHtml.size} bytes`);
 // Sample triples: relations are sorted in graph.json, so these five are always
 // the same ones for a given graph — an eyeball check that entities read like
@@ -102,6 +105,22 @@ const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, 
 await fs.appendFile(
   path.join(ROOT, 'tests', 'test_log.txt'),
   `[${timestamp}] test_kg_graph            : ${elapsed}s\n`,
+  'utf-8',
+);
+
+// Token usage, appended to its own history file. kg_graph.py records it from
+// dspy's usage tracker into graph.json, so it's read here, not re-measured. A
+// re-run on unchanged input legitimately logs ~0 tokens: dspy serves those
+// calls from cache, so no model work (and no token cost) actually happened.
+const promptTokens  = graph.promptTokens  ?? 0;
+const outputTokens  = graph.outputTokens  ?? 0;
+const totalTokens   = graph.totalTokens   ?? (promptTokens + outputTokens);
+const modelRequests = graph.modelRequests ?? 0;
+await fs.appendFile(
+  path.join(ROOT, 'tests', 'test_token_usage.txt'),
+  `[${timestamp}] test_kg_graph : ${totalTokens} tokens ` +
+  `(${promptTokens} prompt + ${outputTokens} output) over ${modelRequests} request(s), ` +
+  `${graph.entities.length} entities / ${graph.relations.length} relations\n`,
   'utf-8',
 );
 console.log(`\nDone in ${elapsed}s. All outputs in tests/test-output/.`);

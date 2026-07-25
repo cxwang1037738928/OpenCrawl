@@ -92,6 +92,7 @@ from pathlib import Path
 from kg_gen import KGGen
 from kg_gen.models import Graph
 from kg_gen.utils.visualize_kg import visualize
+from dspy.utils.usage_tracker import track_usage
 
 # Printed on its own line after each per-call flush of graph.json. The Node
 # parent (routes/pipeline.js) watches stdout for this and ingests the partial
@@ -393,10 +394,25 @@ def _norm_entity(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip().lower()
 
 
+def _tracker_totals(tracker) -> tuple[int, int, int]:
+    """(prompt_tokens, output_tokens, model_requests) summed over the run's LM
+    calls, read from dspy's usage tracker. Each usage entry is one real model
+    request; dspy cache hits cost nothing and never reach the tracker."""
+    prompt_tokens = output_tokens = model_requests = 0
+    for entries in tracker.usage_data.values():
+        model_requests += len(entries)
+        for entry in entries:
+            prompt_tokens += entry.get("prompt_tokens") or 0
+            output_tokens += entry.get("completion_tokens") or 0
+    return prompt_tokens, output_tokens, model_requests
+
+
 def _write_graph_json(data_dir: Path, model: str, selected_ids: list[str],
                       chunks_used: int, calls_total: int, calls_failed: int,
                       entities: set, relations: set, edges: set,
-                      completed: int, drop_titles: frozenset = frozenset()) -> dict:
+                      completed: int, drop_titles: frozenset = frozenset(),
+                      prompt_tokens: int = 0, output_tokens: int = 0,
+                      model_requests: int = 0) -> dict:
     """Build the payload from the running union and write graph.json atomically.
 
     Cleaning happens HERE, into a fresh payload, so the raw accumulator sets are
@@ -433,6 +449,11 @@ def _write_graph_json(data_dir: Path, model: str, selected_ids: list[str],
         # Progress: completed < calls means this is a partial, mid-run graph.
         "callsCompleted":  completed,
         "complete":        completed >= calls_total,
+        # LM token usage so far (dspy usage tracker; cache hits aren't counted).
+        "promptTokens":    prompt_tokens,
+        "outputTokens":    output_tokens,
+        "totalTokens":     prompt_tokens + output_tokens,
+        "modelRequests":   model_requests,
         "entities":        clean_entities,
         "edges":           clean_edges,
         "relations":       clean_relations,
@@ -491,37 +512,44 @@ def build_kg(data_dir: Path = DATA_DIR) -> dict:
     edges: set = set()
     failed_calls = 0
 
-    def flush(completed: int) -> dict:
-        return _write_graph_json(data_dir, model, selected_ids, chunks_used,
-                                 len(batches), failed_calls, entities, relations,
-                                 edges, completed=completed, drop_titles=drop_titles)
+    # track_usage records prompt/output tokens for every real LM call in the
+    # block; flush reads the running total so token counts land in graph.json
+    # next to the graph (and in each partial flush), not just at the end.
+    with track_usage() as tracker:
+        def flush(completed: int) -> dict:
+            prompt_tokens, output_tokens, model_requests = _tracker_totals(tracker)
+            return _write_graph_json(data_dir, model, selected_ids, chunks_used,
+                                     len(batches), failed_calls, entities, relations,
+                                     edges, completed=completed, drop_titles=drop_titles,
+                                     prompt_tokens=prompt_tokens, output_tokens=output_tokens,
+                                     model_requests=model_requests)
 
-    for call_idx, batch in enumerate(batches):
-        print(f"[kg_graph]   call {call_idx + 1}/{len(batches)} "
-              f"({len(_batch_text(batch))} chars, {len(batch['bodies'])} chunk(s))")
-        call_graph = _generate_with_retry(kg, batch)
-        if call_graph is None:
-            failed_calls += 1
-            print(f"[kg_graph]   call {call_idx + 1} failed (even after splitting) — skipped",
-                  file=sys.stderr)
-            continue
-        entities.update(call_graph.entities)
-        relations.update(call_graph.relations)
-        edges.update(call_graph.edges)
-        # Flush the graph-so-far after every successful call. The atomic write
-        # means a crash (or a kill mid-run) leaves a valid partial graph, and
-        # the marker line tells the Node parent to ingest it into the DB now —
-        # the graph becomes progressively durable instead of all-or-nothing at
-        # the end of a multi-hour run.
-        flush(call_idx + 1)
-        print(_PROGRESS_MARKER, flush=True)
+        for call_idx, batch in enumerate(batches):
+            print(f"[kg_graph]   call {call_idx + 1}/{len(batches)} "
+                  f"({len(_batch_text(batch))} chars, {len(batch['bodies'])} chunk(s))")
+            call_graph = _generate_with_retry(kg, batch)
+            if call_graph is None:
+                failed_calls += 1
+                print(f"[kg_graph]   call {call_idx + 1} failed (even after splitting) — skipped",
+                      file=sys.stderr)
+                continue
+            entities.update(call_graph.entities)
+            relations.update(call_graph.relations)
+            edges.update(call_graph.edges)
+            # Flush the graph-so-far after every successful call. The atomic write
+            # means a crash (or a kill mid-run) leaves a valid partial graph, and
+            # the marker line tells the Node parent to ingest it into the DB now —
+            # the graph becomes progressively durable instead of all-or-nothing at
+            # the end of a multi-hour run.
+            flush(call_idx + 1)
+            print(_PROGRESS_MARKER, flush=True)
 
-    if not entities:
-        raise RuntimeError(f"kg-gen produced no valid graph for any of {len(batches)} call(s)")
+        if not entities:
+            raise RuntimeError(f"kg-gen produced no valid graph for any of {len(batches)} call(s)")
 
-    # Final flush + the whole-graph visualization (regenerating it per call
-    # would be wasted work — it is meaningless for a partial graph).
-    payload = flush(len(batches))
+        # Final flush + the whole-graph visualization (regenerating it per call
+        # would be wasted work — it is meaningless for a partial graph).
+        payload = flush(len(batches))
     visualize(Graph(entities=set(payload["entities"]),
                     relations={tuple(relation) for relation in payload["relations"]},
                     edges=set(payload["edges"])),
@@ -529,6 +557,9 @@ def build_kg(data_dir: Path = DATA_DIR) -> dict:
 
     print(f"[kg_graph] {len(payload['entities'])} entities, "
           f"{len(payload['relations'])} relations → {data_dir / 'graph.json'}")
+    print(f"[kg_graph] {payload['totalTokens']} tokens "
+          f"({payload['promptTokens']} prompt + {payload['outputTokens']} output) "
+          f"over {payload['modelRequests']} model request(s)")
     return payload
 
 

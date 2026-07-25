@@ -53,89 +53,74 @@ The binding constraint is decode throughput on CPU, not token count.
 ================================================================================
 
 --------------------------------------------------------------------------------
-2026-07-23 — Alternative approach: per-cluster schema + GLiNER/GLiREL extraction
+2026-07-24 — Single-pass extraction: one manual prompt per batch (vs kg-gen 2-pass)
 --------------------------------------------------------------------------------
-Context: test of the proposed pipeline — generate a tailored extraction schema
-per category cluster (TF-IDF keywords + medoid-document chunks -> LLM), then do
-schema-driven entity extraction with GLiNER and relation extraction with GLiREL.
-Same 4 documents / 147 chunks as the kg-gen run above, for a direct comparison.
-Both graphs stored in Postgres as demo-user (demo@gmail.com) collections:
-    collection 15 = "KG Test — kg-gen (open-ended LLM)"
-    collection 16 = "KG Test — schema-driven (GLiNER+GLiREL)"
+Context: collapse kg-gen's two calls (get_entities, then get_relations over the
+same text) into ONE manual prompt that emits (subject, predicate, object)
+triples directly; the node set is the union of triple endpoints, so a node
+cannot be isolated. Same packing as kg_graph.py (same 25 batches, same 4-doc /
+147-chunk set), same model (ministral-3:3b, num_ctx 8192), Ollama
+structured-output schema forcing parseable JSON. Only variable vs the baseline:
+one call instead of two, nodes derived from edges.
 
-TIME SPENT (schema-driven pipeline)
-    Schema generation (3 clusters, Ollama) . 58 s   (naive first pass: 86 s)
-    Model load (GLiNER + GLiREL, one-time) . 25 s
-    Extraction (147 chunks) ................ 182 s
-    ------------------------------------------------
-    Total ................................. ~265 s   (4.4 min)
-  vs kg-gen above ......................... 9,234 s  (153.9 min)  -> ~35x faster
-  (extraction alone, load excluded: 207 s vs 9,234 s -> ~45x)
+TIME + COST (Ollama's own prompt_eval_count / eval_count, per request)
+    Wall clock .............. 34.3 min    vs kg-gen 153.9 min  -> 4.5x faster
+    Model requests .......... 25          vs ~62               -> one per batch
+    Prompt tokens ........... 34,237
+    Output tokens ........... 19,126
+    TOTAL ................... 53,363      vs 168,723           -> 3.2x fewer
+    (text sent once, not twice: prompt tokens ~1/3 of the 2-pass run)
+    Dropped triples ......... 99  (blank / self-loop / title-touching)
 
 GRAPH COMPARISON (identical 4-doc input)
-                              kg-gen (LLM)     schema-driven (GLiNER+GLiREL)
-    entities .............   765              275
-    relations ............   575              86
-    distinct rel. types ..   441              4   (!)
-    entity grounding .....   96%              100%
-    self-loops ...........   1                2
-    wall clock ...........   153.9 min        4.4 min
-    entities shared (ci) .   65 of 275 overlap between the two graphs
+                              kg-gen (2-pass)   single-pass
+    entities .............   765               532
+    relations ............   575               376
+    distinct predicates ..   441 (77%)         276 (73%)
+    CONNECTED ............   52%               100%   (!)
+    isolated .............   48% (370)         0%     (!)
+    grounded in source ...   41%               66%
+    quantity-like junk ...   1%                1%
+    verbose (>6 words) ...   25%               17%
+    self-loops ...........   1                 0
 
 FINDINGS
-  1. Speed: ~35-45x faster. Encoder models, no autoregressive decode — the CPU
-     bottleneck that dominated the kg-gen run is gone. This is the headline win.
-  2. Entities (GLiNER): clean. 100% grounded (spans are literal substrings),
-     tailored types honoured (language-model, catalyst, algorithm, ...), and
-     case-insensitive dedup removed the variant fragmentation kg-gen showed.
-  3. Relations (GLiREL): the weak link.
-       - Schema NOT honoured: 3 clusters defined ~17 relation types each, but
-         only 4 generic ones ever fired (based on / evaluated on / outperforms
-         / part of). Fine-grained/argumentation relations did not take.
-       - Precision mixed: correct edges ("4-layer transformer -evaluated on->
-         Penn Treebank") sit next to nonsense ("BerkeleyParser -outperforms->
-         beam size"), because GLiREL relates any entity pair in range.
-       - Recall much lower: 86 vs 575 relations.
-       - Out-of-domain collapse: chemistry cluster produced 5 entities, 0
-         relations — GLiREL generalises poorly to that domain.
-  4. Schema generation caveat: naive LLM prompting proposed INSTANCE-level
-     labels as "types" (e.g. entity type '1,2,3-tris(chlorophenyl)cyclopropen-
-     ylium bromide'; relation 'derived_from_classical_hirao_reaction'). Prompt
-     steering toward general categories fixed it. Schema quality needs tuning,
-     as expected — that IS the crux of this approach.
+  1. Isolation SOLVED. 0 isolated nodes vs kg-gen's 48% — the direct consequence
+     of nodes = edge endpoints. The '110 million nodes'-style isolated junk cannot
+     occur: a node exists only because a triple connects it.
+  2. Better grounded (66% vs 41%): fewer paraphrased nodes, because the model
+     writes triples over the literal text in one pass instead of inventing an
+     entity vocabulary first.
+  3. Cheaper + faster (3.2x tokens, 4.5x time) for a graph 70% the size. The
+     ~233 dropped entities were overwhelmingly the isolated/paraphrastic ones.
+  4. Coverage holds on the network papers (12/12 keywords both) and Attention
+     (7/12, same as kg-gen) but DROPS on chemistry (6/12 vs 12/12): the 2-page
+     chemistry doc is 2 batches and batch 2 returned 0 triples, so single-pass
+     under-covered it. Small-doc recall is the weak spot.
+  5. NOT fixed: the free-text predicate problem. 276 distinct predicates for 376
+     relations (73% unique) — same uncontrolled vocabulary as kg-gen (77%).
+     Quantities now leak into EDGES rather than nodes: '36 communities -have more
+     than 1000 customers-> Belgian mobile phone network', '10 largest communities
+     -account for-> 87% of the entire network'. A controlled predicate vocabulary
+     (schema) is orthogonal to single-pass and still open.
+  6. Some verbose endpoints remain (17%): the model occasionally makes a clause
+     the subject/object ('Ni-catalyzed double Michaelis-Arbuzov reaction of
+     bis(bromoaryl) species and related N-heterocycles').
 
-READ: the entity half of the approach is a clear win (fast, grounded, tailored).
-The relation half with GLiREL is not yet adequate for a relation-centric /
-argumentation graph: it ignores the tailored relation schema, mixes in spurious
-edges, and fails on off-distribution domains. Next lever would be a stronger /
-fine-tuned relation extractor, or constraining relations to grounded entity
-pairs before classification.
+MANUAL READING — good, connected, grounded edges
+  'Amazon co-purchasing network -is a type of-> very large network';
+  'Additive attention -computes compatibility function with-> feed-forward
+  network'; '1-hydroxytetrahydrophosphinine 1-sulfide -are examples of->
+  P-stereogenic chiral thiophosphorus acids'; 'Albert R, Jeong H and Barabasi
+  A-L -proposed-> model'.
 
-CORRECTION (after actually reading the graphs — the above under-sold the problem):
-  "Entity half is a clear win / 100% grounded" was MISLEADING. 100% grounding
-  only meant the span appears in the source; it does NOT mean a useful node.
-  The metric that matters is CONNECTIVITY, which was not measured above:
-
-                              kg-gen        schema-driven
-    entities in >=1 relation  52%           15%
-    ISOLATED nodes            48%           85%   (233 of 275!)
-    junk-fragment labels      3%            7%
-
-  The schema-driven graph is mostly a scatter of disconnected nodes, and the
-  isolated ones are nonsense fragments: '118 million nodes', '128 nodes',
-  '6 communities', 'Q = 0 . 745', 'Table 1', and 3 near-duplicate isolated
-  nodes for one dataset ('WMT 2014 English-to-German translation task' /
-  '... English-German dataset' / '... Englishto-German ...').
-
-  ROOT CAUSE: GLiNER and GLiREL are an uncoordinated pair with mismatched
-  recall. GLiNER greedily tags every span matching a type (the tailored schema
-  made this worse — a 'network'/'metric' type invites tagging quantities like
-  '118 million nodes'), while GLiREL relates almost none of them, orphaning 85%.
-  kg-gen extracts relations OVER its own entities in one pass, so its nodes are
-  chosen with edges in mind -> far more connected and coherent.
-
-  REVISED VERDICT: speed still favours schema-driven (35-45x). GRAPH QUALITY
-  favours kg-gen (more connected, less nonsense). To make the schema-driven
-  graph usable: post-filter isolated nodes + quantity/table-ref spans before
-  saving, and/or replace GLiREL with a higher-recall relation extractor.
+VERDICT
+  Single-pass is the better default for this goal: it eliminates the isolated /
+  nonsense-node problem outright (0% vs 48%), grounds better, and costs ~1/3 the
+  tokens and ~1/4 the time, at the price of a smaller graph and weaker small-doc
+  coverage. It does not solve predicate discipline — that needs a schema, the
+  next lever. Saved as demo-user collection 18 "KG Test — single-pass (manual
+  prompt)" (532 entities, 376 relations), alongside 15 (kg-gen), 16
+  (GLiNER+GLiREL), 17 (hybrid). Graph + viz on disk at
+  tests/test-output/_kgrun/singlepass_graph.json and singlepass_kg_view.html.
 ================================================================================
