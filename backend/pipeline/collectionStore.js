@@ -188,3 +188,25 @@ export async function ingestGraph(collection) {
     data: { knowledgeGraph: graph, knowledgeGraphHtml: html, corpusUpdatedAt: new Date() },
   });
 }
+
+/**
+ * graph.json → Collection.knowledgeGraph, for the PARTIAL graph flushed after
+ * each kg-gen call. Graph only — kg_view.html is a whole-graph render kg_graph.py
+ * writes once at the end, so it isn't touched here (the last full ingestGraph
+ * sets it). Tolerates a not-yet-written or torn read: kg_graph.py writes
+ * graph.json atomically, but the very first marker can race the file, and a
+ * mid-run partial must never fail the stage — the next call's flush supersedes
+ * it, and the final ingestGraph is authoritative regardless.
+ */
+export async function ingestGraphProgress(collection) {
+  let graph;
+  try {
+    graph = await readScratchJson(collection.id, 'graph.json');
+  } catch {
+    return;   // file not there yet / mid-write — skip this tick
+  }
+  await prisma.collection.update({
+    where: { id: collection.id },
+    data: { knowledgeGraph: graph, corpusUpdatedAt: new Date() },
+  });
+}

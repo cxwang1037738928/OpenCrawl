@@ -26,9 +26,16 @@ import 'dotenv/config';
 
 const DEFAULTS = {
   chunkSize: process.env.CHUNK_SIZE ? parseInt(process.env.CHUNK_SIZE) : 180,
-  // 30 matches embed.js's fallback — the two defaults silently disagreed
-  // (20 vs 30), masked only because .env sets CHUNK_OVERLAP explicitly.
-  overlap:   process.env.CHUNK_OVERLAP ? parseInt(process.env.CHUNK_OVERLAP) : 30,
+  // 0 by default: chunks already stop at docling section boundaries, so the
+  // sliding window never straddles a topic change, and splitSentences() below
+  // ends chunks on sentence boundaries — the failure overlap normally guards
+  // against (a sentence cut in half) cannot happen here. Overlap cost what it
+  // bought: ~18% of corpus text stored and processed twice, duplicate
+  // near-identical chunks competing for RETRIEVER_TOP_K slots, and deflated
+  // BM25 idf (a term in an overlap region has df=2, and retriever.js squares
+  // idf). Set CHUNK_OVERLAP > 0 to restore it; the carry logic below is intact
+  // and a re-embed is required either way.
+  overlap:   process.env.CHUNK_OVERLAP ? parseInt(process.env.CHUNK_OVERLAP) : 0,
   // Sections shorter than this (words) are merged into their neighbour.
   minSectionMerge: parseInt(process.env.CHUNKER_MIN_SECTION_MERGE || '60', 10),
   // A table chunk is truncated past this many words.

@@ -1,0 +1,126 @@
+================================================================================
+OpenCrawl — development log
+================================================================================
+
+--------------------------------------------------------------------------------
+2026-07-23 — Knowledge-graph stage: test run on 4 documents (kg-gen / Ollama)
+--------------------------------------------------------------------------------
+Context: validation run of the reworked kg_graph.py (6 KB packing budget,
+split-on-failure, per-call incremental flush, title-entity filter). Ran the
+stage standalone against a curated scratch corpus, model = ministral-3:3b
+(local Ollama), num_ctx = 8192, KG_CALL_MAX_CHARS = 6000.
+
+Documents (147 body chunks total, bibliography chunks excluded):
+    Organophosphorus chemistry: from model to application    6 chunks ->  2 calls
+    Fast unfolding of communities in large networks         47 chunks ->  8 calls
+    Finding community structure in very large networks      ~48 chunks ->  8 calls
+    Attention Is All You Need                               45 chunks ->  7 calls
+
+TIME SPENT
+    Total wall clock ................ 153.9 min  (2.56 h)
+    Avg per kg-gen call ............. ~6.2 min
+    (CPU-bound: ~5 of 27 model layers on the 4 GB GPU at num_ctx=8192;
+     decode ~8 tok/s dominates. Prefill ~35% of time, decode ~65%.)
+
+PROMPTS SENT (LLM requests to Ollama)
+    kg-gen calls (packed batches) ... 25
+    Model requests .................. ~62
+        = 25 calls x 2 stages (entities, then relations)  = 50 base
+        + split-on-failure retries and kg-gen's internal relation fallback
+    Failed calls (after retries) .... 0 / 25
+
+TOKEN COST (measured from Ollama server.log, run window)
+    Prompt (input) tokens ........... 113,224
+    Output (generated) tokens ....... 55,499
+    TOTAL ........................... 168,723
+    Avg per model request ........... 1,826 prompt + 895 output
+    Avg per kg-gen call (2 requests). ~5,500 tokens
+    Rule of thumb ................... ~1 token per source character
+                                       (source text is sent ~2x: once for the
+                                        entity pass, again for the relation pass)
+
+GRAPH PRODUCED
+    Entities ........................ 765
+    Relations ....................... 575
+    graph.json ...................... 139 KB
+    kg_view.html .................... 1.1 MB (interactive; needs internet for d3 CDN)
+    Quality: 96% entities grounded in source; 0 title leaks; ~0 genuine
+    cross-document edges; minor noise (case-variant duplicate entities,
+    a few citation strings as entities, 1 self-loop).
+
+NOTE: these are LOCAL tokens (compute/time on Ollama), not a paid-API bill.
+The binding constraint is decode throughput on CPU, not token count.
+================================================================================
+
+--------------------------------------------------------------------------------
+2026-07-24 — Single-pass extraction: one manual prompt per batch (vs kg-gen 2-pass)
+--------------------------------------------------------------------------------
+Context: collapse kg-gen's two calls (get_entities, then get_relations over the
+same text) into ONE manual prompt that emits (subject, predicate, object)
+triples directly; the node set is the union of triple endpoints, so a node
+cannot be isolated. Same packing as kg_graph.py (same 25 batches, same 4-doc /
+147-chunk set), same model (ministral-3:3b, num_ctx 8192), Ollama
+structured-output schema forcing parseable JSON. Only variable vs the baseline:
+one call instead of two, nodes derived from edges.
+
+TIME + COST (Ollama's own prompt_eval_count / eval_count, per request)
+    Wall clock .............. 34.3 min    vs kg-gen 153.9 min  -> 4.5x faster
+    Model requests .......... 25          vs ~62               -> one per batch
+    Prompt tokens ........... 34,237
+    Output tokens ........... 19,126
+    TOTAL ................... 53,363      vs 168,723           -> 3.2x fewer
+    (text sent once, not twice: prompt tokens ~1/3 of the 2-pass run)
+    Dropped triples ......... 99  (blank / self-loop / title-touching)
+
+GRAPH COMPARISON (identical 4-doc input)
+                              kg-gen (2-pass)   single-pass
+    entities .............   765               532
+    relations ............   575               376
+    distinct predicates ..   441 (77%)         276 (73%)
+    CONNECTED ............   52%               100%   (!)
+    isolated .............   48% (370)         0%     (!)
+    grounded in source ...   41%               66%
+    quantity-like junk ...   1%                1%
+    verbose (>6 words) ...   25%               17%
+    self-loops ...........   1                 0
+
+FINDINGS
+  1. Isolation SOLVED. 0 isolated nodes vs kg-gen's 48% — the direct consequence
+     of nodes = edge endpoints. The '110 million nodes'-style isolated junk cannot
+     occur: a node exists only because a triple connects it.
+  2. Better grounded (66% vs 41%): fewer paraphrased nodes, because the model
+     writes triples over the literal text in one pass instead of inventing an
+     entity vocabulary first.
+  3. Cheaper + faster (3.2x tokens, 4.5x time) for a graph 70% the size. The
+     ~233 dropped entities were overwhelmingly the isolated/paraphrastic ones.
+  4. Coverage holds on the network papers (12/12 keywords both) and Attention
+     (7/12, same as kg-gen) but DROPS on chemistry (6/12 vs 12/12): the 2-page
+     chemistry doc is 2 batches and batch 2 returned 0 triples, so single-pass
+     under-covered it. Small-doc recall is the weak spot.
+  5. NOT fixed: the free-text predicate problem. 276 distinct predicates for 376
+     relations (73% unique) — same uncontrolled vocabulary as kg-gen (77%).
+     Quantities now leak into EDGES rather than nodes: '36 communities -have more
+     than 1000 customers-> Belgian mobile phone network', '10 largest communities
+     -account for-> 87% of the entire network'. A controlled predicate vocabulary
+     (schema) is orthogonal to single-pass and still open.
+  6. Some verbose endpoints remain (17%): the model occasionally makes a clause
+     the subject/object ('Ni-catalyzed double Michaelis-Arbuzov reaction of
+     bis(bromoaryl) species and related N-heterocycles').
+
+MANUAL READING — good, connected, grounded edges
+  'Amazon co-purchasing network -is a type of-> very large network';
+  'Additive attention -computes compatibility function with-> feed-forward
+  network'; '1-hydroxytetrahydrophosphinine 1-sulfide -are examples of->
+  P-stereogenic chiral thiophosphorus acids'; 'Albert R, Jeong H and Barabasi
+  A-L -proposed-> model'.
+
+VERDICT
+  Single-pass is the better default for this goal: it eliminates the isolated /
+  nonsense-node problem outright (0% vs 48%), grounds better, and costs ~1/3 the
+  tokens and ~1/4 the time, at the price of a smaller graph and weaker small-doc
+  coverage. It does not solve predicate discipline — that needs a schema, the
+  next lever. Saved as demo-user collection 18 "KG Test — single-pass (manual
+  prompt)" (532 entities, 376 relations), alongside 15 (kg-gen), 16
+  (GLiNER+GLiREL), 17 (hybrid). Graph + viz on disk at
+  tests/test-output/_kgrun/singlepass_graph.json and singlepass_kg_view.html.
+================================================================================

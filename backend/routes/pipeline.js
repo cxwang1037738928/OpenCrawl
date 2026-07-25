@@ -33,7 +33,7 @@ import { prisma } from '../db.js';
 import {
   scratchDir, readScratchJson,
   exportDocumentsMeta, exportDoclings, exportEmbeddings, exportCategories,
-  ingestDoclings, ingestChunks, ingestCategories, ingestGraph,
+  ingestDoclings, ingestChunks, ingestCategories, ingestGraph, ingestGraphProgress,
 } from '../pipeline/collectionStore.js';
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
@@ -58,8 +58,18 @@ function httpError(status, message) {
   return err;
 }
 
-/** Spawn a child process against a collection's scratch dir; reject (502) on exit≠0. */
-function spawnAsync(cmd, args, collectionId) {
+// Line emitted by kg_graph.py after each per-call flush of graph.json (mirrors
+// _PROGRESS_MARKER there). Seeing it on stdout means a partial graph is on disk
+// and ready to ingest.
+const KG_GRAPH_SAVED = '@@KG_GRAPH_SAVED@@';
+
+/**
+ * Spawn a child process against a collection's scratch dir; reject (502) on
+ * exit≠0. onLine, when given, is called once per complete stdout line (used to
+ * catch the KG_GRAPH_SAVED marker) — stdout is still forwarded verbatim for
+ * display, this only adds line-boundary detection on top.
+ */
+function spawnAsync(cmd, args, collectionId, { onLine } = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd: ROOT,
@@ -75,7 +85,18 @@ function spawnAsync(cmd, args, collectionId) {
     });
 
     let stderr = '';
-    proc.stdout.on('data', stdoutChunk => process.stdout.write(stdoutChunk.toString()));
+    let lineBuf = '';
+    proc.stdout.on('data', stdoutChunk => {
+      const text = stdoutChunk.toString();
+      process.stdout.write(text);              // unchanged live passthrough
+      if (!onLine) return;
+      lineBuf += text;                         // reassemble lines across chunks
+      let newlineIdx;
+      while ((newlineIdx = lineBuf.indexOf('\n')) !== -1) {
+        onLine(lineBuf.slice(0, newlineIdx));
+        lineBuf = lineBuf.slice(newlineIdx + 1);
+      }
+    });
     proc.stderr.on('data', stderrChunk => {
       const text = stderrChunk.toString();
       stderr += text;
@@ -165,11 +186,27 @@ export const STAGES = {
   },
 
   async graph(collection) {
-    // kg_graph.py consumes the embed stage's chunks (one kg-gen call per
-    // chunk), so the graph depends on embed: extract → embed → … → graph.
+    // kg_graph.py consumes the embed stage's chunks (packed into calls), so
+    // the graph depends on embed: extract → embed → … → graph. It flushes a
+    // partial graph.json and prints KG_GRAPH_SAVED after every call; each
+    // marker ingests that partial into the DB, so a multi-hour run is saved
+    // incrementally instead of only on completion.
     await exportEmbeddings(collection);
-    await spawnAsync(PYTHON, [KG_GRAPH_PY], collection.id);
-    await ingestGraph(collection);
+
+    // Serialize the per-call ingests onto one chain: two Collection.update
+    // calls never overlap, and a transient failure is swallowed (the next
+    // flush supersedes it; the final ingestGraph below is authoritative).
+    let ingestChain = Promise.resolve();
+    const onLine = (line) => {
+      if (!line.includes(KG_GRAPH_SAVED)) return;
+      ingestChain = ingestChain
+        .then(() => ingestGraphProgress(collection))
+        .catch(err => console.warn(`[pipeline] partial graph ingest skipped: ${err.message}`));
+    };
+
+    await spawnAsync(PYTHON, [KG_GRAPH_PY], collection.id, { onLine });
+    await ingestChain;              // let the last partial ingest settle
+    await ingestGraph(collection);  // final: graph + kg_view.html, authoritative
     const graph = await readScratchJson(collection.id, 'graph.json');
     return {
       model:        graph.model,
@@ -178,7 +215,10 @@ export const STAGES = {
       relations:    graph.relations.length,
       docs:         graph.sourceDocIds.length,
       chunks:       graph.chunksProcessed,
-      chunksFailed: graph.chunksFailed,
+      // Chunks are packed many-per-call now, so failures count CALLS: one
+      // failed call drops every chunk batched into it.
+      calls:        graph.calls,
+      callsFailed:  graph.callsFailed,
     };
   },
 };

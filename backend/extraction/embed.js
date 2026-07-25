@@ -24,7 +24,8 @@ const DATA_DIR       = path.resolve(ROOT, process.env.DATA_DIR || 'data');
 // vectors from two different spaces.
 const MODEL      = process.env.SAPPHIRE_EMBEDDING_MODEL || 'Xenova/all-MiniLM-L12-v2';
 const CHUNK_SIZE    = parseInt(process.env.CHUNK_SIZE    || '180', 10);
-const CHUNK_OVERLAP = parseInt(process.env.CHUNK_OVERLAP || '30',  10);
+// 0 — see chunker.js DEFAULTS.overlap for why. Must match that default.
+const CHUNK_OVERLAP = parseInt(process.env.CHUNK_OVERLAP || '0',  10);
 // Chunks encoded per forward pass — raise for speed, lower for peak memory.
 const BATCH_SIZE    = parseInt(process.env.EMBED_BATCH_SIZE || '32', 10);
 

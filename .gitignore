@@ -10,6 +10,8 @@ __pycache__/
 
 # Test artifacts + frontend build output
 tests/test_log.txt
+tests/test_token_usage.txt
+tests/KG_log.txt
 frontend/dist/
 
 # Chat prompt/context/response log (backend/routes/chat.js)

@@ -21,6 +21,7 @@
     "test:generate-categories": "node tests/test_generate_categories.js",
     "test:heuristic": "node tests/test_heuristic.js",
     "test:build-graph": "node tests/test_kg_graph.js",
+    "test:kg-packing": "cross-env PYTHONIOENCODING=utf-8 .venv\\Scripts\\python tests/test_kg_packing.py",
     "test:api": "node tests/test_api.js",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
