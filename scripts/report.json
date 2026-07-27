@@ -1,0 +1,4702 @@
+[
+  {
+    "ids": [
+      1
+    ],
+    "referenceName": "AI principles.",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      2
+    ],
+    "referenceName": "FAIR Principles",
+    "doi": "",
+    "matchScore": 0.8165,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      3
+    ],
+    "referenceName": "Versailles Project on Advanced Materials and Standards (VAMAS)",
+    "doi": "10.1002/adma.19960080102",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      4
+    ],
+    "referenceName": "One-step synthesis of nanosized cu-ag films using atmospheric pressure plasma jet",
+    "doi": "10.2139/ssrn.4762275",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://discovery.ucl.ac.uk/10197344/3/Caruana_One-Step%20synthesis%20of%20nanosized%20Cu-Ag%20films%20using%20atmospheric%20pressure%20plasma%20jet_AAM.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      5
+    ],
+    "referenceName": "Crystal-GFN: Sampling crystals with desirable properties and constraints",
+    "doi": "10.48550/arXiv.2310.04925",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2310.04925",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      6
+    ],
+    "referenceName": "Generative Adversarial Networks to Design Metamaterials Based Nano-Photonics Devices",
+    "doi": "10.1109/aisp61711.2024.10870742",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      7
+    ],
+    "referenceName": "Diffusion Models in De Novo Drug Design",
+    "doi": "10.1021/acs.jcim.4c01107",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1021/acs.jcim.4c01107",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      8,
+      450
+    ],
+    "referenceName": "Generative adversarial networks and diffusion models in material discovery",
+    "doi": "10.26434/chemrxiv-2022-6l4pm-v2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/644eb7e30d87b493e38e5e0b/original/generative-adversarial-networks-and-diffusion-models-in-material-discovery.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      9
+    ],
+    "referenceName": "Generative Models as an Emerging Paradigm in the Chemical Sciences",
+    "doi": "10.1021/jacs.2c13467",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10141264/pdf/ja2c13467.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      10
+    ],
+    "referenceName": "Xtal2png: A Python package for representing crystalstructure as PNG files",
+    "doi": "",
+    "matchScore": 0.8581,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      11
+    ],
+    "referenceName": "The climate and sustainability implications of generative ai",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      12
+    ],
+    "referenceName": "The pan-canadian chemical library: A mechanism to open academic chemistry to high-throughput virtual screening",
+    "doi": "10.1038/s41597-024-03443-5",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41597-024-03443-5.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      13
+    ],
+    "referenceName": "GFlowNet Foundations. Journal of Machine Learning Research",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      14
+    ],
+    "referenceName": "A generative material transformer using Wyckoff representation",
+    "doi": "10.1038/s41524-025-01940-8",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-025-01940-8_reference.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      15
+    ],
+    "referenceName": "Setting standards for data driven materials science",
+    "doi": "10.1038/s41524-024-01411-6",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01411-6.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      16,
+      144
+    ],
+    "referenceName": "Machine learning for molecular and materials science",
+    "doi": "10.1038/s41586-018-0337-2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://researchportal.bath.ac.uk/en/publications/03379e8b-3fe7-4813-9d45-b94c61ad9740",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      17
+    ],
+    "referenceName": "MolGAN: An implicit generative model for small molecular graphs",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1805.11973",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      18
+    ],
+    "referenceName": "Space Group Informed Transformer for Crystalline Materials Generation",
+    "doi": "10.1016/j.scib.2025.09.035",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2403.15734",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      19
+    ],
+    "referenceName": "MOFormer: Self-Supervised Transformer Model for Metal-Organic Framework Property Prediction",
+    "doi": "10.1021/jacs.2c11420",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10041520/pdf/ja2c11420.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      20
+    ],
+    "referenceName": "CrystalFormer-RL: Reinforcement Fine-Tuning for Materials Design",
+    "doi": "10.1103/45zh-44bg",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2504.02367",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      21,
+      204
+    ],
+    "referenceName": "Graph Networks as a Universal Machine Learning Framework for Molecules and Crystals",
+    "doi": "10.1021/acs.chemmater.9b01294",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1812.05055",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      22
+    ],
+    "referenceName": "MatInvent: Reinforcement Learning for 3D Crystal Diffusion Generation",
+    "doi": "",
+    "matchScore": 0.5477,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      23
+    ],
+    "referenceName": "Chen, Y., Wang, X., Deng, X., Liu, Y., Chen, X., Zhang, Y., Wang, L., and Xiao, H. (2024). MatterGPT: A Generative Transformer for Multi-Property Inverse Design of Solid-State Materials.",
+    "doi": "",
+    "matchScore": 0.6742,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      24
+    ],
+    "referenceName": "Crystal Structure Prediction Meets Artificial Intelligence",
+    "doi": "10.1021/acs.jpclett.4c03727",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      25
+    ],
+    "referenceName": "Socially responsible ai algorithms: Issues, purposes, and challenges",
+    "doi": "10.1613/jair.1.12814",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://jair.org/index.php/jair/article/download/12814/26713",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      26
+    ],
+    "referenceName": "pHbot: Self-Driven Robot for pH Adjustment of Viscous Formulations via Physics-informed-ML",
+    "doi": "10.26434/chemrxiv-2023-c46mv",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.repository.cam.ac.uk/bitstreams/a5e1aaa6-7b47-4d21-a5ff-6c9040f3015b/download",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      27
+    ],
+    "referenceName": "Targeted materials discovery using bayesian algorithm execution",
+    "doi": "10.1038/s41524-024-01326-2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01326-2.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      28
+    ],
+    "referenceName": "Autonomous Discovery in the Chemical Sciences Part I: Progress",
+    "doi": "10.1002/anie.201909987",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2003.13754",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      29
+    ],
+    "referenceName": "Constant size descriptors for accurate machine learning models of molecular properties",
+    "doi": "10.1063/1.5020441",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      30
+    ],
+    "referenceName": "Accelerating Materials Development via Automation, Machine Learning, and High-Performance Computing",
+    "doi": "10.1016/j.joule.2018.05.009",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1803.11246",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      31
+    ],
+    "referenceName": "An Investigation of Surrogate Models for Efficient Performance-Based Decoding of 3D Point Clouds",
+    "doi": "10.1115/1.4044597",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://asmedigitalcollection.asme.org/mechanicaldesign/article-pdf/141/12/121401/5874523/md_141_12_121401.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      32
+    ],
+    "referenceName": "Sur une nouvelle substance fortement radio-active, contenue dans la pechblende",
+    "doi": "",
+    "matchScore": 0.4472,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      33,
+      230
+    ],
+    "referenceName": "Aflow: An automatic framework for high-throughput materials discovery",
+    "doi": "10.1016/j.commatsci.2012.02.005",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1308.5715",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      34
+    ],
+    "referenceName": "Generative adversarial networks (GAN) based efficient sampling of chemical composition space for inverse design of inorganic materials",
+    "doi": "10.1038/s41524-020-00352-0",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-020-00352-0.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      35
+    ],
+    "referenceName": "Generative Design of Thermoset Shape Memory Polymers Driven by Chemical Group: A Conditional Variational Autoencoder Approach",
+    "doi": "10.1002/pol.20240649",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://repository.lsu.edu/mechanical_engineering_pubs/1516",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      36
+    ],
+    "referenceName": "Crysmmnet: Multimodal representation for crystal property prediction",
+    "doi": "10.48550/arXiv.2307.05390",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2307.05390",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      37
+    ],
+    "referenceName": "On the limitations of multimodal vaes",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2110.04121",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      38
+    ],
+    "referenceName": "New frontiers for the materials genome initiative",
+    "doi": "10.1038/s41524-019-0173-4",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-019-0173-4.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      39
+    ],
+    "referenceName": "Chemical space and biology",
+    "doi": "10.1038/nature03192",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/nature03192.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      40
+    ],
+    "referenceName": "Generative Design of Inorganic Compounds Using Deep Diffusion Language Models",
+    "doi": "10.1021/acs.jpca.4c00083",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      41
+    ],
+    "referenceName": "VAE for Modified 1-Hot Generative Materials Modeling, A Step Towards Inverse Material Design",
+    "doi": "10.48550/arXiv.2401.06779",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2401.06779",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      42
+    ],
+    "referenceName": "Accelerated AI development for autonomous materials synthesis in flow",
+    "doi": "10.1039/d0sc06463g",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2021/sc/d0sc06463g",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      43
+    ],
+    "referenceName": "Machine-learned potentials for nextgeneration matter simulations",
+    "doi": "",
+    "matchScore": 0.7715,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      44,
+      218
+    ],
+    "referenceName": "Deep Generative Models for Materials Discovery and Machine Learning-Accelerated Innovation",
+    "doi": "10.3389/fmats.2022.865270",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.frontiersin.org/articles/10.3389/fmats.2022.865270/pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      45
+    ],
+    "referenceName": "Oliver eng This study was supported by Christian Doppler Forschungsgesellschaft",
+    "doi": "",
+    "matchScore": 0.5345,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      46
+    ],
+    "referenceName": "Automatic Chemical Design Using a Data-Driven Continuous Representation of Molecules",
+    "doi": "10.1021/acscentsci.7b00572",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1610.02415",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      47
+    ],
+    "referenceName": "Generative Adversarial Nets",
+    "doi": "10.1007/978-3-658-40442-0_9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "error",
+    "error": "HTTPSConnectionPool(host='api.semanticscholar.org', port=443): Read timed out. (read timeout=30)"
+  },
+  {
+    "ids": [
+      48
+    ],
+    "referenceName": "A review on generative adversarial networks: Algorithms, theory, and applications",
+    "doi": "10.1109/TKDE.2021.3130191",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2001.06937",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      49
+    ],
+    "referenceName": "Towards a greener electrosynthesis: pairing machine learning and 3d printing for rapid optimisation of anodic trifluoromethylation",
+    "doi": "10.26434/chemrxiv-2023-gqts9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/652008858bab5d2055c47ef4/original/towards-a-greener-electrosynthesis-pairing-machine-learning-and-3d-printing-for-rapid-optimisation-of-anodic-trifluoromethylation.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      50
+    ],
+    "referenceName": "Multimodal transformer for property prediction in polymers",
+    "doi": "10.1021/acsami.4c01207",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      51,
+      301
+    ],
+    "referenceName": "Data mined ionic substitutions for the discovery of new compounds",
+    "doi": "10.1021/ic102031h",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      52
+    ],
+    "referenceName": "Long Short-Term Memory",
+    "doi": "10.1162/neco.1997.9.8.1735",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      53
+    ],
+    "referenceName": "SMILES Transformer: Pre-trained Molecular Fingerprint for Low Data Drug Discovery",
+    "doi": "",
+    "matchScore": 0.4564,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      54
+    ],
+    "referenceName": "Unified multimodal multidomain polymer representation for property prediction",
+    "doi": "10.21203/rs.3.rs-5795287/v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.researchsquare.com/article/rs-5795287/latest.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      55
+    ],
+    "referenceName": "High-throughput screening of amorphous polymers with high intrinsic thermal conductivity via automated physical feature engineering",
+    "doi": "10.1039/d3ta03370h",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      56
+    ],
+    "referenceName": "Heterogeneous catalyst design by generative adversarial network and first-principles based microkinetics",
+    "doi": "10.1038/s41598-022-15586-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41598-022-15586-9.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      57,
+      58
+    ],
+    "referenceName": "Commentary: The materials project: A materials genome approach to accelerating materials innovation",
+    "doi": "10.1063/1.4812323",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/1511347",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      59
+    ],
+    "referenceName": "GFlowNets for AI-driven scientific discovery",
+    "doi": "10.1039/d3dd00002h",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2023/dd/d3dd00002h",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      60
+    ],
+    "referenceName": "Transfer learning guided discovery of efficient perovskite oxide for alkaline water oxidation",
+    "doi": "10.1038/s41467-024-50605-5",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-024-50605-5.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      61,
+      165
+    ],
+    "referenceName": "Crystal Structure Prediction by Joint Equivariant Diffusion",
+    "doi": "10.52202/075280-0767",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2309.04475",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      62
+    ],
+    "referenceName": "Interpretable Machine Learning Enabled Inorganic Reaction Classification and Synthesis Condition Prediction",
+    "doi": "10.1021/acs.chemmater.2c03010",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      63
+    ],
+    "referenceName": "Deep reinforcement learning for inverse inorganic materials design",
+    "doi": "10.1038/s41524-024-01474-5",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01474-5.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      64
+    ],
+    "referenceName": "Kazeev, N., Nong, W., Romanov, I., Zhu, R., Ustyuzhanin, A., Yamazaki, S., and Hippalgaonkar, K. (2025). Wyckoff Transformer: Generation of Symmetric Crystals.",
+    "doi": "",
+    "matchScore": 0.2611,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      65
+    ],
+    "referenceName": "WyckoffDiff -A Generative Diffusion Model for Crystal Symmetry",
+    "doi": "10.48550/arXiv.2502.06485",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2502.06485",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      66
+    ],
+    "referenceName": "CrysLDM: Latent Diffusion Model for Crystal Material Generation",
+    "doi": "",
+    "matchScore": 0.6682,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      67
+    ],
+    "referenceName": "Pubchem 2025 update",
+    "doi": "10.1093/nar/gkae1059",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1093/nar/gkae1059",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      68
+    ],
+    "referenceName": "Auto-Encoding Variational Bayes",
+    "doi": "10.61603/ceas.v2i1.33",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://ceasjournal.com/index.php/CEAS/article/download/33/31",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      69
+    ],
+    "referenceName": "Vector Field Oriented Diffusion Model for Crystal Material Generation",
+    "doi": "10.1609/aaai.v38i20.30224",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://ojs.aaai.org/index.php/AAAI/article/download/30224/32176",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      70
+    ],
+    "referenceName": "Normalizing Flows: An Introduction and Review of Current Methods",
+    "doi": "10.1109/tpami.2020.2992934",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1908.09257",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      71
+    ],
+    "referenceName": "Self-referencing embedded strings (SELFIES): A 100% robust molecular string representation",
+    "doi": "10.1088/2632-2153/aba947",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1905.13741",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      72
+    ],
+    "referenceName": "Conditional Wasserstein generative adversarial networks applied to acoustic metamaterial design",
+    "doi": "10.1121/10.0008929",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      73
+    ],
+    "referenceName": "SymmCD: Symmetry-Preserving Crystal Generation with Diffusion Models",
+    "doi": "10.48550/arXiv.2502.03638",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2502.03638",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      74
+    ],
+    "referenceName": "Machine learning-assisted optimization of multi-metal hydroxide electrocatalysts for overall water splitting",
+    "doi": "10.1039/d3mh00788j",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2023/mh/d3mh00788j",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      75
+    ],
+    "referenceName": "On modeling and utilizing chemical compound information with deep learning technologies: A task-oriented approach",
+    "doi": "10.1016/j.csbj.2022.07.049",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.csbj.2022.07.049",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      76
+    ],
+    "referenceName": "Accelerated discovery of stable lead-free hybrid organic-inorganic perovskites via machine learning",
+    "doi": "10.1038/s41467-018-05761-w",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-018-05761-w.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      77
+    ],
+    "referenceName": "CrystalFlow: A Flow-Based Generative Model for Crystalline Materials",
+    "doi": "10.1038/s41467-025-64364-4",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-025-64364-4.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      78
+    ],
+    "referenceName": "Flexible automation accelerates materials discovery",
+    "doi": "10.1038/s41563-021-01156-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      79
+    ],
+    "referenceName": "A self-driving laboratory advances the Pareto front for material properties",
+    "doi": "10.1038/s41467-022-28580-6",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-022-28580-6.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      80
+    ],
+    "referenceName": "Albertus Denny eng C231218004/A*STAR Horizontal Technology Coordinating Office/ HQ/R25-ARAP210202/A*STAR Research",
+    "doi": "",
+    "matchScore": 0.5547,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      81,
+      304
+    ],
+    "referenceName": "Scaling deep learning for materials discovery",
+    "doi": "10.1038/s41586-023-06735-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41586-023-06735-9.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      82
+    ],
+    "referenceName": "FlowMM: Generating Materials with Riemannian Flow Matching",
+    "doi": "10.48550/arXiv.2406.04713",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2406.04713",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      83
+    ],
+    "referenceName": "CrysText: A Generative AI Approach for Text-Conditioned Crystal Structure Generation using LLM",
+    "doi": "10.26434/chemrxiv-2024-gjhpq",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/6753874c7be152b1d02eecb5/original/crys-text-a-generative-ai-approach-for-text-conditioned-crystal-structure-generation-using-llm.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      84
+    ],
+    "referenceName": "Force Fields for Classical Molecular Dynamics",
+    "doi": "10.1007/978-1-62703-017-5_8",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      85
+    ],
+    "referenceName": "The ethics of ai in the lab",
+    "doi": "10.1021/cen-10131-cover",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.acs.org/doi/pdf/10.1021/cen-10131-cover",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      86
+    ],
+    "referenceName": "Physics-Inspired Structural Representations for Molecules and Materials",
+    "doi": "10.1021/acs.chemrev.1c00021",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2101.04673",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      87,
+      244
+    ],
+    "referenceName": "Inverse Design of Solid-State Materials via a Continuous Representation",
+    "doi": "10.1016/j.matt.2019.08.017",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.cell.com/matter/pdf/S2590-2385(19)30175-4.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      88
+    ],
+    "referenceName": "CrySPR: A Python interface for implementation of crystal structure pre-relaxation and prediction using machine-learning interatomic potentials",
+    "doi": "10.26434/chemrxiv-2024-r4wnq",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/66b308a501103d79c5fd9b91/original/cry-spr-a-python-interface-for-implementation-of-crystal-structure-pre-relaxation-and-prediction-using-machine-learning-interatomic-potentials.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      89
+    ],
+    "referenceName": "CrystalGAN: Learning to Discover Crystallographic Structures with Generative Adversarial Networks",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1810.11203",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      90
+    ],
+    "referenceName": "Pyuul provides an interface between biological structures and deep learning algorithms",
+    "doi": "10.1038/s41467-022-28327-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-022-28327-3.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      91
+    ],
+    "referenceName": "A binded vae for inorganic material generation",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2112.09570",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      92
+    ],
+    "referenceName": "A Chemically-Guided Generative Diffusion Model for Materials Synthesis Planning",
+    "doi": "",
+    "matchScore": 0.6682,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      93
+    ],
+    "referenceName": "Normalizing Flows for Probabilistic Modeling and Inference",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1912.02762",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      94
+    ],
+    "referenceName": "Inverse design of porous materials: A diffusion model approach",
+    "doi": "10.26434/chemrxiv-2023-bkt80",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/64b62833ae3d1a7b0de69d62/original/inverse-design-of-porous-materials-a-diffusion-model-approach.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      95,
+      348
+    ],
+    "referenceName": "Ab initio random structure searching",
+    "doi": "10.1088/0953-8984/23/5/053201",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1101.3987",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      96
+    ],
+    "referenceName": "Accelerated discovery of metallic glasses through iteration of machine learning and high-throughput experiments",
+    "doi": "10.1126/sciadv.aaq1566",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/1421387",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      97
+    ],
+    "referenceName": "Standards for Materials Databases -National and International Programmes -Do They Provide for Data Users Needs?",
+    "doi": "10.1520/stp23770s",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      98
+    ],
+    "referenceName": "Accurate machine learning force fields via experimental and simulation data fusion",
+    "doi": "10.21203/rs.3.rs-3272534/v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.researchsquare.com/article/rs-3272534/latest.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      99
+    ],
+    "referenceName": "The perceptron: A probabilistic model for information storage and organization in the brain",
+    "doi": "10.1037/h0042519",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      100
+    ],
+    "referenceName": "Traditional or adaptive design of experiments? a pilot-scale comparison on wood delignification",
+    "doi": "10.1016/j.heliyon.2024.e24484",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10826314/pdf/main.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      101
+    ],
+    "referenceName": "An introduction to deep generative modeling",
+    "doi": "10.1002/gamm.202100008",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2103.05180",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      102,
+      227,
+      275
+    ],
+    "referenceName": "Materials design and discovery with high-throughput density functional theory: The open quantum materials database (oqmd)",
+    "doi": "10.1007/s11837-013-0755-4",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      103
+    ],
+    "referenceName": "Inverse molecular design using machine learning: Generative models for matter engineering",
+    "doi": "10.1126/science.aat2663",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      104
+    ],
+    "referenceName": "Computer-based de novo design of drug-like molecules",
+    "doi": "10.1038/nrd1799",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      105
+    ],
+    "referenceName": "From molecular diversity to catalysis: Lessons from the immune system",
+    "doi": "10.1126/science.7569920",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      106
+    ],
+    "referenceName": "Combinatorial approaches to materials science",
+    "doi": "10.1016/s1359-0286(98)80081-8",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      107
+    ],
+    "referenceName": "SchNet: A continuous-filter convolutional neural network for modeling quantum interactions",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1706.08566",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      108
+    ],
+    "referenceName": "Generating Focused Molecule Libraries for Drug Discovery with Recurrent Neural Networks",
+    "doi": "10.1021/acscentsci.7b00512",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1021/acscentsci.7b00512",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      109
+    ],
+    "referenceName": "GraphVAE: Towards Generation of Small Graphs Using Variational Autoencoders",
+    "doi": "10.1007/978-3-030-01418-6_41",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1802.03480",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      110
+    ],
+    "referenceName": "Deep Unsupervised Learning using Nonequilibrium Thermodynamics",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1503.03585",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      111
+    ],
+    "referenceName": "Learning Structured Output Representation using Deep Conditional Generative Models",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      112
+    ],
+    "referenceName": "FlowLLM: Flow Matching for Material Generation with Large Language Models as Base Distributions",
+    "doi": "10.52202/079017-1464",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2410.23405",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      113
+    ],
+    "referenceName": "A Deep Learning Approach to Antibiotic Discovery",
+    "doi": "10.1016/j.cell.2020.04.001",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://www.cell.com/article/S0092867420301021/pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      114
+    ],
+    "referenceName": "High-throughput screening to identify two-dimensional layered phase-change chalcogenides for embedded memory applications",
+    "doi": "10.1038/s41524-024-01387-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01387-3.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      115
+    ],
+    "referenceName": "A principled ai discussion in asilomar",
+    "doi": "",
+    "matchScore": 0.5164,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      116
+    ],
+    "referenceName": "Autonomous design of new chemical reactions using a variational autoencoder",
+    "doi": "10.1038/s42004-022-00647-x",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s42004-022-00647-x.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      117
+    ],
+    "referenceName": "Somatic generation of antibody diversity",
+    "doi": "10.1016/b978-012274020-6/50014-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      118
+    ],
+    "referenceName": "Unsupervised physics-informed disentanglement of multimodal materials data",
+    "doi": "10.1016/j.mattod.2024.09.005",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.mattod.2024.09.005",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      119
+    ],
+    "referenceName": "Machine learning force fields",
+    "doi": "10.1021/acs.chemrev.0c01111",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2010.07067",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      120
+    ],
+    "referenceName": "Materials science in the artificial intelligence age: High-throughput library generation, machine learning, and a pathway from correlations to the underpinning physics",
+    "doi": "10.1557/mrc.2019.95",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      121
+    ],
+    "referenceName": "Attention is All you Need",
+    "doi": "10.1007/978-3-031-84300-6_13",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1706.03762",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      122
+    ],
+    "referenceName": "Element selection for crystalline inorganic solid discovery guided by unsupervised machine learning of experimentally explored chemistry",
+    "doi": "10.1038/s41467-021-25343-7",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-021-25343-7.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      123
+    ],
+    "referenceName": "Using conditional normalizing flows to generate material placements in an optimized thermal composite",
+    "doi": "10.1016/j.ijheatmasstransfer.2024.125287",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      124
+    ],
+    "referenceName": "A secured big-data sharing platform for materials genome engineering: State-of-the-art, challenges and architecture",
+    "doi": "10.1016/j.future.2022.12.026",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      125
+    ],
+    "referenceName": "Motif-based graph representation learning with application to chemical molecules",
+    "doi": "10.20944/preprints202212.0062.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.preprints.org/manuscript/202212.0062/v1/download",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      126
+    ],
+    "referenceName": "SMILES, a chemical language and information system. 1. Introduction to methodology and encoding rules",
+    "doi": "10.1021/ci00057a005",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      127
+    ],
+    "referenceName": "A smile is all you need: Predicting limiting activity coefficients from SMILES with natural language processing",
+    "doi": "10.1039/d2dd00058j",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2022/dd/d2dd00058j",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      128
+    ],
+    "referenceName": "Crystal Diffusion Variational Autoencoder for Periodic Material Generation",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2110.06197",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      129,
+      147
+    ],
+    "referenceName": "Crystal Graph Convolutional Neural Networks for an Accurate and Interpretable Prediction of Material Properties",
+    "doi": "10.1103/physrevlett.120.145301",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1710.10324",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      130
+    ],
+    "referenceName": "Diffusion Models: A Comprehensive Survey of Methods and Applications",
+    "doi": "10.1145/3626235",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2209.00796",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      131
+    ],
+    "referenceName": "Physics-informed deep generative models",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1812.03511",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      132
+    ],
+    "referenceName": "Global Inverse Design across Multiple Photonic Structure Classes Using Generative Deep Learning",
+    "doi": "10.1002/adom.202100548",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2012.15790",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      133
+    ],
+    "referenceName": "Dismai-Bench: Benchmarking and designing generative models using disordered materials and interfaces",
+    "doi": "10.1039/d4dd00100a",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2404.06734",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      134
+    ],
+    "referenceName": "Recent developments in the inorganic crystal structure database: theoretical crystal structure data and related features",
+    "doi": "10.1107/s160057671900997x",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://journals.iucr.org/j/issues/2019/05/00/in5024/in5024.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      135
+    ],
+    "referenceName": "J Appl Crystallogr",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      136
+    ],
+    "referenceName": "High-throughput printing of combinatorial materials from aerosols",
+    "doi": "10.1038/s41586-023-05898-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41586-023-05898-9.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      137
+    ],
+    "referenceName": "MatterGen: A generative model for inorganic materials design",
+    "doi": "10.48550/arXiv.2312.03687",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2312.03687",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      138,
+      146
+    ],
+    "referenceName": "A generative model for inorganic materials design",
+    "doi": "10.1038/s41586-025-08628-5",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://www.nature.com/articles/s41586-025-08628-5_reference.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      139
+    ],
+    "referenceName": "Machine learning assisted composition effective design for precipitation strengthened copper alloys",
+    "doi": "10.2139/ssrn.3826667",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.2139/ssrn.3826667",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      140
+    ],
+    "referenceName": "Machine learning for metal additive manufacturing: Predicting temperature and melt pool fluid dynamics using physics-informed neural networks",
+    "doi": "10.1007/s00466-020-01952-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2008.13547",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      141
+    ],
+    "referenceName": "WyCryst: Wyckoff inorganic crystal generator framework",
+    "doi": "10.2139/ssrn.4658842",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.2139/ssrn.4658842",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      142
+    ],
+    "referenceName": "Accelerating materials discovery with Bayesian optimization and graph deep learning",
+    "doi": "10.1016/j.mattod.2021.08.012",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      143
+    ],
+    "referenceName": "Deep Learning for Materials Science",
+    "doi": "",
+    "matchScore": 0.866,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      145
+    ],
+    "referenceName": "A general-purpose machine learning framework for predicting properties of inorganic materials",
+    "doi": "10.1038/npjcompumats.2016.28",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://www.nature.com/articles/npjcompumats201628.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      148
+    ],
+    "referenceName": "A Data-Driven Workflow for Modelling Self-Shaping Wood Bilayer Utilizing Natural Material Variations with Machine Vision and Machine Learning",
+    "doi": "10.52842/conf.caadria.2022.1.393",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://papers.cumincad.org/data/works/att/caadria2022_277.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      149
+    ],
+    "referenceName": "Machine Learning for Materials Discovery",
+    "doi": "",
+    "matchScore": 0.8944,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      150
+    ],
+    "referenceName": "DPA-2: a large atomic model as a multi-task learner",
+    "doi": "10.1038/s41524-024-01493-2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01493-2.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      151
+    ],
+    "referenceName": "Multi-layer feature selection incorporating weighted score-based expert knowledge toward modeling materials with targeted properties",
+    "doi": "10.1002/adts.201900215",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/adts.201900215",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      152
+    ],
+    "referenceName": "The Effect of Machine Learning Algorithms on the Prediction of Layer-by-Layer Coating Properties",
+    "doi": "10.1021/acsomega.2c06471.s002",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://figshare.com/articles/dataset/The_Effect_of_Machine_Learning_Algorithms_on_the_Prediction_of_Layer-by-Layer_Coating_Properties/21975027",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      153
+    ],
+    "referenceName": "Prediction of Material Properties Using Machine Learning: Progress and Challenges",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      154
+    ],
+    "referenceName": "Property-Oriented Material Design Based on a Data-Driven Machine Learning Technique",
+    "doi": "10.1021/acs.jpclett.0c00665",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      155
+    ],
+    "referenceName": "Feature selection method reducing correlations among features by embedding domain knowledge",
+    "doi": "10.1016/j.actamat.2022.118195",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      156
+    ],
+    "referenceName": "Deep Potentials for Materials Science",
+    "doi": "10.1088/2752-5724/ac681d",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2203.00393",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      157
+    ],
+    "referenceName": "Machine learning for material characterization with an application for predicting mechanical properties",
+    "doi": "10.1002/gamm.202100003",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2010.06010",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      158
+    ],
+    "referenceName": "Design of efficient molecular organic light-emitting diodes by a high-throughput virtual screening and experimental approach",
+    "doi": "10.1038/nmat4717",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      159
+    ],
+    "referenceName": "Data Science and Material Informatics in Physical Metallurgy and Material Science: An Overview of Milestones and Limitations. Results Mater",
+    "doi": "10.1016/j.rinma.2023.100455",
+    "matchScore": 0.9393,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.rinma.2023.100455",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      160
+    ],
+    "referenceName": "Auto-MatRegressor: liberating machine learning alchemists",
+    "doi": "10.1016/j.scib.2023.05.017",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      161
+    ],
+    "referenceName": "Data-Driven Discovery of New Materials",
+    "doi": "",
+    "matchScore": 0.8,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      162
+    ],
+    "referenceName": "Machine Learning in Materials Design: Algorithm and Application. Chin. Phys",
+    "doi": "",
+    "matchScore": 0.866,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      163
+    ],
+    "referenceName": "Generative artificial intelligence and its applications in materials science: Current situation and future perspectives",
+    "doi": "10.1016/j.jmat.2023.05.001",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.jmat.2023.05.001",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      164
+    ],
+    "referenceName": "Data-Driven Design of Inorganic Materials with the Automatic Flow Framework for Materials Discovery",
+    "doi": "10.1557/mrs.2018.207",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      166
+    ],
+    "referenceName": "Data-Driven Materials Design and Discovery: A Review",
+    "doi": "",
+    "matchScore": 0.7303,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      167
+    ],
+    "referenceName": "A Review on Improving PSC Performance through Charge Carrier Management: Where We Stand and What's Next?",
+    "doi": "",
+    "matchScore": 0.5774,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      168
+    ],
+    "referenceName": "Machine Learning Methods for Predicting Material Properties",
+    "doi": "",
+    "matchScore": 0.7217,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      169
+    ],
+    "referenceName": "Machine Learning Applications in Material Design: Review and Outlook",
+    "doi": "",
+    "matchScore": 0.6299,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      170,
+      303,
+      378
+    ],
+    "referenceName": "Machine-Learning-Assisted Materials Discovery Using Failed Experiments",
+    "doi": "10.1038/nature17439",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      171
+    ],
+    "referenceName": "Application of Machine Learning in Materials Science",
+    "doi": "",
+    "matchScore": 0.8944,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      172
+    ],
+    "referenceName": "Machine Learning in Materials Science: Recent Progress and Emerging Applications. Rev. Comput. Chem",
+    "doi": "",
+    "matchScore": 0.6396,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      173
+    ],
+    "referenceName": "From Mechanism-Based to Data-Driven Approaches in Materials Science",
+    "doi": "10.1186/s41313-021-00027-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://materialstheory.springeropen.com/track/pdf/10.1186/s41313-021-00027-3",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      174,
+      455
+    ],
+    "referenceName": "A high-quality dataset construction method for text mining in materials science",
+    "doi": "10.7498/aps.72.20222316",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://wulixb.iphy.ac.cn/pdf-content/10.7498/aps.72.20222316.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      175
+    ],
+    "referenceName": "Materials Informatics: A New Frontier in Materials Science",
+    "doi": "",
+    "matchScore": 0.7826,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      176
+    ],
+    "referenceName": "Machine Learning and Artificial Neural Network Accelerated Computational Discoveries in Materials Science",
+    "doi": "10.1002/wcms.1450",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://orca.cardiff.ac.uk/129553/1/WIRES-BH.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      177
+    ],
+    "referenceName": "Machine Learning and the Physical Sciences",
+    "doi": "10.1103/RevModPhys.91.045002",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1903.10563",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      178
+    ],
+    "referenceName": "Artificial Intelligence in Materials Science",
+    "doi": "10.31695/IJASRE.2021.34057",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://ijasre.net/index.php/ijasre/article/download/1319/1813/2545",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      179
+    ],
+    "referenceName": "Complete and efficient graph transformers for crystal material property prediction",
+    "doi": "10.48550/arXiv.2403.11857",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/2403.11857",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      180
+    ],
+    "referenceName": "Accurate, interpretable predictions of materials properties within transformer language models",
+    "doi": "10.1016/j.patter.2023.100803",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10591138/pdf/main.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      181
+    ],
+    "referenceName": "The threedimensional rotation neural network",
+    "doi": "",
+    "matchScore": 0.6708,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      182
+    ],
+    "referenceName": "Adaptive Computation and Machine Learning",
+    "doi": "10.7551/mitpress/8291.003.0026",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      183
+    ],
+    "referenceName": "Predicting the Young's modulus of silicate glasses using high-throughput molecular dynamics simulations and machine learning",
+    "doi": "10.1038/s41598-019-45344-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41598-019-45344-3.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      184
+    ],
+    "referenceName": "Representation of Structures for Accurate Machine-Learning Prediction of Atomic-Level Properties",
+    "doi": "",
+    "matchScore": 0.6299,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      185,
+      251
+    ],
+    "referenceName": "Machine Learning Unifies the Modelling of Materials and Molecules. Sci. Adv",
+    "doi": "",
+    "matchScore": 0.7217,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      186
+    ],
+    "referenceName": "Accelerating Materials Property Predictions Using Machine Learning",
+    "doi": "10.1038/srep02810",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/srep02810.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      187,
+      253
+    ],
+    "referenceName": "Graph Networks for Materials Discovery",
+    "doi": "",
+    "matchScore": 0.7217,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      188,
+      248
+    ],
+    "referenceName": "Including Crystal Structure Attributes in Machine Learning Models of Formation Energies via Voronoi Tessellations",
+    "doi": "10.1103/physrevb.96.024104",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://link.aps.org/accepted/10.1103/PhysRevB.96.024104",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      189,
+      249
+    ],
+    "referenceName": "ElemNet: Deep Learning the Chemistry of Materials from Only Elemental Composition",
+    "doi": "10.1038/s41598-018-35934-y",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41598-018-35934-y.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      190
+    ],
+    "referenceName": "An autonomous laboratory for the accelerated synthesis of novel materials",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      191,
+      388
+    ],
+    "referenceName": "Accelerated search for materials with targeted properties by adaptive design",
+    "doi": "10.1038/ncomms11241",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/ncomms11241.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      192
+    ],
+    "referenceName": "Materials Informatics Reveals Thermodynamic Structure-Property Relationships in Polymers",
+    "doi": "",
+    "matchScore": 0.6396,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      193
+    ],
+    "referenceName": "Data-Driven Materials Science: Status, Challenges, and Perspectives",
+    "doi": "10.1002/advs.201903667",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://publications.tno.nl/publication/34634820/qDG58b/himanen-2019-data.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      194
+    ],
+    "referenceName": "Charting the Complete Elastic Properties of Inorganic Crystalline Compounds",
+    "doi": "10.1038/sdata.2015.9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/sdata20159.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      195,
+      238,
+      283
+    ],
+    "referenceName": "Recent Advances and Applications of Machine Learning in Solid-State Materials Science. npj Comput. Mater",
+    "doi": "",
+    "matchScore": 0.866,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      196
+    ],
+    "referenceName": "What is High-Throughput Virtual Screening? A Perspective from Organic Materials Discovery",
+    "doi": "10.1146/annurev-matsci-070214-020823",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.annualreviews.org/doi/pdf/10.1146/annurev-matsci-070214-020823",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      197
+    ],
+    "referenceName": "An Open Source Toolkit for Data Mining in Materials Science",
+    "doi": "",
+    "matchScore": 0.8571,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      198
+    ],
+    "referenceName": "How Machine Learning is Changing Materials Science",
+    "doi": "",
+    "matchScore": 0.8333,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      199
+    ],
+    "referenceName": "Machine Learning for Alloy Design and Discovery. Sci. Adv",
+    "doi": "",
+    "matchScore": 0.6761,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      200
+    ],
+    "referenceName": "Machine Learning for Metallic Glasses Classification. Sci. Rep",
+    "doi": "",
+    "matchScore": 0.5345,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      201,
+      226
+    ],
+    "referenceName": "Machine Learning for Crystal Structure Prediction",
+    "doi": "",
+    "matchScore": 0.7906,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      202
+    ],
+    "referenceName": "Insightful Classification of Crystal Structures Using Deep Learning",
+    "doi": "10.1038/s41467-018-05169-6",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-018-05169-6.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      203
+    ],
+    "referenceName": "Prediction of Thermoelectric Properties by Machine Learning",
+    "doi": "",
+    "matchScore": 0.7454,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      205
+    ],
+    "referenceName": "Fast and Interpretable Classification of Small X-ray Diffraction Datasets Using Data Augmentation and Deep Neural Networks",
+    "doi": "10.1038/s41524-019-0196-x",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-019-0196-x.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      206,
+      213
+    ],
+    "referenceName": "Deep Learning for Raman Spectroscopy: A Review",
+    "doi": "10.3390/analytica3030020",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.mdpi.com/2673-4532/3/3/20/pdf?version=1658223246",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      207,
+      214
+    ],
+    "referenceName": "Recurrent Neural Networks for Time Series Prediction of Material Degradation. npj Comput. Mater",
+    "doi": "",
+    "matchScore": 0.7385,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      208
+    ],
+    "referenceName": "Data-Driven Discovery of Materials for Energy Applications",
+    "doi": "",
+    "matchScore": 0.7303,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      209
+    ],
+    "referenceName": "A Statistical Learning Framework for Materials Science: Application to Elastic Moduli of k-nary Inorganic Polycrystalline Compounds",
+    "doi": "10.1038/srep34256",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/srep34256.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      210,
+      217
+    ],
+    "referenceName": "UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://arxiv.org/pdf/1802.03426",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      211,
+      395
+    ],
+    "referenceName": "Quantum Chemistry Structures and Properties of 134 Kilo Molecules",
+    "doi": "10.1038/sdata.2014.22",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/sdata201422.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      212
+    ],
+    "referenceName": "First Principles Analysis of Crystal Structure, Electronic and Optical Properties of CsSnI3-xBrx Perovskite for Photoelectric Applications",
+    "doi": "10.1134/s1027451021030149",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      215
+    ],
+    "referenceName": "Latent Representation Learning for Structural Characterization of Catalysts",
+    "doi": "10.1021/acs.jpclett.0c03792",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/1781506",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      216
+    ],
+    "referenceName": "Molecular and dissociative adsorption of H2O on ZrO2/YSZ surfaces",
+    "doi": "10.35940/ijisme.d7927.10111023",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.35940/ijisme.d7927.10111023",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      219
+    ],
+    "referenceName": "Machine Learning for Materials Science: Recent Progress and Emerging Applications",
+    "doi": "",
+    "matchScore": 0.75,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      220
+    ],
+    "referenceName": "Machine Learning for Materials Discovery: Two-Dimensional Topological Insulators",
+    "doi": "10.1063/5.0055035",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2107.07028",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      221
+    ],
+    "referenceName": "The Materials Project: A Materials Genome Approach to Accelerating Materials Innovation. APL Mater",
+    "doi": "10.1063/1.4812323",
+    "matchScore": 0.9037,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/1511347",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      222
+    ],
+    "referenceName": "Machine Learning for Crystal Structure Identification and Design",
+    "doi": "",
+    "matchScore": 0.5893,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      223
+    ],
+    "referenceName": "Active Learning in Materials Science with Emphasis on Adaptive Sampling Using Uncertainties for Targeted Design. npj Comput. Mater",
+    "doi": "",
+    "matchScore": 0.8864,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      224
+    ],
+    "referenceName": "Machine Learning in Materials Informatics: Recent Applications and Prospects. npj Comput. Mater",
+    "doi": "",
+    "matchScore": 0.8367,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      225
+    ],
+    "referenceName": "Machine Learning for Predicting Material Properties. Mater. Today",
+    "doi": "",
+    "matchScore": 0.6682,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      228
+    ],
+    "referenceName": "Big Data in Materials Science: Perspectives and Challenges",
+    "doi": "",
+    "matchScore": 0.7715,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      229
+    ],
+    "referenceName": "Predicting Properties of Materials Using a Data-Driven Approach",
+    "doi": "",
+    "matchScore": 0.6547,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      231
+    ],
+    "referenceName": "Machine Learning Force Fields: Construction, Validation, and Outlook",
+    "doi": "10.1021/acs.jpcc.6b10908.s001",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://figshare.com/articles/dataset/Machine_Learning_Force_Fields_Construction_Validation_and_Outlook/4633216",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      232
+    ],
+    "referenceName": "Development of Machine Learning Models for Predicting Material Properties",
+    "doi": "",
+    "matchScore": 0.7143,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      233
+    ],
+    "referenceName": "Machine Learning for Materials Scientists: An Introductory Guide",
+    "doi": "",
+    "matchScore": 0.8165,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      234
+    ],
+    "referenceName": "Machine Learning and Materials Informatics Approaches for Evaluating the Interfacial Properties of Fiber-Reinforced Composites",
+    "doi": "10.1016/j.compstruct.2021.114328",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      235
+    ],
+    "referenceName": "Machine Learning for Materials Design and Discovery",
+    "doi": "10.1063/5.0043300",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://aip.scitation.org/doi/pdf/10.1063/5.0043300",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      236
+    ],
+    "referenceName": "Periodic graph transformers for crystal material property prediction",
+    "doi": "10.52202/068431-1096",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://arxiv.org/pdf/2209.11807",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      237
+    ],
+    "referenceName": "A detailed comparative analysis of the structural stability and electron-phonon properties of ZrO2: Mechanisms of water adsorption on t-ZrO2 (101) and t-YSZ (101) surfaces",
+    "doi": "10.3390/nano13192657",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10574635/pdf/nanomaterials-13-02657.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      239
+    ],
+    "referenceName": "E (3)-equivariant graph neural networks for data-efficient and accurate interatomic potentials",
+    "doi": "10.21203/rs.3.rs-244137/v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.researchsquare.com/article/rs-244137/v1.pdf?c=1631870895000",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      240
+    ],
+    "referenceName": "Inverse Design for Materials Discovery from the Multidimensional Electronic Density of States",
+    "doi": "10.1039/d3ta06491c",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2024/ta/d3ta06491c",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      241
+    ],
+    "referenceName": "Machine Learning Accurate Exchange and Correlation Functionals of the Electronic Density",
+    "doi": "10.26434/chemrxiv.9947312.v3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.26434/chemrxiv.9947312.v3",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      242
+    ],
+    "referenceName": "Learning the Exchange-Correlation Functional from Nature with Fully Differentiable Density Functional Theory",
+    "doi": "10.1103/physrevlett.127.126403",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2102.04229",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      243
+    ],
+    "referenceName": "Generative Adversarial Networks for Crystal Structure Prediction",
+    "doi": "10.1021/acscentsci.0c00426",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      245
+    ],
+    "referenceName": "DeePMD-kit: A Deep Learning Package for Many-Body Potential Energy Representation and Molecular Dynamics",
+    "doi": "10.1016/j.cpc.2018.03.016",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1712.03641",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      246
+    ],
+    "referenceName": "Accelerating High-Throughput Searches for New Alloys with Active Learning of Interatomic Potentials",
+    "doi": "10.1016/j.commatsci.2018.09.031",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1806.10567",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      247
+    ],
+    "referenceName": "Physics Informed Machine Learning",
+    "doi": "10.1038/s42254-021-00314-5",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/2282016",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      250
+    ],
+    "referenceName": "An automatic descriptors recognizer customized for materials science literature",
+    "doi": "10.1016/j.jpowsour.2022.231946",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      252
+    ],
+    "referenceName": "AI-Driven Autonomous Platforms for Nanomaterial Discovery and Optimization: Bridging Simulation, Synthesis, and In Situ Characterization",
+    "doi": "10.2139/ssrn.5393137",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.2139/ssrn.5393137",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      254
+    ],
+    "referenceName": "Predicting Thermodynamic Stability of Inorganic Compounds Using Ensemble Machine Learning Based on Electron Configuration",
+    "doi": "10.1038/s41467-024-55525-y",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-024-55525-y.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      255
+    ],
+    "referenceName": "Domain knowledge discovery from abstracts of scientific literature on Nickel-based single crystal superalloys",
+    "doi": "10.1007/s11431-022-2283-7",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      256
+    ],
+    "referenceName": "Machine Learning for Advanced Energy Materials. Energy AI 2021",
+    "doi": "10.1016/j.egyai.2021.100049",
+    "matchScore": 0.9487,
+    "source": "crossref",
+    "pdfUrl": "https://www.sciencedirect.com/science/article/pii/S2666546821000033?via%3Dihub",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      257
+    ],
+    "referenceName": "Plasmonic Nanoparticle Simulations and Inverse Design Using Machine Learning",
+    "doi": "10.1039/c9nr03450a",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      258
+    ],
+    "referenceName": "Named Entity Recognition Driven by High-Quality Text Data Accelerates the Knowledge Discovery of Nickel-Based Single Crystal Superalloys",
+    "doi": "",
+    "matchScore": 0.5303,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      259,
+      263
+    ],
+    "referenceName": "Prediction of Energetic Material Properties Using Machine Learning Methods",
+    "doi": "10.1039/9781837677559-00085",
+    "matchScore": 0.9428,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      260
+    ],
+    "referenceName": "Development of Technology for Detecting Stress Corrosion Cracking on Pipelines Using Neural Networks",
+    "doi": "",
+    "matchScore": 0.6325,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      261
+    ],
+    "referenceName": "Machine Learning for Analyzing the Conditions of Formation of Nano-and Micromaterials. Nanostructures: Properties and Applications, Conference Proceedings",
+    "doi": "",
+    "matchScore": 0.4364,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      262
+    ],
+    "referenceName": "Influence of Neutron Irradiation and Post-Irradiation Annealing on the Mechanical Properties and Fracture Toughness of Anticorrosive Cladding Metal of VVER Reactor Vessels. Part 2. Prediction of Mechanical Properties and Fracture Toughness of Cladding Metal",
+    "doi": "",
+    "matchScore": 0.85,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      264
+    ],
+    "referenceName": "Predicting the onset temperature (Tg) of GexSe1-x glass transition: a feature selection based two-stage support vector regression method",
+    "doi": "10.1016/j.scib.2019.06.026",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      265
+    ],
+    "referenceName": "The onset temperature (Tg) of AsxSe1-x glasses transition prediction: A comparison of topological and regression analysis methods",
+    "doi": "10.1016/j.commatsci.2017.09.008",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      266,
+      316
+    ],
+    "referenceName": "Predicting creep rupture life of Ni-based single crystal superalloys using divide-and-conquer approach based machine learning",
+    "doi": "10.1016/j.actamat.2020.05.001",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      267
+    ],
+    "referenceName": "Descriptors Divide-and-Conquer Enables Multifaceted and Interpretable Materials Structure-Activity Relationship Analysis",
+    "doi": "10.1002/adfm.202421621",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      268
+    ],
+    "referenceName": "Pattern Recognition and Machine Learning",
+    "doi": "10.1007/978-0-387-45528-0",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://cds.cern.ch/record/998831/files/9780387310732_TOC.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      269
+    ],
+    "referenceName": "A Survey on Transfer Learning",
+    "doi": "10.1109/tkde.2009.191",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      270
+    ],
+    "referenceName": "Generalized Neural-Network Representation of High-Dimensional Potential-Energy Surfaces",
+    "doi": "10.1103/physrevlett.98.146401",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      271
+    ],
+    "referenceName": "Machine learning assisted materials design and discovery for rechargeable batteries",
+    "doi": "10.1016/j.ensm.2020.06.033",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      272
+    ],
+    "referenceName": "Machine learning embedded with materials domain knowledge",
+    "doi": "",
+    "matchScore": 0.7715,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      273
+    ],
+    "referenceName": "Quantum Machine Learning",
+    "doi": "10.1038/nature23474",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1611.09347",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      274
+    ],
+    "referenceName": "Machine Learning in Scanning Transmission Electron Microscopy",
+    "doi": "10.1038/s43586-022-00107-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://eprints.whiterose.ac.uk/id/eprint/184557/1/STEM_line_edit_clean_1632963225_17_R1_cleaned_with_figs2.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      276
+    ],
+    "referenceName": "Machine Learning for Design of 3D Printed Multifunctional Composites",
+    "doi": "",
+    "matchScore": 0.6667,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      277
+    ],
+    "referenceName": "Generative Adversarial Networks for Predicting Lightweight Alloy Compositions",
+    "doi": "",
+    "matchScore": 0.6172,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      278
+    ],
+    "referenceName": "Designing the Chemical Composition of Steel with Required Hardenability Using Computational Methods. Metals",
+    "doi": "10.20944/preprints202408.0140.v1",
+    "matchScore": 0.9487,
+    "source": "crossref",
+    "pdfUrl": "https://www.preprints.org/frontend/manuscript/0dd11fddde2b8e7f5ae90dd0f68355a1/download_pub",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      279
+    ],
+    "referenceName": "A Hybrid Method for Calculating the Chemical Composition of Steel with the Required Hardness after Cooling from the Austenitizing Temperature",
+    "doi": "10.20944/preprints202312.0109.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.preprints.org/frontend/manuscript/fe9002f8fe7afca7f48e5f80c01e604a/download_pub",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      280
+    ],
+    "referenceName": "Prediction of Hardenability Curves for Non-Boron Steels via Combined Machine Learning Model",
+    "doi": "10.3390/ma15093127",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.mdpi.com/1996-1944/15/9/3127/pdf?version=1650964313",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      281
+    ],
+    "referenceName": "Improving Hardenability Modeling: A Bayesian Optimization Approach Using Regression Neural Networks",
+    "doi": "",
+    "matchScore": 0.8581,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      282
+    ],
+    "referenceName": "Machine-Learning-Assisted Composition Design for High-Yield Strength TWIP Steels",
+    "doi": "",
+    "matchScore": 0.9,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      284
+    ],
+    "referenceName": "Explainable AI for Materials Science: SHAP and LIME Applications",
+    "doi": "",
+    "matchScore": 0.4924,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      285
+    ],
+    "referenceName": "Quantum Computing for Machine Learning in Materials Science",
+    "doi": "",
+    "matchScore": 0.7379,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      286
+    ],
+    "referenceName": "Deep Learning-Assisted Discovery of Stable Perovskite Materials for Solar Cells",
+    "doi": "",
+    "matchScore": 0.6325,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      287
+    ],
+    "referenceName": "Variational Autoencoder for Designing Organic Molecules with Targeted Optoelectronic Properties",
+    "doi": "",
+    "matchScore": 0.5303,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      288
+    ],
+    "referenceName": "Generative Adversarial Networks for Photocatalyst Design",
+    "doi": "",
+    "matchScore": 0.7746,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      289
+    ],
+    "referenceName": "Machine Learning-Driven Discovery of Metal-Organic Frameworks for Gas Storage Applications",
+    "doi": "",
+    "matchScore": 0.7746,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      290
+    ],
+    "referenceName": "Generative AI for Carbon Nitride Photocatalysts: Accelerating the Discovery of Sustainable Materials",
+    "doi": "",
+    "matchScore": 0.6124,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      291
+    ],
+    "referenceName": "Designing Quantum Dots with Enhanced Luminescence through Variational Autoencoders",
+    "doi": "",
+    "matchScore": 0.5893,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      292
+    ],
+    "referenceName": "Predicting High-Performance Battery Materials Using GAN-Based Deep Learning",
+    "doi": "",
+    "matchScore": 0.6,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      293
+    ],
+    "referenceName": "Titanium Dioxide and Photocatalytic CO 2 Reduction: A Detailed Review of the Current Status and Future Prospects",
+    "doi": "10.20944/preprints202501.1197.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.preprints.org/frontend/manuscript/adabe32afaeddc7bb4ab465ac6895c9d/download_pub",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      294
+    ],
+    "referenceName": "Challenges and Opportunities of GANs and VAEs in Materials Discovery",
+    "doi": "",
+    "matchScore": 0.6172,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      295
+    ],
+    "referenceName": "GAN-Assisted Discovery of Non-Platinum Hydrogen Evolution Catalysts",
+    "doi": "",
+    "matchScore": 0.5893,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      296,
+      356
+    ],
+    "referenceName": "Combinatorial Screening for New Materials in Unconstrained Composition Space with Machine Learning",
+    "doi": "10.1103/physrevb.89.094104",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      297
+    ],
+    "referenceName": "Materials Discovery and Design Using Machine Learning",
+    "doi": "10.1016/j.jmat.2017.08.002",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.jmat.2017.08.002",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      298
+    ],
+    "referenceName": "Virtual Screening of Materials Using Neuro-Genetic Approach: Concepts and Implementation",
+    "doi": "10.1016/j.commatsci.2008.03.060",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      299
+    ],
+    "referenceName": "Exploration of Quantitative Structure-Property Relationships (QSPR) for the Design of New Guanidinium Ionic Liquids",
+    "doi": "10.1016/j.tet.2007.12.021",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      300
+    ],
+    "referenceName": "Finding Nature's Missing Ternary Oxide Compounds Using Machine Learning and Density Functional Theory",
+    "doi": "10.1021/cm100795d",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      302,
+      310
+    ],
+    "referenceName": "Discovering Crystals Using Shape Matching and Machine Learning",
+    "doi": "10.1039/c3sm51449h",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      305
+    ],
+    "referenceName": "A New Era for Ab Initio Molecular Crystal Lattice Energy Prediction",
+    "doi": "10.1002/anie.201409823",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      306
+    ],
+    "referenceName": "Crystals from First Principles",
+    "doi": "10.1038/335201a0",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/335201a0.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      307
+    ],
+    "referenceName": "Predicting Crystal Structures with Data Mining of Quantum Calculations",
+    "doi": "10.1103/physrevlett.91.135503",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/cond-mat/0307262",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      308
+    ],
+    "referenceName": "Data-Mining-Driven Quantum Mechanics for the Prediction of Structure",
+    "doi": "10.1557/mrs2006.224",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      309
+    ],
+    "referenceName": "Predicting Crystal Structure by Merging Data Mining with Quantum Mechanics",
+    "doi": "10.1038/nmat1691",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      311
+    ],
+    "referenceName": "Machine Learning Approach for Microstructure Optimization and Materials Design. Sci. Rep",
+    "doi": "",
+    "matchScore": 0.825,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      312
+    ],
+    "referenceName": "High-Throughput Computation of Thermal Conductivity of High-Temperature Solid Phases: The Case of Oxide and Fluoride Perovskites",
+    "doi": "10.1103/physrevx.6.041061",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1606.03279",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      313
+    ],
+    "referenceName": "Interpolation and differentiation of alchemical degrees of freedom in machine learning interatomic potentials",
+    "doi": "10.1038/s41467-025-59543-2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-025-59543-2.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      314,
+      387
+    ],
+    "referenceName": "Holistic Computational Structure Screening of More than 12000 Candidates for Solid Lithium-Ion Conductor Materials",
+    "doi": "10.1039/c6ee02697d",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      315
+    ],
+    "referenceName": "Anthropogenic Biases in Chemical Reaction Data Hinder Exploratory Inorganic Synthesis",
+    "doi": "10.1038/s41586-019-1540-5",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      317
+    ],
+    "referenceName": "Modified Criterions for Phase Prediction in the Multi-Component Laser-Clad Coatings and Investigations into Microstructural Evolution/Wear Resistance of FeCrCoNiAlMox Laser-Clad Coatings",
+    "doi": "10.1016/j.apsusc.2018.08.264",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      318
+    ],
+    "referenceName": "Vanadium Is an Optimal Element for Strengthening in Both FCC and BCC High-Entropy Alloys",
+    "doi": "10.1016/j.actamat.2020.01.062",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pure.rug.nl/ws/files/136414836/1_s2.0_S1359645420300884_main.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      319
+    ],
+    "referenceName": "Multi-scale computation methods: Their applications in lithium-ion battery research and development",
+    "doi": "10.1088/1674-1056/25/1/018212",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      320
+    ],
+    "referenceName": "Computational physics in lithium batteries",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      321
+    ],
+    "referenceName": "Phase Prediction in High Entropy Alloys with a Rational Selection of Materials Descriptors and Machine Learning Models",
+    "doi": "10.1016/j.actamat.2019.11.067",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      322
+    ],
+    "referenceName": "Using Machine Learning and Feature Engineering to Characterize Limited Material Datasets of High-Entropy Alloys",
+    "doi": "10.1016/j.commatsci.2020.109618",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      323
+    ],
+    "referenceName": "Property Prediction and Properties-to-Microstructure Inverse Analysis of Steels by a Machine-Learning Approach",
+    "doi": "10.1016/j.msea.2018.12.049",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://nagoya.repo.nii.ac.jp/record/27953/files/paper.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      324
+    ],
+    "referenceName": "Study on Time-Temperature-Transformation Diagrams of Stainless Steel Using Machine-Learning Approach",
+    "doi": "10.1016/j.commatsci.2019.109282",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      325
+    ],
+    "referenceName": "Tensile Property Prediction by Feature Engineering Guided Machine Learning in Reduced Activation Ferritic/Martensitic Steels",
+    "doi": "10.1016/j.jnucmat.2019.151823",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      326
+    ],
+    "referenceName": "Fundamental Study on the Wetting Property of Liquid Lithium",
+    "doi": "10.1016/j.ensm.2018.05.021",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/biblio/1599247",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      327
+    ],
+    "referenceName": "MOFs-Derived Nitrogen-Doped Carbon Interwoven with Carbon Nanotubes for High Sulfur Content Lithium-Sulfur Batteries",
+    "doi": "10.1016/j.apsusc.2019.143773",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      328
+    ],
+    "referenceName": "Stable Lithium-Sulfur Batteries with High Sulfur Content Fabricated by Ultralight Ochroma Lagopus-Derived Carbon with Dopamine Shell as Sulfur Host",
+    "doi": "10.1016/j.jallcom.2019.152995",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      329
+    ],
+    "referenceName": "Applying data-driven machine learning to studying electrochemical energy storage materials",
+    "doi": "",
+    "matchScore": 0.6761,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      330
+    ],
+    "referenceName": "Identifying chemical factors affecting reaction kinetics in Li-air battery via ab initio calculations and machine learning",
+    "doi": "10.1016/j.ensm.2020.10.022",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      331
+    ],
+    "referenceName": "Assessment of Critical Materials and Cell Design Factors for High Performance Lithium-Sulfur Batteries Using Machine Learning",
+    "doi": "10.1016/j.cej.2020.124117",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      332
+    ],
+    "referenceName": "Application of Machine Learning Methods for the Prediction of Crystal System of Cathode Materials in Lithium-Ion Batteries",
+    "doi": "10.1016/j.commatsci.2016.02.021",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      333
+    ],
+    "referenceName": "Enhanced Optical Path and Electron Diffusion Length Enable High-Efficiency Perovskite Tandems",
+    "doi": "10.1038/s41467-020-15077-3",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-020-15077-3.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      334
+    ],
+    "referenceName": "Thermodynamic Assessment of the Solar-to-Fuel Performance of La0.6Sr0.4Mn1-yCryO3-δ Perovskite Solid Solution Series",
+    "doi": "10.1016/j.actamat.2019.07.022",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://hdl.handle.net/1721.1/136387",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      335
+    ],
+    "referenceName": "Understanding Adsorption of Nucleobases on CH3NH3PbI3 Surfaces Toward Biological Applications of Halide Perovskite Materials",
+    "doi": "10.1016/j.apsusc.2019.04.026",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      336
+    ],
+    "referenceName": "Global Discovery of Stable and Non-Toxic Hybrid Organic-Inorganic Perovskites for Photovoltaic Systems by Combining Machine Learning Method with First Principle Calculations",
+    "doi": "10.1016/j.nanoen.2019.104070",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      337
+    ],
+    "referenceName": "Machine Learning Analysis on Stability of Perovskite Solar Cells",
+    "doi": "10.1016/j.solmat.2019.110284",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      338
+    ],
+    "referenceName": "Multiscale Computational Understanding and Growth of 2D Materials: A Review",
+    "doi": "10.1038/s41524-020-0280-2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-020-0280-2.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      339
+    ],
+    "referenceName": "Shape Memory Bulk Metallic Glass Composites",
+    "doi": "10.1126/science.1193522",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      340
+    ],
+    "referenceName": "Deformation Behavior of Annealed Cu64Zr36 Metallic Glass via Molecular Dynamics Simulations",
+    "doi": "10.1016/j.matdes.2020.108660",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.matdes.2020.108660",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      341
+    ],
+    "referenceName": "Three-Dimensional Structure and Formation Mechanisms of Y2O3 Hollow-Precipitates in a Cu-Based Metallic Glass",
+    "doi": "10.1016/j.matdes.2019.107660",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.matdes.2019.107660",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      342
+    ],
+    "referenceName": "Short-Range Order Structure Motifs Learned from an Atomistic Model of a Zr50Cu45Al5 Metallic Glass",
+    "doi": "10.1016/j.actamat.2019.05.002",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1901.04124",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      343
+    ],
+    "referenceName": "A Machine-Learning Approach to Predicting and Understanding the Properties of Amorphous Metallic Alloys",
+    "doi": "10.1016/j.matdes.2019.108378",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1016/j.matdes.2019.108378",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      344
+    ],
+    "referenceName": "Machine Learning Prediction of Elastic Properties and Glass-Forming Ability of Bulk Metallic Glasses",
+    "doi": "10.1557/mrc.2019.44",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://ira.lib.polyu.edu.hk/bitstream/10397/106431/1/Xiong_Machine_Learning_Prediction.pdf",
+    "status": "error",
+    "error": "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+  },
+  {
+    "ids": [
+      345
+    ],
+    "referenceName": "Structure Predictions in Inorganic Solids",
+    "doi": "10.1039/c39920000089",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      346
+    ],
+    "referenceName": "Structure Predictions Allowing More Than One Molecule in the Asymmetric Unit",
+    "doi": "10.1107/s0108768100000276",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://journals.iucr.org/b/issues/2000/04/00/lc9018/lc9018.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      347
+    ],
+    "referenceName": "High-Pressure Phases of Silane",
+    "doi": "10.1103/physrevlett.97.045504",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/cond-mat/0604454",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      349
+    ],
+    "referenceName": "Predicting Crystal Structures: The Parrinello-Rahman Method Revisited",
+    "doi": "10.1103/physrevlett.90.075503",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/cond-mat/0211551",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      350
+    ],
+    "referenceName": "Hopping: An Efficient Search Method for the Global Minimum of the Potential Energy Surface of Complex Molecular Systems",
+    "doi": "10.1063/1.1724816",
+    "matchScore": 0.9608,
+    "source": "crossref",
+    "pdfUrl": "https://aip.scitation.org/doi/pdf/10.1063/1.1724816",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      351
+    ],
+    "referenceName": "Report on the Sixth Blind Test of Organic Crystal Structure Prediction Methods",
+    "doi": "10.1107/s2052520614015923",
+    "matchScore": 0.9428,
+    "source": "crossref",
+    "pdfUrl": "http://journals.iucr.org/b/issues/2014/04/00/bm0069/bm0069.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      352
+    ],
+    "referenceName": "Predicting the Thermodynamic Stability of Solids Combining Density Functional Theory and Machine Learning",
+    "doi": "10.1021/acs.chemmater.7b00156",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      353
+    ],
+    "referenceName": "Predicting the Stability of Ternary Intermetallics with Density Functional Theory and Machine Learning",
+    "doi": "10.1063/1.5020223",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      354
+    ],
+    "referenceName": "Deep Learning the Chemistry of Materials from Only Elemental Composition",
+    "doi": "10.1038/s41598-018-35934-y",
+    "matchScore": 0.9354,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41598-018-35934-y.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      355
+    ],
+    "referenceName": "Exploring Two-Dimensional Materials Thermodynamic Stability via Machine Learning",
+    "doi": "10.1021/acsami.9b14530",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://ndownloader.figshare.com/files/18531149",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      357
+    ],
+    "referenceName": "Machine Learning-Based Prediction of Crystal Systems and Space Groups from Inorganic Materials Compositions",
+    "doi": "10.1021/acsomega.9b04012",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.1021/acsomega.9b04012",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      358
+    ],
+    "referenceName": "High-Throughput Machine-Learning-Driven Synthesis of Full-Heusler Compounds",
+    "doi": "10.1021/acs.chemmater.6b02724",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://zenodo.org/record/3450873",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      359
+    ],
+    "referenceName": "High-Throughput Simulation Combined Machine Learning Search for Optimum Elemental Composition in Medium Entropy Alloy",
+    "doi": "10.1016/j.jmst.2020.08.008",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.sciencedirect.com/science/article/am/pii/S1005030220307027",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      360
+    ],
+    "referenceName": "Prediction of the Composition and Hardness of High-Entropy Alloys by Machine Learning",
+    "doi": "10.1007/s11837-019-03704-4",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      361
+    ],
+    "referenceName": "Large-Scale Computational Screening of Molecular Organic Semiconductors Using Crystal Structure Prediction",
+    "doi": "10.26434/chemrxiv.6143732.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.26434/chemrxiv.6143732.v1",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      362
+    ],
+    "referenceName": "Machine Learning and Energy Minimization Approaches for Crystal Structure Predictions: A Review and New Horizons",
+    "doi": "10.1021/acs.chemmater.7b05304",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      363
+    ],
+    "referenceName": "Training Machine-Learning Potentials for Crystal Structure Prediction Using Disordered Structures",
+    "doi": "10.1103/physrevb.102.224104",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/2008.07786",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      364
+    ],
+    "referenceName": "Accelerated Discovery of CO2 Electrocatalysts Using Active Machine Learning",
+    "doi": "10.1038/s41586-020-2242-8",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      365
+    ],
+    "referenceName": "Mapping of Atomic Catalyst on Graphdiyne",
+    "doi": "10.1016/j.nanoen.2019.06.008",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://ars.els-cdn.com/content/image/1-s2.0-S2211285519305129-fx1_lrg.jpg",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      366
+    ],
+    "referenceName": "Accelerating Atomic Catalyst Discovery by Theoretical Calculations-Machine Learning Strategy",
+    "doi": "10.1002/aenm.201903949",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://ir.lzu.edu.cn/handle/262010/417648",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      367
+    ],
+    "referenceName": "Self-Validated Machine Learning Study of Graphdiyne-Based Dual Atomic Catalyst",
+    "doi": "10.1002/aenm.202003796",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://ira.lib.polyu.edu.hk/bitstream/10397/95215/1/Sun_Self-Validated_Machine_Learning.pdf",
+    "status": "error",
+    "error": "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+  },
+  {
+    "ids": [
+      368
+    ],
+    "referenceName": "Stepping Out of Transition Metals: Activating the Dual Atomic Catalyst through Main Group Elements",
+    "doi": "10.1002/aenm.202101404",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://ira.lib.polyu.edu.hk/bitstream/10397/95486/1/Sun_Stepping_Out_Transition.pdf",
+    "status": "error",
+    "error": "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+  },
+  {
+    "ids": [
+      369
+    ],
+    "referenceName": "An Adaptive Machine Learning Strategy for Accelerating Discovery of Perovskite Electrocatalysts",
+    "doi": "10.1021/acscatal.9b05248",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      370
+    ],
+    "referenceName": "Driven Framework for the Accelerated Discovery of CO2 Reduction Electrocatalysts",
+    "doi": "10.3389/fenrg.2021.609070",
+    "matchScore": 0.9258,
+    "source": "crossref",
+    "pdfUrl": "https://www.frontiersin.org/articles/10.3389/fenrg.2021.609070/pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      371
+    ],
+    "referenceName": "A Mobile Robotic Chemist",
+    "doi": "10.1038/s41586-020-2442-2",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "https://strathprints.strath.ac.uk/74759/1/Burger_etal_Nature_2020_A_mobile_robotic.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      372
+    ],
+    "referenceName": "Bayesian Reaction Optimization as a Tool for Chemical Synthesis",
+    "doi": "10.1038/s41586-021-03213-y",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      373
+    ],
+    "referenceName": "Controlling an Organic Synthesis Robot with Machine Learning to Search for New Reactivity",
+    "doi": "10.1038/s41586-018-0307-8",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://eprints.gla.ac.uk/view/author/35600.html>,",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      374
+    ],
+    "referenceName": "Toward Artificial Intelligence in Catalysis",
+    "doi": "10.1038/s41929-018-0150-1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      375
+    ],
+    "referenceName": "Accelerating the Discovery of Materials for Clean Energy in the Era of Smart Automation",
+    "doi": "10.1038/s41578-018-0005-z",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.osti.gov/servlets/purl/1461992",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      376
+    ],
+    "referenceName": "A Data Fusion Approach to Optimize Compositional Stability of Halide Perovskites",
+    "doi": "10.1016/j.matt.2021.01.008",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://www.cell.com/article/S2590238521000084/pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      377
+    ],
+    "referenceName": "Towards the Computer-Assisted Design of Solid Catalysts",
+    "doi": "",
+    "matchScore": 0.7303,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      379
+    ],
+    "referenceName": "Predicting Reaction Performance in C-N Cross-Coupling Using Machine Learning",
+    "doi": "10.1126/science.aar5169",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      380
+    ],
+    "referenceName": "A Robotic Platform for Flow Synthesis of Organic Compounds Informed by AI Planning",
+    "doi": "10.1126/science.aax1566",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      381
+    ],
+    "referenceName": "Planning Chemical Syntheses with Deep Neural Networks and Symbolic AI",
+    "doi": "10.1038/nature25978",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://arxiv.org/pdf/1708.04202",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      382
+    ],
+    "referenceName": "A Universal System for Digitization and Automatic Execution of the Chemical Synthesis Literature",
+    "doi": "10.1126/science.abc2986",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      383
+    ],
+    "referenceName": "On-the-Fly Closed-Loop Materials Discovery via Bayesian Active Learning",
+    "doi": "10.1038/s41467-020-19597-w",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41467-020-19597-w.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      384
+    ],
+    "referenceName": "Progress and Prospects for Accelerating Materials Science with Automated and Autonomous Workflows",
+    "doi": "10.1039/c9sc03766g",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pubs.rsc.org/en/content/articlepdf/2019/sc/c9sc03766g",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      385
+    ],
+    "referenceName": "J.R. Self-Driving Laboratory for Accelerated Discovery of Thin-Film Materials. Sci. Adv",
+    "doi": "",
+    "matchScore": 0.8944,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      386
+    ],
+    "referenceName": "Autonomous Discovery of Battery Electrolytes with Robotic Experimentation and Machine Learning",
+    "doi": "10.26434/chemrxiv.10282112.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.26434/chemrxiv.10282112.v1",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      389
+    ],
+    "referenceName": "Toward Autonomous Design and Synthesis of Novel Inorganic Materials",
+    "doi": "10.1039/d1mh00495f",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://escholarship.org/uc/item/09v773qn",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      390
+    ],
+    "referenceName": "Closed-Loop Discovery of Materials with Targeted Properties by Adaptive Design",
+    "doi": "",
+    "matchScore": 0.559,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      391
+    ],
+    "referenceName": "Autonomous Experimentation Systems for Materials Development: A Community Perspective",
+    "doi": "10.1016/j.matt.2021.06.036",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://www.cell.com/article/S2590238521003064/pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      392
+    ],
+    "referenceName": "Convergence of Multiple Synthetic Paradigms in a Universally Programmable Chemical Synthesis Machine",
+    "doi": "10.1038/s41557-020-00596-9",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://eprints.gla.ac.uk/view/author/45437.html>,",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      393,
+      438
+    ],
+    "referenceName": "A Study on the Optimization of Material Properties Using Machine Learning Techniques",
+    "doi": "",
+    "matchScore": 0.75,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      394,
+      399
+    ],
+    "referenceName": "Understanding the Diversity of the Metal-Organic Framework Ecosystem",
+    "doi": "10.26434/chemrxiv.12251186.v1",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://chemrxiv.org/ndownloader/files/22539728",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      396
+    ],
+    "referenceName": "Machine Learning for Quantum Chemistry: A Unified Approach to Predicting Molecular Properties",
+    "doi": "",
+    "matchScore": 0.6804,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      397
+    ],
+    "referenceName": "Machine Learning in Materials Science: Recent Applications and Prospects",
+    "doi": "",
+    "matchScore": 0.8571,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      398
+    ],
+    "referenceName": "Machine Learning: Science and Technology",
+    "doi": "",
+    "matchScore": 0.8944,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      400
+    ],
+    "referenceName": "Machine Learning for Chemical Discovery: Challenges and Opportunities",
+    "doi": "",
+    "matchScore": 0.7715,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      401
+    ],
+    "referenceName": "High-Throughput Computational Screening of Materials Using Machine Learning",
+    "doi": "",
+    "matchScore": 0.7955,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      402,
+      403
+    ],
+    "referenceName": "The NOMAD Laboratory: From Data Sharing to Artificial Intelligence",
+    "doi": "10.1088/2515-7639/ab13bb",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://iopscience.iop.org/article/10.1088/2515-7639/ab13bb/pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      404
+    ],
+    "referenceName": "Chemical Reactions from US Patents",
+    "doi": "",
+    "matchScore": 0.6405,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      405
+    ],
+    "referenceName": "Mayfield, J.; Lowe, D.; Sayle, R. Pistachio. Available online: https://www.nextmovesoftware.com/pistachio.html (accessed on 07 March 2025).",
+    "doi": "",
+    "matchScore": 0.3536,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      406
+    ],
+    "referenceName": "Reaxys. Available online: https://www.reaxys.com (accessed on 07 March 2025).",
+    "doi": "",
+    "matchScore": 0.603,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      407
+    ],
+    "referenceName": "SciFinder. Available online: https://scifinder.cas.org (accessed on 07 March 2025).",
+    "doi": "",
+    "matchScore": 0.603,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      408
+    ],
+    "referenceName": "Szymkuć, S.; Badowski, T.; Grzybowski, B.A. Angew. Chem. 2021, 133, 26430-26436.",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      409,
+      413,
+      419
+    ],
+    "referenceName": "J. Am. Chem. Soc",
+    "doi": "",
+    "matchScore": 1.0,
+    "source": "semanticscholar",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      410
+    ],
+    "referenceName": "Nat. Commun",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      411
+    ],
+    "referenceName": "Data",
+    "doi": "10.7717/peerj-cs.374/fig-7",
+    "matchScore": 0.9705,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      412
+    ],
+    "referenceName": "Mach. Learn. Sci. Technol",
+    "doi": "",
+    "matchScore": 0.603,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      414
+    ],
+    "referenceName": "Vogler, M.; Busk, J.; Hajiyani, H.; Jørgensen, P.B.; Safaei, N.; Castelli, I.E.; Ramirez, F.F.; Carlsson, J.; Pizzi, G.; Clark, S. Matter 2023, 6, 2647-2665.",
+    "doi": "",
+    "matchScore": 0.3015,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      415
+    ],
+    "referenceName": "Skreta, M.; Yoshikawa, N.; Arellano-Rubach, S.; Ji, Z.; Kristensen, L.B.; Darvish, K.; Aspuru- Guzik, A.; Shkurti, F.; Garg, A. arXiv 2023, preprint arXiv:2303.14100.",
+    "doi": "",
+    "matchScore": 0.3227,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      416
+    ],
+    "referenceName": "Bran, A.M.; Cox, S.; White, A.D.; Schwaller, P. arXiv 2023, preprint arXiv:2304.05376.",
+    "doi": "",
+    "matchScore": 0.5443,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      417
+    ],
+    "referenceName": "Nature",
+    "doi": "10.4324/9780203978191-11",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      418
+    ],
+    "referenceName": "Han, S.; Barcaro, G.; Fortunelli, A.; Lysgaard, S.; Vegge, T.; Hansen, H.A. npj Comput. Mater. 2022, 8, 121.",
+    "doi": "",
+    "matchScore": 0.1925,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      420
+    ],
+    "referenceName": "Han, S.; Lysgaard, S.; Vegge, T.; Hansen, H.A. npj Comput. Mater. 2023, 9, 139.",
+    "doi": "",
+    "matchScore": 0.2182,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      421
+    ],
+    "referenceName": "Stach, E.; DeCost, B.; Kusne, A.G.; Hattrick-Simpers, J.; Brown, K.A.; Reyes, K.G.; Schrier, J.; Billinge, S.; Buonassisi, T.; Foster, I. Matter 2021, 4, 2702-2726.",
+    "doi": "",
+    "matchScore": 0.1325,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      422
+    ],
+    "referenceName": "J. J. Am. Chem. Soc",
+    "doi": "",
+    "matchScore": 0.8165,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      423
+    ],
+    "referenceName": "Chem. Sci",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      424
+    ],
+    "referenceName": "Hickman, R.; Sim, M.; Pablo-García, S.; Woolhouse, I.; Hao, H.; Bao, Z.; Bannigan, P.; Allen, C.; Aldeghi, M.; Aspuru-Guzik, A. ChemRxiv 2023, DOI:10.26434/chemrxiv-2023-8nrxx.",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      425
+    ],
+    "referenceName": "Science",
+    "doi": "",
+    "matchScore": 0.8165,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      426
+    ],
+    "referenceName": "Phys. Chem. Chem. Phys",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      427
+    ],
+    "referenceName": "Aspuru-Guzik, A",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      428
+    ],
+    "referenceName": "Saar, L.; Liang, H.; Wang, A; McDannald, A.; Rodriguez, E.; Takeuchi, I.; Kusne, A.G. MRS Bull. 2022, 47, 881-885.",
+    "doi": "",
+    "matchScore": 0.1925,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      429
+    ],
+    "referenceName": "Sci. Educ. 2021",
+    "doi": "",
+    "matchScore": 0.1961,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      430,
+      432,
+      434,
+      436
+    ],
+    "referenceName": "J. Chem. Educ",
+    "doi": "10.1021/ed083p1138.2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      431
+    ],
+    "referenceName": "Revignas, D.; Amendola, V. J. Chem. Educ. 2022, 99, 2112-2120.",
+    "doi": "",
+    "matchScore": 0.3536,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      433
+    ],
+    "referenceName": "J. Sci. Educ. Technol",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      435
+    ],
+    "referenceName": "Lo, S.; Baird, S.; Schrier, J.; Blaiszik, B.; Kalinin, S.; Tran, H.; Sparks, T.; Aspuru-Guzik, A. ChemRxiv 2023, DOI:10.26434/chemrxiv-2023-6z9mq-v2.",
+    "doi": "",
+    "matchScore": 0.3922,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      437
+    ],
+    "referenceName": "Liu, Y. J. Chem. Educ. 2022, 99, 2588-2596.",
+    "doi": "",
+    "matchScore": 0.0,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      439
+    ],
+    "referenceName": "Advances in Computational Modeling for Chemical Discovery",
+    "doi": "",
+    "matchScore": 0.5657,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      440
+    ],
+    "referenceName": "Accelerating Materials Discovery with Autonomous Workflows",
+    "doi": "",
+    "matchScore": 0.6761,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      441
+    ],
+    "referenceName": "Autonomous Discovery of Advanced Materials Using Machine Learning",
+    "doi": "",
+    "matchScore": 0.6761,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      442
+    ],
+    "referenceName": "Throughput Screening of Materials Using Automated Workflows. Sci. Adv",
+    "doi": "",
+    "matchScore": 0.4264,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      443
+    ],
+    "referenceName": "AutoML systems as a modern tool for building machine learning models",
+    "doi": "",
+    "matchScore": 0.6396,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      444
+    ],
+    "referenceName": "Automl: From Methodology to Application",
+    "doi": "10.1145/3459637.3483279",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      445
+    ],
+    "referenceName": "J. Automated Machine Learning: Methods, Systems, Challenges",
+    "doi": "",
+    "matchScore": 0.7071,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      446
+    ],
+    "referenceName": "Testing the Applicability and Performance of Auto ML for Potential Applications in Diagnostic",
+    "doi": "10.1038/s41598-022-18028-8",
+    "matchScore": 0.9354,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41598-022-18028-8.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      447
+    ],
+    "referenceName": "A Smart Meta-Learning Automated Machine Learning Framework",
+    "doi": "10.21203/rs.3.rs-2085778/v1",
+    "matchScore": 0.9045,
+    "source": "crossref",
+    "pdfUrl": "https://www.researchsquare.com/article/rs-2085778/latest.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      448
+    ],
+    "referenceName": "A two-step data augmentation method based on generative adversarial network for hardness prediction of high entropy alloy",
+    "doi": "10.1016/j.commatsci.2023.112064",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      449
+    ],
+    "referenceName": "Generative adversarial network (GAN) enabled Statistically equivalent virtual microstructures (SEVM) for modeling cold spray formed bimodal polycrystals",
+    "doi": "10.1038/s41524-024-01219-4",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://www.nature.com/articles/s41524-024-01219-4.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      451
+    ],
+    "referenceName": "A Meta-Learning Approach for Selecting Image Segmentation Algorithm",
+    "doi": "10.1016/j.patrec.2019.10.018",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://hdl.handle.net/11368/3004529",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      452
+    ],
+    "referenceName": "Influence of iodine doping on the structural and electronic properties of CsSnBr3",
+    "doi": "",
+    "matchScore": 0.6682,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  },
+  {
+    "ids": [
+      453
+    ],
+    "referenceName": "Data quantity governance for machine learning in materials science",
+    "doi": "10.1093/nsr/nwad125",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10265966/pdf/nwad125.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      454
+    ],
+    "referenceName": "A Data Quality and Quantity Governance for Machine Learning in Materials Science",
+    "doi": "10.1093/nsr/nwad125",
+    "matchScore": 0.9354,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10265966/pdf/nwad125.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      456
+    ],
+    "referenceName": "Identifying descriptors for Li+ conduction in cubic Li-argyrodites via hierarchically encoding crystal structure and inferring causality",
+    "doi": "10.1016/j.ensm.2021.05.033",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      457
+    ],
+    "referenceName": "Machine learning prediction of activation energy in cubic Li-argyrodites with hierarchically encoding crystal structure-based (HECS) descriptors",
+    "doi": "10.1016/j.scib.2021.04.029",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      458
+    ],
+    "referenceName": "Systemic Comparison of Machine Learning Models in the Optimization of Flow Field Design for Proton Exchange Membrane Fuel Cells",
+    "doi": "10.1016/j.energy.2025.138029",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      459
+    ],
+    "referenceName": "Preparation of Air Stable Lead-free CsSnI3 Perovskites: Synthesis Based on CsI and SnCl2 Solutions",
+    "doi": "10.53964/jmn.2024007",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://image.innovationforever.com//file/20241129/e5cf509d85fc4f9a90a855ccd8c494ad/JMN20240347.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      460
+    ],
+    "referenceName": "Titanium Dioxide and Photocatalysis: a Detailed Overview of the Synthesis, Applications, Challenges, Advances and Prospects for Sustainable Development",
+    "doi": "10.20944/preprints202408.1733.v2",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://doi.org/10.20944/preprints202408.1733.v2",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      461
+    ],
+    "referenceName": "Phonopy Calculations of Thermodynamic Properties and Phase Transitions of CsSnI3 Based on SCAN-relaxed Structures",
+    "doi": "10.53964/id.2024017",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://image.innovationforever.com//file/20240605/6ab19a870b554943afde34d34a839071/ID20240270.pdf",
+    "status": "downloaded"
+  },
+  {
+    "ids": [
+      462
+    ],
+    "referenceName": "Bandgap tuning and analysis of the electronic structure of the Cu2NiXS4 (X= Sn, Ge, Si) system: mBJ accuracy with DFT expense",
+    "doi": "10.2139/ssrn.4656820",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "http://dx.doi.org/10.2139/ssrn.4656820",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      463
+    ],
+    "referenceName": "Molecular dynamics simulations of the DNA radiation damage and conformation behavior on a zirconium dioxide surface",
+    "doi": "10.21608/ejchem.2019.12981.1811",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://ejchem.journals.ekb.eg/article_34181_03c6c425766546d00eda42658e2a35c5.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      464
+    ],
+    "referenceName": "Artificial Intelligence for Materials Discovery, Development, and Optimization",
+    "doi": "10.1021/acsnano.5c04200",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "",
+    "status": "no_oa_pdf"
+  },
+  {
+    "ids": [
+      465
+    ],
+    "referenceName": "Unleashing the power of artificial intelligence in materials design",
+    "doi": "10.3390/ma16175927",
+    "matchScore": 1.0,
+    "source": "crossref",
+    "pdfUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10488647/pdf/materials-16-05927.pdf",
+    "status": "download_failed"
+  },
+  {
+    "ids": [
+      466
+    ],
+    "referenceName": "Physicsdriven learning for inverse problems in quantum chromodynamics",
+    "doi": "",
+    "matchScore": 0.7715,
+    "source": "",
+    "pdfUrl": "",
+    "status": "unresolved"
+  }
+]

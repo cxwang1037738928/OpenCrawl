@@ -5,6 +5,7 @@ networkx>=3.0
 # kg_graph.py. Install with --only-binary=:all: — litellm (via dspy) otherwise
 # builds from source and needs a Rust toolchain.
 kg-gen>=0.4.0
-# scripts/get_reference_from_arXiv.py only — 4.x dropped Result.download_pdf,
+# scripts/get_arxiv_references.py only — 4.x dropped Result.download_pdf,
 # so the script fetches the PDF with requests.
 arxiv>=4.0.0
+python-dotenv>=1.0.0
