@@ -363,8 +363,13 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 
 .model-row { display: flex; gap: 10px; align-items: center; }
 
-.model-row input[type='text'] {
+/* Text entry and the model pick-list share one look — a role either offers a
+   catalog (knowledge graph) or free text, and swapping between them shouldn't
+   change the shape of the row. */
+.model-row input[type='text'],
+.model-row select {
   flex: 1;
+  min-width: 0;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -373,7 +378,8 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   font: inherit;
 }
 
-.model-row input[type='text']:focus-visible {
+.model-row input[type='text']:focus-visible,
+.model-row select:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
   border-color: transparent;
@@ -941,7 +947,9 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 
 /* ── Document management (upload / pipeline / delete) ────────────────────── */
 
-.doc-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+/* Wraps: upload + the two run buttons ("Index documents", "Build knowledge
+   graph") don't fit one sidebar row. */
+.doc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 
 .btn-small { padding: 5px 10px; font-size: 12px; }
 

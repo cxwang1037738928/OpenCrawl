@@ -15,12 +15,15 @@
  *   tests/test-output/kg_view.html
  *
  * RUNTIME: hours, not seconds — this is the slowest stage in the suite by a
- * wide margin. Cost is (chunks in the TOP_DOCUMENTS docs) × 2 sequential
- * Ollama calls each (kg-gen extracts entities, then relations), so it scales
- * with the fixture corpus, not with anything this file does. Lower
- * TOP_DOCUMENTS to get a faster smoke test. Because it is this slow there is
- * no timeout here on purpose: a run that looks hung is usually just working,
- * so check kg_graph.py's per-chunk progress lines before killing it.
+ * wide margin. Cost is (packed batches) × 2 sequential model calls each
+ * (kg-gen extracts entities, then relations), so it scales with the fixture
+ * corpus, not with anything this file does. Two knobs shorten it: lower
+ * KG_FULL_TEXT_FRACTION, so more of the corpus is graphed from its abstract
+ * and conclusion instead of full text; or point KG_MODEL at a longer-context
+ * model listed in documents/model_metadata.json, which packs more text per
+ * call and so makes fewer of them. Because it is this slow there is no timeout
+ * here on purpose: a run that looks hung is usually just working, so check
+ * kg_graph.py's per-call progress lines before killing it.
  */
 
 import 'dotenv/config';
@@ -72,9 +75,13 @@ const viewHtml = await fs.stat(path.join(TEST_DATA, 'kg_view.html'));
 console.log('\n[test_kg_graph] Graph summary:');
 console.log(`  ${graph.entities.length} entities, ${graph.relations.length} relations, ` +
             `${graph.edges.length} relation types`);
-console.log(`  over ${graph.sourceDocIds.length} document(s), ` +
+console.log(`  over ${graph.sourceDocIds.length} document(s) ` +
+            `(${graph.fullTextDocIds?.length ?? graph.sourceDocIds.length} full text, ` +
+            `${graph.summaryDocIds?.length ?? 0} title+abstract+conclusion), ` +
             `${graph.chunksProcessed} chunk(s) in ${graph.calls} call(s), ` +
             `${graph.callsFailed} call(s) failed`);
+console.log(`  model ${graph.model} — ${graph.callMaxChars} chars/call ` +
+            `at a ${graph.contextTokens}-token window`);
 console.log(`  tokens: ${graph.totalTokens ?? 0} ` +
             `(${graph.promptTokens ?? 0} prompt + ${graph.outputTokens ?? 0} output) ` +
             `over ${graph.modelRequests ?? 0} model request(s)`);

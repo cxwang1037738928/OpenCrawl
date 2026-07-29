@@ -15,7 +15,8 @@
  *         viewer can locate and highlight it in the PDF.
  *
  * modelsRouter — mounted at /api/corpus (global, not chat-scoped):
- *   GET  /models   — installed Ollama models + current per-role choices.
+ *   GET  /models   — installed Ollama models, the knowledge-graph model
+ *         catalog (documents/model_metadata.json), and current per-role choices.
  *   POST /settings — persist per-role model choices to .env and process.env.
  */
 
@@ -29,6 +30,11 @@ import { prisma } from '../db.js';
 
 const ROOT     = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ENV_PATH = path.join(ROOT, '.env');
+// The knowledge-graph model catalog: [{id, name, context_length}]. kg_graph.py
+// reads the same file to size its calls to the selected model's context window,
+// so a model is switchable exactly when it is listed here.
+const MODEL_METADATA_PATH = path.resolve(
+  ROOT, process.env.MODEL_METADATA_PATH || 'documents/model_metadata.json');
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MUTUAL_K   = parseInt(process.env.CATEGORIES_MUTUAL_K || '10', 10);
@@ -228,14 +234,35 @@ async function ollamaModels() {
   }
 }
 
+/**
+ * Models the graph stage knows the context window of. Returned so the Models
+ * tab can offer them as a pick-list instead of free text: an unlisted model
+ * still works, but kg_graph.py has to assume a small context for it.
+ */
+async function knowledgeGraphModels() {
+  try {
+    const catalog = JSON.parse(await fs.readFile(MODEL_METADATA_PATH, 'utf-8'));
+    return (catalog.models || [])
+      .filter((model) => model?.id)
+      .map((model) => ({
+        id:            model.id,
+        name:          model.name || model.id,
+        contextLength: model.context_length ?? null,
+      }));
+  } catch {
+    return [];   // missing/malformed catalog — the tab falls back to free text
+  }
+}
+
 modelsRouter.get('/models', wrap(async (req, res) => {
-  const installed = await ollamaModels();
+  const [installed, kgModels] = await Promise.all([ollamaModels(), knowledgeGraphModels()]);
   const roles = {};
   for (const key of Object.keys(MODEL_ROLES)) roles[key] = process.env[key] || null;
   res.json({
     ollamaUp: installed !== null,
     ollamaUrl: OLLAMA_URL,
     installed: installed || [],
+    kgModels,
     roles,
     descriptions: MODEL_ROLES,
   });

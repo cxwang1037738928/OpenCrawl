@@ -9,6 +9,11 @@ GROBID (CRF models) runs alongside docling on the same PDF: docling owns
 text/markdown/sections/tables, GROBID owns metadata + references. The old
 docling/LLM heuristics remain as fallbacks when the GROBID server is down.
 
+Orchestration + config only: the pure parsing primitives (sections, tables,
+references, TEI/date scanning, docling-label metadata) live in
+extract_utils.py; this file owns the converters, the GROBID/Ollama network
+calls, the tunables, and the per-document pipeline glue.
+
 Output: data/doclings.json  — dict keyed by docId, each entry holds:
   text             : full extracted plain text (docling)
   markdown         : structured markdown (docling)
@@ -115,13 +120,29 @@ GROBID_URL     = os.environ.get("GROBID_URL", "http://localhost:8070")
 GROBID_TIMEOUT = int(os.environ.get("GROBID_TIMEOUT", "120"))
 
 # ---------------------------------------------------------------------------
-# docling imports
+# docling imports + pure parsing primitives (extract_utils)
 # ---------------------------------------------------------------------------
 
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TesseractCliOcrOptions
-from docling_core.types.doc.labels import DocItemLabel
+
+from extract_utils import (
+    NOT_TITLE_RE,
+    METADATA_SKIP,
+    TEI_NS,
+    clean_boilerplate_title,
+    extract_metadata,
+    extract_references,
+    extract_sections,
+    extract_tables,
+    parse_json,
+    scan_created,
+    strip_nul,
+    tei_persname,
+    tei_text,
+    valid_created,
+)
 
 # DOCLING_PAGE_BATCH: pages docling processes concurrently (its default is 4).
 # Each in-flight page holds its rasterized image + model tensors in RAM, so on
@@ -176,165 +197,8 @@ def _choose_converter(doc_meta: dict) -> DocumentConverter:
 
 
 # ---------------------------------------------------------------------------
-# Extraction helpers
+# LLM metadata extraction via Ollama (fallback when GROBID lacks a field)
 # ---------------------------------------------------------------------------
-
-def _extract_sections(doc) -> list[dict]:
-    """Walk the document body and collect (heading, body-text, page-range)."""
-    sections = []
-    current_heading = None
-    current_text_parts = []
-    current_pages: list[int] = []
-
-    def _flush():
-        if current_heading is None and not current_text_parts:
-            return
-        sections.append({
-            "heading": current_heading or "",
-            "text": " ".join(current_text_parts),
-            # 1-based inclusive [first, last]; None when docling has no prov
-            "pages": [min(current_pages), max(current_pages)] if current_pages else None,
-        })
-
-    for item, _ in doc.iterate_items():
-        label = getattr(item, "label", None)
-        text  = (getattr(item, "text", "") or "").strip()
-        if not text:
-            continue
-
-        prov = getattr(item, "prov", None) or []
-        page = getattr(prov[0], "page_no", None) if prov else None
-
-        if label in (DocItemLabel.SECTION_HEADER, DocItemLabel.TITLE):
-            _flush()
-            current_heading = text
-            current_text_parts = []
-            current_pages = [page] if page else []
-        else:
-            current_text_parts.append(text)
-            if page:
-                current_pages.append(page)
-
-    _flush()
-    return sections
-
-
-def _extract_tables(doc) -> list[dict]:
-    """[{text, page}] — page is 1-based, None without provenance.
-    (Older extracts stored plain strings; chunker.js accepts both.)"""
-    tables = []
-    for table in doc.tables:
-        try:
-            table_text = table.export_to_markdown()
-        except Exception:
-            table_text = str(table)
-        provenance = getattr(table, "prov", None) or []
-        page = getattr(provenance[0], "page_no", None) if provenance else None
-        tables.append({"text": table_text, "page": page})
-    return tables
-
-
-# ---------------------------------------------------------------------------
-# References — shared constants
-# ---------------------------------------------------------------------------
-
-# Shared with heuristic.py / kg_graph.py / regex_utils.js via one env var so the
-# four copies can't drift apart.
-_REF_SECTION_HEADINGS = frozenset(
-    heading.strip().lower()
-    for heading in os.environ.get(
-        "PIPELINE_REF_HEADINGS",
-        "references,bibliography,works cited,literature cited,citations").split(",")
-    if heading.strip()
-)
-
-_CODE_FENCE = re.compile(r'^```(?:json)?\s*|\s*```$', re.MULTILINE)
-
-# Caption lines that leak into the refs section from PDF text extraction.
-_REF_CAPTION_RE = re.compile(r'(?im)^(?:Figure|Table|Scheme|Chart|Fig\.?|Eq\.?)\s*\d+\s*[:.]')
-# Spurious glued double-numbering left after marker stripping, e.g. "18.Sierra".
-_REF_LEADING_NUM_RE = re.compile(r'^\d{1,3}\.(?=\S)')
-# Leading numbered/bracketed marker on an individual entry, e.g. "[3] ", "(3) ", "3. ".
-_REF_MARKER_PREFIX_RE = re.compile(r'^(?:[-\u2013\u2014\u2022*]\s+)?(?:\[\d+\]|\(\d+\)|\d+[a-zA-Z]?\.)\s+')
-
-# Docling labels that are never bibliography content — dropped during the
-# section-walk fallback (running headers/footers, captions, footnotes, ...).
-_REF_DROP_LABELS = frozenset({
-    DocItemLabel.CAPTION,
-    DocItemLabel.PAGE_HEADER,
-    DocItemLabel.PAGE_FOOTER,
-    DocItemLabel.FOOTNOTE,
-    DocItemLabel.PICTURE,
-    DocItemLabel.FORMULA,
-    DocItemLabel.TABLE,
-})
-
-
-def _norm_heading(heading: str) -> str:
-    """Normalize a heading for refs-section matching: lowercase, strip
-    leading numbering ('7. References', 'VII. References') and trailing
-    punctuation."""
-    normalized = heading.lower().strip()
-    normalized = re.sub(r'^[\divxlc]+[\.\)]?\s+', '', normalized)   # '7. ' / 'vii. ' / '7) '
-    return normalized.rstrip(' .:')
-
-
-def _is_ref_heading(heading: str) -> bool:
-    return _norm_heading(heading) in _REF_SECTION_HEADINGS
-
-
-def _finalize_entries(entries: list[str]) -> list[str]:
-    """Post-process split entries: strip spurious glued leading numbers and
-    drop caption-only / empty entries. Applied to every extraction tier."""
-    finalized = []
-    for entry in entries:
-        entry = _REF_LEADING_NUM_RE.sub('', entry.strip()).strip()
-        if entry and not _REF_CAPTION_RE.match(entry):
-            finalized.append(entry)
-    return finalized
-
-
-# ---------------------------------------------------------------------------
-# LLM extraction via Ollama
-# ---------------------------------------------------------------------------
-
-
-def _parse_json(llm_response: str):
-    """Strip markdown fences and parse JSON; return None on failure."""
-    try:
-        return json.loads(_CODE_FENCE.sub("", llm_response).strip())
-    except Exception:
-        return None
-
-
-_METADATA_SKIP = frozenset({
-    "abstract", "introduction", "background", "methods", "results",
-    "discussion", "conclusion", "conclusions", "references", "bibliography",
-    "acknowledgements", "acknowledgments", "appendix", "supplementary",
-    "related work", "future work", "limitations", "keywords", "overview",
-    "summary", "notation", "funding", "license", "orcid",
-})
-
-# Non-title heading patterns: copyright lines, publisher banners, etc.
-_NOT_TITLE_RE = re.compile(
-    r'(?i)^('
-    r'provided proper attribution|permission to reproduce|all rights reserved|'
-    r'published by|journal of|proceedings of|transactions on|'
-    r'vol\.|volume\s+\d|issue\s+\d|doi:|arxiv:'
-    r')',
-)
-
-
-def _clean_boilerplate_title(title: str) -> str | None:
-    """Strip leading copyright/publisher boilerplate GROBID sometimes glues
-    onto a title — a polluted title poisons chunk embeddings, category
-    vectors, and citation matching. Returns None when nothing survives."""
-    title_sentences = re.split(r'(?<=[.!?])\s+', title.strip())
-    while title_sentences and _NOT_TITLE_RE.match(title_sentences[0]):
-        title_sentences.pop(0)
-    cleaned = " ".join(title_sentences).strip()
-    return cleaned or None
-
 
 def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> dict | None:
     """Title/abstract structurally (small LLMs are unreliable at 'is this the
@@ -347,8 +211,8 @@ def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> di
     for section in sections[:7]:
         heading = (section.get("heading") or "").strip()
         if (heading
-                and heading.lower().strip() not in _METADATA_SKIP
-                and not _NOT_TITLE_RE.match(heading)):
+                and heading.lower().strip() not in METADATA_SKIP
+                and not NOT_TITLE_RE.match(heading)):
             title = heading
             break
 
@@ -380,7 +244,7 @@ def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> di
             )
             response.raise_for_status()
             llm_response = response.json().get("response", "").strip()
-            parsed_authors = _parse_json(llm_response)
+            parsed_authors = parse_json(llm_response)
             if isinstance(parsed_authors, list):
                 authors = [author for author in parsed_authors
                            if isinstance(author, str) and author.strip()]
@@ -393,331 +257,11 @@ def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> di
 
 
 # ---------------------------------------------------------------------------
-# References — regex fallback (Tier 3, text-dump splitting)
-# ---------------------------------------------------------------------------
-
-def _ref_section_from_text(full_text: str) -> str | None:
-    """Extract the references section from the full document text, preserving
-    per-reference line breaks.
-    _extract_sections joins items with ' ' (spaces), destroying the line breaks
-    between individual references.  This function works directly on
-    export_to_text() output so each numbered entry stays on its own line.
-    Returns everything after the last known refs heading to end-of-document.
-    """
-    heading_pattern = '|'.join(
-        re.escape(heading) for heading in sorted(_REF_SECTION_HEADINGS, key=len, reverse=True)
-    )
-    heading_matches = list(re.finditer(rf'(?im)^(?:{heading_pattern})\s*\n', full_text))
-    if not heading_matches:
-        return None
-    return full_text[heading_matches[-1].end():].strip()
-
-
-def _split_references_regex(text: str) -> list[str]:
-    """Split a references-section blob into individual entries.
-    Preferred input is text from _ref_section_from_text() which preserves
-    newlines; _extract_sections() space-joins items so step 2 exists as a
-    fallback for that case.
-    Tries in order:
-    1. Numbered/bracketed markers at LINE START — well-formatted plain text
-       ([1] IEEE/ACS, (1) ACS-alt, 1. APA/Vancouver/CSE, 1A. AIP,
-        optionally preceded by a bullet/dash e.g. "- [1]")
-    2. Inline N. markers — handles space-joined text where line breaks are lost
-       (lookbehind prevents matching abbreviations like J., No., and URLs doi:10.)
-    3. Inline bracket markers [N] — IEEE style after reflow
-    4. Blank-line paragraph separation — APA/MLA/Chicago author-date
-    5. Author-date line starts (Lastname, F.)
-    6. One reference per physical line
-
-    All strategies run through _finalize_entries(), which drops figure/table
-    captions and strips spurious glued leading numbers (e.g. "18.Sierra").
-    """
-    text = text.strip()
-    if not text:
-        return []
-
-    def _spans_to_entries(marker_spans):
-        entries = []
-        for span_idx, (_, marker_end) in enumerate(marker_spans):
-            entry_end = (marker_spans[span_idx + 1][0]
-                         if span_idx + 1 < len(marker_spans) else len(text))
-            body = text[marker_end:entry_end].strip()
-            if not body:
-                continue
-            # split off embedded caption lines so they don't pollute a reference
-            entry_lines = []
-            for raw_line in body.split('\n'):
-                line = raw_line.strip()
-                if _REF_CAPTION_RE.match(line):   # caption -> flush current, drop caption
-                    if entry_lines:
-                        entries.append(' '.join(entry_lines).strip())
-                        entry_lines = []
-                    continue
-                entry_lines.append(line)
-            if entry_lines:
-                entries.append(' '.join(entry_lines).strip())
-        return entries
-
-    # 1. Line-start markers: [1], (1), 1., 1A. — optional leading bullet/dash "- [1]"
-    marker_spans = [(match.start(), match.end()) for match in
-                    re.finditer(r'(?m)^[ \t]*(?:[-\u2013\u2014\u2022*]\s+)?'
-                                r'(?:\[\d+\]|\(\d+\)|\d+[a-zA-Z]?\.)\s+', text)]
-    if len(marker_spans) >= 2:
-        entries = _spans_to_entries(marker_spans)
-        if entries:
-            return _finalize_entries(entries)
-
-    # 2. Inline N. — space-joined paragraph (e.g. from _extract_sections)
-    #    (?<![a-zA-Z:]) avoids J., No., Fig., doi:10.
-    #    (?=[A-Z\("[]) avoids matching volume/page numbers before lowercase
-    marker_spans = [(match.start(), match.end()) for match in
-                    re.finditer(r'(?<![a-zA-Z:])\d{1,3}\.\s+(?=[A-Z\("[])', text)]
-    if len(marker_spans) >= 2:
-        entries = _spans_to_entries(marker_spans)
-        if entries:
-            return _finalize_entries(entries)
-
-    # 3. Inline bracket markers [N]
-    marker_spans = [(match.start(), match.end())
-                    for match in re.finditer(r'\[\d+\]\s+', text)]
-    if len(marker_spans) >= 2:
-        entries = _spans_to_entries(marker_spans)
-        if entries:
-            return _finalize_entries(entries)
-
-    # 4. Blank-line paragraph separation
-    paragraphs = [paragraph.strip() for paragraph in re.split(r'\n[ \t]*\n', text)
-                  if len(paragraph.strip()) > 15]
-    if len(paragraphs) >= 2:
-        return _finalize_entries(paragraphs)
-
-    # 5. Author-date: each entry starts on a new line with Lastname, First
-    entry_starts = [match.start() for match in
-                    re.finditer(r'(?m)^[A-Z][a-z\-]{1,25},\s+[A-Z]', text)]
-    if len(entry_starts) >= 2:
-        entries = []
-        for start_idx, entry_start in enumerate(entry_starts):
-            entry_end = (entry_starts[start_idx + 1]
-                         if start_idx + 1 < len(entry_starts) else len(text))
-            body = text[entry_start:entry_end].strip()
-            if len(body) > 15:
-                entries.append(body)
-        if entries:
-            return _finalize_entries(entries)
-
-    # 6. One reference per line
-    lines = [line.strip() for line in text.splitlines() if len(line.strip()) > 20]
-    return _finalize_entries(lines) if len(lines) >= 2 else ([text] if text else [])
-
-
-# ---------------------------------------------------------------------------
-# References — tiered extraction (structure first, regex last)
-# ---------------------------------------------------------------------------
-
-def _clean_structured_entry(text: str) -> str:
-    """Clean a single structure-derived entry: collapse internal line breaks
-    (wrapped lines within one item) and strip a leading '[3] ' / '3. ' marker."""
-    joined = ' '.join(line.strip() for line in text.splitlines() if line.strip())
-    return _REF_MARKER_PREFIX_RE.sub('', joined).strip()
-
-
-def _refs_from_labels(doc) -> list[str]:
-    """Tier 1: docling's layout model labeled individual bibliography entries
-    as DocItemLabel.REFERENCE.  Cleanest path — no splitting heuristics."""
-    refs = []
-    for doc_item in getattr(doc, "texts", []):
-        if getattr(doc_item, "label", None) == DocItemLabel.REFERENCE:
-            item_text = (getattr(doc_item, "text", "") or "").strip()
-            if item_text:
-                refs.append(_clean_structured_entry(item_text))
-    return _finalize_entries(refs)
-
-
-def _refs_from_section_walk(doc) -> list[str]:
-    """Tier 2: walk body reading order; collect body-layer items between the
-    References heading and the next section heading, dropping items whose
-    labels mark them as non-bibliographic (captions, headers, footers, ...)."""
-    collected = []
-    in_refs = False
-    for item, _ in doc.iterate_items():
-        label = getattr(item, "label", None)
-        text  = (getattr(item, "text", "") or "").strip()
-        if label in (DocItemLabel.SECTION_HEADER, DocItemLabel.TITLE):
-            if in_refs:
-                break                       # next section started — refs done
-            in_refs = _is_ref_heading(text)
-            continue
-        if not in_refs or not text or label in _REF_DROP_LABELS:
-            continue
-        collected.append(text)
-
-    if not collected:
-        return []
-    if len(collected) == 1:
-        # Single blob — docling merged the entries; delegate to the splitter.
-        return _split_references_regex(collected[0])
-    # If each collected item still bundles several entries (multi-line),
-    # split those; otherwise treat one item = one reference.
-    entries = []
-    for collected_item in collected:
-        item_lines = [line.strip() for line in collected_item.splitlines() if line.strip()]
-        if (len(item_lines) > 1
-                and sum(bool(_REF_MARKER_PREFIX_RE.match(line)) for line in item_lines) >= 2):
-            entries.extend(_split_references_regex(collected_item))
-        else:
-            entries.append(_clean_structured_entry(collected_item))
-    return _finalize_entries(entries)
-
-
-def _refs_from_text_dump(doc, sections: list[dict] | None = None) -> list[str]:
-    """Tier 3: regex over the flat text export (last resort)."""
-    full_text = doc.export_to_text()
-    ref_section_text = _ref_section_from_text(full_text)
-    if not ref_section_text and sections:
-        ref_section_text = next(
-            (section["text"] for section in reversed(sections)
-             if _is_ref_heading(section.get("heading", ""))),
-            None,
-        )
-    return _split_references_regex(ref_section_text) if ref_section_text else []
-
-
-def _extract_references(doc, sections: list[dict] | None = None) -> list[str]:
-    """Extract bibliography entries, preferring docling's structure over
-    text-dump regex:
-      Tier 1 — REFERENCE-labelled items (layout model segmentation)
-      Tier 2 — reading-order walk of the References section, label-filtered
-      Tier 3 — regex splitting of the flat text export
-    A tier's result is accepted only if it yields >= 2 entries, since a
-    single 'entry' usually means the tier saw one merged blob."""
-    refs = _refs_from_labels(doc)
-    if len(refs) >= 2:
-        return refs
-    refs = _refs_from_section_walk(doc)
-    if len(refs) >= 2:
-        return refs
-    return _refs_from_text_dump(doc, sections)
-
-
-# ---------------------------------------------------------------------------
-# Metadata fallback from docling labels (used when Ollama is unavailable)
-# ---------------------------------------------------------------------------
-
-def _extract_metadata(doc) -> dict:
-    """Extract title/authors/abstract from docling item labels with header fallbacks."""
-    meta = {"title": None, "authors": [], "abstract": None}
-    section_count = 0
-    _SKIP = frozenset({
-        "abstract", "introduction", "background", "methods", "results",
-        "discussion", "conclusion", "conclusions", "references", "bibliography",
-        "acknowledgements", "acknowledgments", "appendix", "supplementary",
-        "related work", "future work", "limitations", "orcid", "license",
-        "terms", "funding", "keywords", "overview", "notation", "summary",
-    })
-    for item, _ in doc.iterate_items():
-        label = getattr(item, "label", None)
-        text  = (getattr(item, "text", "") or "").strip()
-        if not text:
-            continue
-        if label == DocItemLabel.TITLE and meta["title"] is None:
-            meta["title"] = text
-        if label == DocItemLabel.SECTION_HEADER:
-            section_count += 1
-            heading_lower = text.lower().strip()
-            if meta["title"] is None and heading_lower not in _SKIP and len(text.split()) <= 15:
-                meta["title"] = text
-            elif (section_count <= 6 and not meta["authors"]
-                  and 1 <= len(text.split()) <= 5
-                  and heading_lower not in _SKIP
-                  and all(re.match(r'^[A-Z][a-zA-Z\-\.]*$', word) for word in text.split())):
-                meta["authors"].append(text)
-            if heading_lower.startswith("abstract"):
-                meta["abstract"] = ""
-        elif meta["abstract"] == "" and label not in (DocItemLabel.SECTION_HEADER, DocItemLabel.TITLE):
-            meta["abstract"] = text
-    return meta
-
-
-# ---------------------------------------------------------------------------
 # GROBID — title / authors / abstract / references (CRF models)
 # ---------------------------------------------------------------------------
 # GROBID consumes the raw PDF over HTTP and returns TEI XML. It replaces the
 # regex + LLM metadata/reference parsing as the PRIMARY path; the docling/LLM
-# heuristics below survive only as fallbacks for when the server is down.
-
-_TEI_NS = {"tei": "http://www.tei-c.org/ns/1.0"}
-
-_MONTH_NUM = {m: i + 1 for i, m in enumerate(
-    ["jan", "feb", "mar", "apr", "may", "jun",
-     "jul", "aug", "sep", "oct", "nov", "dec"])}
-
-# Years 1600–2099: wide enough for any citable document, narrow enough that
-# page numbers and grant IDs rarely collide.
-_YEAR = r"(?:1[6-9]|20)\d{2}"
-
-
-def _valid_created(year: int, month: int | None) -> bool:
-    """A creation date can't be in the future: reject candidates later than
-    the current UTC year/month (a bare year equal to the current year is
-    allowed — the month is simply unknown)."""
-    now = datetime.now(timezone.utc)
-    if year > now.year:
-        return False
-    if year == now.year and month is not None and month > now.month:
-        return False
-    return True
-
-
-def _scan_created(text: str) -> dict | None:
-    """Closest plausible {year, month|null} date to the current date mentioned in `text`.
-
-    Callers pass the first-page region only (~3000 chars: arXiv stamp,
-    'Received:', journal line) — body text is full of in-text citation years
-    ('(Hochreiter & Schmidhuber, 1997)') that would make every paper look as
-    old as its oldest reference. Future dates are rejected via
-    _valid_created; among survivors the closest wins, with a known month
-    beating an unknown one in the same year.
-    """
-    candidates: list[tuple[int, int | None]] = []
-    # 'June 2017', 'Jun. 2017', 'August 15, 2017' (month before year)
-    for match in re.finditer(
-            rf"\b([A-Za-z]{{3,9}})\.?\s+(?:\d{{1,2}}(?:st|nd|rd|th)?,?\s+)?({_YEAR})\b",
-            text):
-        month = _MONTH_NUM.get(match.group(1)[:3].lower())
-        if month:
-            candidates.append((int(match.group(2)), month))
-    # ISO '2017-06' / '2017-06-12'
-    for match in re.finditer(rf"\b({_YEAR})-(\d{{2}})\b", text):
-        month = int(match.group(2))
-        if 1 <= month <= 12:
-            candidates.append((int(match.group(1)), month))
-    # Bare years (month unknown)
-    for match in re.finditer(rf"\b({_YEAR})\b", text):
-        candidates.append((int(match.group(1)), None))
-
-    valid_dates = [(year, month) for year, month in candidates
-                   if _valid_created(year, month)]
-    if not valid_dates:
-        return None
-    # Latest surviving date wins (= closest to now, since future dates are already
-    # rejected). An unknown month sorts to 0 so a known month still beats it in
-    # the same year — with `or 12` a bare '2017' would outrank 'June 2017'.
-    year, month = max(valid_dates, key=lambda date: (date[0], date[1] or 0))
-    return {"year": year, "month": month}
-
-
-def _tei_text(element) -> str:
-    """Flattened text content of a TEI element (None-safe)."""
-    return " ".join("".join(element.itertext()).split()) if element is not None else ""
-
-
-def _tei_persname(persname_el) -> str:
-    """'First Middle Last' from a TEI <persName> element."""
-    forenames = [_tei_text(forename)
-                 for forename in persname_el.findall("tei:forename", _TEI_NS)]
-    surname   = _tei_text(persname_el.find("tei:surname", _TEI_NS))
-    name_parts = [part for part in forenames + [surname] if part]
-    return " ".join(name_parts)
+# heuristics (extract_utils) survive only as fallbacks for when the server is down.
 
 
 def _grobid_alive() -> bool:
@@ -746,36 +290,36 @@ def _grobid_header(pdf_path: str) -> dict | None:
     except (requests.RequestException, ET.ParseError):
         return None
 
-    raw_title = _tei_text(tei_root.find(".//tei:titleStmt/tei:title", _TEI_NS))
-    title = _clean_boilerplate_title(raw_title) if raw_title else None
+    raw_title = tei_text(tei_root.find(".//tei:titleStmt/tei:title", TEI_NS))
+    title = clean_boilerplate_title(raw_title) if raw_title else None
 
     authors = []
     for author_el in tei_root.findall(
-            ".//tei:sourceDesc//tei:biblStruct//tei:author/tei:persName", _TEI_NS):
-        author_name = _tei_persname(author_el)
+            ".//tei:sourceDesc//tei:biblStruct//tei:author/tei:persName", TEI_NS):
+        author_name = tei_persname(author_el)
         if author_name and author_name not in authors:
             authors.append(author_name)
 
-    abstract = _tei_text(tei_root.find(".//tei:profileDesc/tei:abstract", _TEI_NS)) or None
+    abstract = tei_text(tei_root.find(".//tei:profileDesc/tei:abstract", TEI_NS)) or None
 
     # Publication date: prefer the machine-readable @when attribute; fall back
-    # to scanning the element's text ('June 2017'). _scan_created applies the
+    # to scanning the element's text ('June 2017'). scan_created applies the
     # same future-date cap as the first-page fallback.
     created = None
-    date_el = tei_root.find(".//tei:publicationStmt/tei:date", _TEI_NS)
+    date_el = tei_root.find(".//tei:publicationStmt/tei:date", TEI_NS)
     if date_el is None:
         date_el = tei_root.find(
-            ".//tei:sourceDesc//tei:biblStruct//tei:imprint/tei:date", _TEI_NS)
+            ".//tei:sourceDesc//tei:biblStruct//tei:imprint/tei:date", TEI_NS)
     if date_el is not None:
         when = date_el.get("when") or ""
         when_match = re.match(r"(\d{4})(?:-(\d{2}))?", when)
-        if when_match and _valid_created(
+        if when_match and valid_created(
                 int(when_match.group(1)),
                 int(when_match.group(2)) if when_match.group(2) else None):
             created = {"year": int(when_match.group(1)),
                        "month": int(when_match.group(2)) if when_match.group(2) else None}
         else:
-            created = _scan_created(_tei_text(date_el))
+            created = scan_created(tei_text(date_el))
 
     if title is None and not authors and abstract is None:
         return None
@@ -804,22 +348,22 @@ def _grobid_references(pdf_path: str) -> tuple[list[str], list[dict]] | None:
 
     raw_refs: list[str] = []
     parsed:   list[dict] = []
-    for bibl in tei_root.findall(".//tei:listBibl/tei:biblStruct", _TEI_NS):
+    for bibl in tei_root.findall(".//tei:listBibl/tei:biblStruct", TEI_NS):
         # Article title lives in <analytic>; for books/theses only <monogr>
         # exists, so fall back to it.
-        title_el = (bibl.find("tei:analytic/tei:title", _TEI_NS)
-                    if bibl.find("tei:analytic", _TEI_NS) is not None else None)
-        if title_el is None or not _tei_text(title_el):
-            title_el = bibl.find("tei:monogr/tei:title", _TEI_NS)
-        title = _tei_text(title_el)
+        title_el = (bibl.find("tei:analytic/tei:title", TEI_NS)
+                    if bibl.find("tei:analytic", TEI_NS) is not None else None)
+        if title_el is None or not tei_text(title_el):
+            title_el = bibl.find("tei:monogr/tei:title", TEI_NS)
+        title = tei_text(title_el)
 
         authors = []
-        for persname_el in bibl.findall(".//tei:author/tei:persName", _TEI_NS):
-            author_name = _tei_persname(persname_el)
+        for persname_el in bibl.findall(".//tei:author/tei:persName", TEI_NS):
+            author_name = tei_persname(persname_el)
             if author_name and author_name not in authors:
                 authors.append(author_name)
 
-        raw_citation = _tei_text(bibl.find("tei:note[@type='raw_reference']", _TEI_NS))
+        raw_citation = tei_text(bibl.find("tei:note[@type='raw_reference']", TEI_NS))
         if not raw_citation:
             raw_citation = " ".join(part for part in [", ".join(authors), title] if part)
 
@@ -876,7 +420,7 @@ def convert_document(doc_meta: dict) -> dict:
     doc = conversion.document
 
     full_text = doc.export_to_text()
-    sections  = _extract_sections(doc)
+    sections  = extract_sections(doc)
 
     # Metadata: GROBID first, merged PER FIELD — a partial GROBID header still
     # gets its gaps filled by the structural/LLM path, then by docling labels.
@@ -891,7 +435,7 @@ def convert_document(doc_meta: dict) -> dict:
         authors  = authors  or llm_meta.get("authors") or []
         abstract = abstract or llm_meta.get("abstract")
     if not (title and authors and abstract):
-        docling_meta = _extract_metadata(doc)
+        docling_meta = extract_metadata(doc)
         title    = title    or docling_meta.get("title")
         authors  = authors  or docling_meta.get("authors") or []
         abstract = abstract or docling_meta.get("abstract")
@@ -909,7 +453,7 @@ def convert_document(doc_meta: dict) -> dict:
 
     # Created date: GROBID TEI date, else first-page scan (NOT the whole body
     # — in-text citation years would date every paper by its oldest reference).
-    created = grobid_meta.get("created") or _scan_created(full_text[:CREATED_SCAN_CHARS])
+    created = grobid_meta.get("created") or scan_created(full_text[:CREATED_SCAN_CHARS])
 
     metadata = {"title": title, "authors": authors, "abstract": abstract,
                 "created": created}
@@ -917,9 +461,12 @@ def convert_document(doc_meta: dict) -> dict:
     refs        = (grobid or {}).get("references") or []
     parsed_refs = (grobid or {}).get("parsedReferences") or []
     if not refs:
-        refs = _extract_references(doc, sections)
+        refs = extract_references(doc, sections)
 
-    return {
+    # strip_nul over the WHOLE record, not per field: NUL comes from the PDF's
+    # own font tables and lands anywhere docling put text. Postgres rejects it
+    # outright, so it must not survive past extraction (see strip_nul).
+    return strip_nul({
         "docId":            doc_meta["docId"],
         "filename":         doc_meta["filename"],
         "filePath":         file_path,
@@ -927,11 +474,11 @@ def convert_document(doc_meta: dict) -> dict:
         "text":             full_text,
         "markdown":         doc.export_to_markdown(),
         "sections":         sections,
-        "tables":           _extract_tables(doc),
+        "tables":           extract_tables(doc),
         "references":       refs,
         "parsedReferences": parsed_refs,
         "metadata":         metadata,
-    }
+    })
 
 
 def run(force: bool = False) -> None:
