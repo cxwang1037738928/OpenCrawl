@@ -28,6 +28,7 @@ import 'dotenv/config';
 import { tokenise } from '../extraction/regex_utils.js';
 import { getPrompt } from '../prompts.js';
 import { embedTexts } from './embedder.js';
+import { buildGraphIndex, graphFacts } from './graph_retriever.js';
 import { prisma } from '../db.js';
 
 const OLLAMA_URL     = process.env.OLLAMA_URL || 'http://localhost:11434';
@@ -57,6 +58,13 @@ async function loadCorpus(collection) {
     where: { collectionId: collection.id },
     orderBy: [{ docId: 'asc' }, { chunkIndex: 'asc' }],
   });
+  // The graph rides this cache rather than being loaded per query: it is on the
+  // same Collection row, and ingestGraph bumps corpusUpdatedAt on every write,
+  // which is already this cache's invalidation key. No second staleness path.
+  const { knowledgeGraph } = await prisma.collection.findUniqueOrThrow({
+    where:  { id: collection.id },
+    select: { knowledgeGraph: true },
+  });
   if (rows.length === 0) {
     const err = new Error('This collection has no indexed chunks — upload PDFs and run the pipeline first');
     err.status = 503;
@@ -79,6 +87,9 @@ async function loadCorpus(collection) {
     chunks,
     categories: collection.categories?.categories || [],   // absent → no keyword boost
     lexical: buildLexicalIndex(chunks),
+    // null when the collection has no graph yet — graph facts are then skipped
+    // and the chat behaves exactly as it did before.
+    graph: buildGraphIndex(knowledgeGraph),
   };
 }
 
@@ -215,9 +226,110 @@ export async function retrieve(collection, queryEmbedding, queryText, { topK = D
   }));
 }
 
+/**
+ * Knowledge-graph facts for a query, from the graph cached with the corpus.
+ * Empty when the collection has no graph or the query mentions no known entity.
+ * @returns {Promise<{facts: object[], seeds: string[]}>}
+ */
+export async function retrieveFacts(collection, queryText, options = {}) {
+  const corpus = await getCorpus(collection);
+  if (!corpus.graph) return { facts: [], seeds: [] };
+  return graphFacts(queryText, corpus.graph, options);
+}
+
 // ---------------------------------------------------------------------------
-// Answer synthesis (Ollama, REASONING_MODEL)
+// Answer synthesis — Azure AI Foundry when configured, else Ollama
 // ---------------------------------------------------------------------------
+
+// Foundry exposes an OpenAI-compatible API at <resource>/openai/v1. The .env
+// value is the PROJECT endpoint (.../api/projects/<name>), which is a different
+// path on the same host, so only its origin is reused.
+const AZURE_PROJECT_ENDPOINT = (process.env.MICROSOFT_AZURE_PROJECT_ENDPOINT || '').trim();
+const AZURE_API_KEY = (process.env.MICROSOFT_AZURE_API_KEY || '').trim();
+const AZURE_DEPLOYMENT = (process.env.AZURE_DEPLOYMENT_NAME || '').trim();
+
+const azureConfigured = () =>
+  Boolean(AZURE_PROJECT_ENDPOINT && AZURE_API_KEY && AZURE_DEPLOYMENT);
+
+let _azureClient = null;
+async function azureClient() {
+  if (_azureClient) return _azureClient;
+  const { default: OpenAI } = await import('openai');
+  const baseURL = `${new URL(AZURE_PROJECT_ENDPOINT).origin}/openai/v1`;
+  // maxRetries 0 because the SDK's default retry on 429 waits BEFORE the stream
+  // starts, so no token ever arrives to reset the inactivity timer — the request
+  // is aborted at OLLAMA_IDLE_TIMEOUT and the real cause (a rate limit, with a
+  // clear remedy) is reported as "Request was aborted". Failing fast tells the
+  // caller what to fix.
+  _azureClient = new OpenAI({ baseURL, apiKey: AZURE_API_KEY, maxRetries: 0 });
+  return _azureClient;
+}
+
+/**
+ * Fold the system prompt into the LATEST user message.
+ *
+ * Foundry deployments can discard role:'system' silently. Measured on
+ * Phi-4-mini-instruct: prompt_tokens stayed at 16 whether the system message
+ * held 87 characters or 18,027, and the model answered as though it had no
+ * context — no citations, no graph facts, questions answered from its own
+ * memory. The identical payload in a user message is counted correctly and used
+ * correctly at 18k chars. There is no error, so this cannot be detected from a
+ * response; folding unconditionally is the only safe default.
+ *
+ * The LATEST user turn, not the first: in a long conversation the prompt would
+ * otherwise drift far from the question it governs. The cost is resending the
+ * context every turn, which is the reliable side of that trade.
+ */
+function foldSystemIntoLatestUser(system, messages) {
+  const folded = messages.map((message) => ({ ...message }));
+  for (let index = folded.length - 1; index >= 0; index--) {
+    if (folded[index].role === 'user') {
+      folded[index].content = `${system}\n\n---\n\n${folded[index].content}`;
+      return folded;
+    }
+  }
+  return [...folded, { role: 'user', content: system }];
+}
+
+/**
+ * Stream a completion from Azure AI Foundry.
+ *
+ * Hosted, so the 2048-token window Ollama silently imposes locally does not
+ * apply — the deployment serves the model's real context. The failure mode moves
+ * from truncation to rate limiting: a deployment's tokens-per-minute quota
+ * rejects an oversized request outright with 429 rather than quietly dropping
+ * the front of the prompt, which is the better of the two.
+ */
+async function completeViaAzure(system, messages, abortController, armIdleTimer) {
+  const client = await azureClient();
+  let reply = '';
+  armIdleTimer();
+  try {
+    const stream = await client.chat.completions.create({
+      model: AZURE_DEPLOYMENT,
+      messages: foldSystemIntoLatestUser(system, messages),
+      temperature: 0.2,
+      stream: true,
+    }, { signal: abortController.signal });
+    for await (const part of stream) {
+      armIdleTimer();                      // progress — restart the idle clock
+      reply += part.choices?.[0]?.delta?.content || '';
+    }
+  } catch (err) {
+    const status = err.status;
+    const httpError = new Error(
+      status === 429
+        ? `Azure rate limit hit for deployment ${AZURE_DEPLOYMENT} — raise its tokens-per-minute quota or retrieve fewer chunks`
+        : status === 401 || status === 403
+          ? 'Azure rejected MICROSOFT_AZURE_API_KEY'
+          : err.name === 'AbortError'
+            ? `Azure sent nothing for ${OLLAMA_IDLE_TIMEOUT / 1000}s`
+            : `Azure request failed: ${err.message}`);
+    httpError.status = status === 429 ? 429 : 502;
+    throw httpError;
+  }
+  return reply;
+}
 
 /**
  * Answer the conversation using the retrieved chunks as grounding context.
@@ -226,7 +338,7 @@ export async function retrieve(collection, queryEmbedding, queryText, { topK = D
  * @returns {Promise<{reply: string, model: string, quotesByChunk: string[][]}>}
  *          quotesByChunk[i] = verbatim quotes in the reply grounded by chunks[i]
  */
-export async function answer(messages, chunks) {
+export async function answer(messages, chunks, facts = []) {
   const model = (process.env.REASONING_MODEL || '').trim();
   if (!model) {
     const err = new Error('REASONING_MODEL is not set — pick one in the Models tab');
@@ -239,10 +351,18 @@ export async function answer(messages, chunks) {
       `[${chunkIdx + 1}] ${chunk.filename}${chunk.heading ? ` — ${chunk.heading}` : ''}\n${chunk.text}`)
     .join('\n\n');
 
+  // Graph facts are a SEPARATE block, unnumbered. Numbering them would invite
+  // the model to cite them as [n], and repairCitations would then try to ground
+  // a triple against chunk text it never appears in — see the [G] note below.
+  const graphContext = facts.length
+    ? facts.map((fact) => `- ${fact.subject} ${fact.predicate} ${fact.object}`).join('\n')
+    : '';
+
   // The citation format the prompt demands is load-bearing: the frontend
   // turns [n] into a link into the PDF, so a model that writes [n1] or names
   // the file inline produces an answer with no working citations.
-  const system = getPrompt('chat_system', { context });
+  const system = getPrompt(facts.length ? 'chat_system_graph' : 'chat_system',
+                           { context, graphContext });
 
   // Stream so the timeout can be based on inactivity rather than total time:
   // a slow model writing a long answer is working, not hung.
@@ -252,6 +372,19 @@ export async function answer(messages, chunks) {
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => abortController.abort(), OLLAMA_IDLE_TIMEOUT);
   };
+
+  if (azureConfigured()) {
+    let reply;
+    try {
+      reply = await completeViaAzure(system, messages, abortController, armIdleTimer);
+    } finally {
+      clearTimeout(idleTimer);             // owned here, same as the Ollama path
+    }
+    const normalized = normalizeGraphMarkers(
+      normalizeCitations(reply.trim(), chunks.length), facts.length);
+    const { text, quotesByChunk } = await repairCitations(normalized, chunks);
+    return { reply: text, model: AZURE_DEPLOYMENT, quotesByChunk };
+  }
 
   let response;
   armIdleTimer();
@@ -316,8 +449,12 @@ export async function answer(messages, chunks) {
   }
 
   // Repair before returning: the model's numbering is a guess, not an index.
-  const { text: repairedReply, quotesByChunk } =
-    await repairCitations(normalizeCitations(reply.trim(), chunks.length), chunks);
+  // normalizeGraphMarkers runs FIRST so [graph]/[g] become [G] before anything
+  // else looks at markers, and last-resort strips [G] when no facts were sent —
+  // a marker for context the model never received is noise.
+  const normalized = normalizeGraphMarkers(
+    normalizeCitations(reply.trim(), chunks.length), facts.length);
+  const { text: repairedReply, quotesByChunk } = await repairCitations(normalized, chunks);
   return { reply: repairedReply, model, quotesByChunk };
 }
 
@@ -563,6 +700,23 @@ export async function repairCitations(text, chunks, embedClaims = embedTexts) {
     text: repaired.replace(/ {2,}/g, ' ').replace(/ ([.,;:)])/g, '$1'),
     quotesByChunk,
   };
+}
+
+/**
+ * Coerce the graph marker into the single [G] form the frontend styles, and drop
+ * it entirely when no facts were in the context.
+ *
+ * [G] is intentionally invisible to repairCitations: a triple is the extraction
+ * model's paraphrase of a paper, so it appears verbatim in no chunk. Sent
+ * through the grounding check it would either be flagged as hallucinated — a
+ * true, sourced fact reported as fabricated — or clear the cosine bar against
+ * some unrelated chunk and be silently rewritten into a [n] pointing at text
+ * that does not support it. CITE_MARKER only matches digits, so [G] passes
+ * through untouched; this function just tidies the spellings models emit.
+ */
+function normalizeGraphMarkers(text, factCount) {
+  const tidied = text.replace(/\[\s*(?:G|g|graph|Graph|KG|kg)\s*\]/g, '[G]');
+  return factCount ? tidied : tidied.replace(/\[G\]/g, '');
 }
 
 /**

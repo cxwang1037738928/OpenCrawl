@@ -711,6 +711,27 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   cursor: help;
 }
 
+/* [G] — the claim used a knowledge-graph triple. Same shape as [!] so it reads
+   as one of the citation family, yellow rather than red: the fact has documents
+   behind it and is not suspected of being fabricated, it just cannot be checked
+   against excerpt text the way a [n] can. Non-clickable — a triple cites whole
+   documents, not a span to open. */
+.citation-graph {
+  position: relative;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b8860b;
+  background: rgba(224, 176, 48, 0.16);
+  border: 1px solid #d4a017;
+  border-radius: 6px;
+  padding: 0 5px;
+  margin: 0 1.5px;
+  vertical-align: 2px;
+  line-height: 1.5;
+  cursor: help;
+}
+
 /* [n!] — flagged but clickable: opens the model's cited chunk, still warns. */
 /* Hover/focus tooltip explaining the flag. A real element, not title=, so it
    shows instantly and reads at chat-bubble size. position:fixed + JS-set
@@ -772,8 +793,12 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   border-bottom-color: var(--elevated);
 }
 
+/* Both marker types share the tooltip element, so both must reveal it — scoping
+   this to .citation-unsupported alone left [G] rendering an invisible tip. */
 .citation-unsupported:hover .unsupported-tip,
-.citation-unsupported:focus-visible .unsupported-tip {
+.citation-unsupported:focus-visible .unsupported-tip,
+.citation-graph:hover .unsupported-tip,
+.citation-graph:focus-visible .unsupported-tip {
   opacity: 1;
   visibility: visible;
 }

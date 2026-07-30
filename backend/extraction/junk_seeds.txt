@@ -1,0 +1,80 @@
+# junk_seeds.txt — entity names to drop from the knowledge graph at query time.
+#
+# One name per line, matched EXACTLY as written (before normalization), '#' starts
+# a comment. Read by backend/retriever/graph_retriever.js; nodes named here are
+# excluded from the gazetteer AND from returned facts, so they can neither seed a
+# query nor appear as a triple endpoint.
+#
+# Two kinds of entry belong here, both extraction artifacts rather than concepts:
+#
+#   1. Table furniture. Docling emits column headers as body text, so a header
+#      becomes a node with a very high degree — HIGH reached degree 123 in a
+#      192-paper corpus while appearing in ONE paper.
+#   2. Generic nouns that survive the document-frequency floor. Anything in only
+#      one paper is already rejected by GRAPH_MIN_SEED_DOC_FREQ; these appear in
+#      several, so only an explicit list catches them.
+#
+# Do NOT add short strings as a class. In a materials corpus the two-character
+# names are mostly element symbols — Li, Ti, C, O, Cu, Na, Co, Ag — and they are
+# among the most important entities in the graph. Curate, never pattern-match.
+
+# --- table furniture -------------------------------------------------------
+HIGH
+LOW
+Table
+Figure
+Fig.
+
+# --- generic nouns appearing in several papers (survive the df floor) -------
+energy
+features
+feature
+materials
+material
+model
+models
+method
+methods
+accuracy
+data
+structure
+information
+Validity
+performance
+results
+Results
+value
+values
+approach
+analysis
+system
+systems
+process
+type
+types
+number
+set
+work
+study
+paper
+case
+time
+space
+state
+states
+function
+functions
+training
+test
+prediction
+representation
+theory
+Literature
+
+# --- pronouns and articles the extractor occasionally emits -----------------
+a
+an
+the
+it
+this
+that
