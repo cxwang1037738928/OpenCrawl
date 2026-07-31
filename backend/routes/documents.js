@@ -22,7 +22,6 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import { prisma } from '../db.js';
-import { blockInDemo } from '../middleware/demo.js';
 
 const ROOT        = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const UPLOADS_DIR = path.resolve(ROOT, process.env.UPLOADS_DIR || 'uploads');
@@ -73,7 +72,7 @@ documentsRouter.get('/', wrap(async (req, res) => {
   res.json({ documents: docs });
 }));
 
-documentsRouter.post('/', blockInDemo('Uploading documents'), upload.array('files'), wrap(async (req, res) => {
+documentsRouter.post('/', upload.array('files'), wrap(async (req, res) => {
   const files = req.files || [];
   if (files.length === 0) throw httpError(400, 'No files uploaded (multipart field "files")');
 
@@ -131,7 +130,7 @@ documentsRouter.get('/:docId/pdf', wrap(async (req, res) => {
   res.sendFile(path.resolve(doc.filePath));
 }));
 
-documentsRouter.delete('/:docId', blockInDemo('Deleting documents'), wrap(async (req, res) => {
+documentsRouter.delete('/:docId', wrap(async (req, res) => {
   const doc = await prisma.document.findFirst({
     where: { collectionId: req.collection.id, docId: req.params.docId },
   });

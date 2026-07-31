@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getDeploymentConfig, getModels, saveSettings } from '../api.js';
+import { getModels, saveSettings } from '../api.js';
 
 // Stable identity: RoleCard's effect depends on `catalog`, so a fresh []
 // literal per render would re-run it on every render.
@@ -17,7 +17,7 @@ const ROLE_LABELS = {
 const formatContext = (tokens) =>
   (tokens >= 1024 ? `${Math.round(tokens / 1024)}k` : `${tokens}`) + ' tokens';
 
-function RoleCard({ role, description, value, options, onSaved, readOnly }) {
+function RoleCard({ role, description, value, options, onSaved }) {
   const [draft, setDraft] = useState(value || '');
   const [saveState, setSaveState] = useState('idle'); // idle | saving | ok | err
   const [saveMessage, setSaveMessage] = useState('');
@@ -51,7 +51,7 @@ function RoleCard({ role, description, value, options, onSaved, readOnly }) {
       <div className="model-row">
         <select
           value={draft}
-          disabled={readOnly || options.length === 0}
+          disabled={options.length === 0}
           onChange={(event) => { setDraft(event.target.value); setSaveState('idle'); }}
           aria-label={`${ROLE_LABELS[role] || role} model`}
         >
@@ -64,11 +64,9 @@ function RoleCard({ role, description, value, options, onSaved, readOnly }) {
             </option>
           ))}
         </select>
-        {!readOnly && (
-          <button className="btn" onClick={apply} disabled={!dirty || !draft.trim() || saveState === 'saving'}>
-            {saveState === 'saving' ? 'Saving…' : 'Apply'}
-          </button>
-        )}
+        <button className="btn" onClick={apply} disabled={!dirty || !draft.trim() || saveState === 'saving'}>
+          {saveState === 'saving' ? 'Saving…' : 'Apply'}
+        </button>
       </div>
       {saveState === 'ok' && !dirty && <p className="save-note ok">✓ {saveMessage}</p>}
       {saveState === 'err' && <p className="save-note err">{saveMessage}</p>}
@@ -95,16 +93,9 @@ function RoleCard({ role, description, value, options, onSaved, readOnly }) {
 export default function ModelsPanel() {
   const [modelsInfo, setModelsInfo] = useState(null);
   const [error, setError] = useState(null);
-  // Demo deployments show which models are configured but cannot change them:
-  // POST /corpus/settings rewrites server-side config, and a visitor pointing
-  // chat at an undeployed model would break it for everyone.
-  const [demo, setDemo] = useState(false);
 
   useEffect(() => {
     getModels().then(setModelsInfo).catch((err) => setError(err.message));
-    let live = true;
-    getDeploymentConfig().then((config) => { if (live) setDemo(Boolean(config.demo)); });
-    return () => { live = false; };
   }, []);
 
   if (error) return <div className="viz-empty"><p>{error}</p></div>;
@@ -121,12 +112,6 @@ export default function ModelsPanel() {
           Ollama, Google and Azure — while the extraction roles run on Ollama only
           and list its installed tags.
         </p>
-        {demo && (
-          <div className="banner">
-            This is a read-only demo — models are fixed and cannot be changed.
-          </div>
-        )}
-
         {!modelsInfo.ollamaUp && (
           <div className="banner">
             Ollama is unreachable at {modelsInfo.ollamaUrl} — roles that run on it have
@@ -144,7 +129,6 @@ export default function ModelsPanel() {
             // actually reach, so the UI never offers an unreachable one.
             options={modelsInfo.roleOptions?.[role] || NO_CATALOG}
             onSaved={(roles) => setModelsInfo((prev) => ({ ...prev, roles }))}
-            readOnly={demo}
           />
         ))}
       </div>

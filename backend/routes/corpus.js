@@ -27,7 +27,6 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import { UMAP } from 'umap-js';
 import { prisma } from '../db.js';
-import { blockInDemo } from '../middleware/demo.js';
 
 const ROOT     = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ENV_PATH = path.join(ROOT, '.env');
@@ -330,7 +329,7 @@ modelsRouter.get('/models', wrap(async (req, res) => {
  * new values without a server restart. Temp-file + rename so a crash mid-write
  * can't truncate .env.
  */
-modelsRouter.post('/settings', blockInDemo('Changing model settings'), wrap(async (req, res) => {
+modelsRouter.post('/settings', wrap(async (req, res) => {
   const updates = req.body || {};
   const roleKeys = Object.keys(updates);
   if (roleKeys.length === 0) throw httpError(400, 'Empty settings payload');

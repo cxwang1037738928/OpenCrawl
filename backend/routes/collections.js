@@ -25,7 +25,6 @@ import { documentsRouter } from './documents.js';
 import { pipelineRouter } from './pipeline.js';
 import { collectionCorpusRouter } from './corpus.js';
 import { removeScratch } from '../pipeline/collectionStore.js';
-import { blockInDemo } from '../middleware/demo.js';
 
 const ROOT        = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const UPLOADS_DIR = path.resolve(ROOT, process.env.UPLOADS_DIR || 'uploads');
@@ -63,7 +62,7 @@ collectionsRouter.get('/', wrap(async (req, res) => {
   res.json({ collections: collections.map(collectionSummary) });
 }));
 
-collectionsRouter.post('/', blockInDemo('Creating collections'), wrap(async (req, res) => {
+collectionsRouter.post('/', wrap(async (req, res) => {
   const { name, crawler = 'sapphire' } = req.body ?? {};
   if (typeof name !== 'string' || !name.trim()) throw httpError(400, '"name" is required');
   if (!CRAWLERS.includes(crawler)) {
@@ -98,7 +97,7 @@ const loadOwnedCollection = wrap(async (req, res, next) => {
 
 collectionsRouter.use('/:collectionId', loadOwnedCollection);
 
-collectionsRouter.delete('/:collectionId', blockInDemo('Deleting collections'), wrap(async (req, res) => {
+collectionsRouter.delete('/:collectionId', wrap(async (req, res) => {
   // DB cascade removes chats (+ their history), documents, and chunks.
   await prisma.collection.delete({ where: { id: req.collection.id } });
   await fs.rm(path.join(UPLOADS_DIR, String(req.collection.id)), { recursive: true, force: true })

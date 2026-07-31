@@ -42,7 +42,6 @@ import {
   exportDocumentsMeta, exportDoclings, exportEmbeddings, exportCategories,
   ingestDoclings, ingestChunks, ingestCategories, ingestGraph, ingestGraphProgress,
 } from '../pipeline/collectionStore.js';
-import { blockInDemo } from '../middleware/demo.js';
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
 
@@ -278,7 +277,7 @@ pipelineRouter.get('/status', wrap(async (req, res) => {
 
 // POST /enhance { docId, dpi? } — per-document page enhancement; run before
 // extract so extract.py can route scanned pages to the OCR converter.
-pipelineRouter.post('/enhance', blockInDemo('PDF enhancement'), wrap(async (req, res) => {
+pipelineRouter.post('/enhance', wrap(async (req, res) => {
   const { docId, dpi = 300 } = req.body ?? {};
   if (!docId) throw httpError(400, '"docId" is required');
 
@@ -289,18 +288,18 @@ pipelineRouter.post('/enhance', blockInDemo('PDF enhancement'), wrap(async (req,
 }));
 
 // POST /extract { force? }
-pipelineRouter.post('/extract', blockInDemo('Extraction'), wrap(async (req, res) => {
+pipelineRouter.post('/extract', wrap(async (req, res) => {
   res.json(await STAGES.extract(req.collection, { force: req.body?.force === true }));
 }));
 
 // POST /embed { force? }
-pipelineRouter.post('/embed', blockInDemo('Embedding'), wrap(async (req, res) => {
+pipelineRouter.post('/embed', wrap(async (req, res) => {
   res.json(await STAGES.embed(req.collection, { force: req.body?.force === true })
     .catch(err => { throw toHttp(err); }));
 }));
 
 // POST /categorize { threshold } — cosine similarity in (0, 1], required.
-pipelineRouter.post('/categorize', blockInDemo('Categorization'), wrap(async (req, res) => {
+pipelineRouter.post('/categorize', wrap(async (req, res) => {
   const { threshold } = req.body ?? {};
   if (typeof threshold !== 'number' || isNaN(threshold) || threshold <= 0 || threshold > 1) {
     throw httpError(400, '"threshold" must be a number in (0, 1]');
@@ -309,7 +308,7 @@ pipelineRouter.post('/categorize', blockInDemo('Categorization'), wrap(async (re
 }));
 
 // POST /heuristic { k? }
-pipelineRouter.post('/heuristic', blockInDemo('Ranking'), wrap(async (req, res) => {
+pipelineRouter.post('/heuristic', wrap(async (req, res) => {
   const k = parseInt(req.body?.k ?? process.env.HEURISTIC_K ?? '2', 10);
   if (!Number.isInteger(k) || k < 1) throw httpError(400, '"k" must be a positive integer');
   res.json(await STAGES.heuristic(req.collection, { k }));
@@ -317,14 +316,14 @@ pipelineRouter.post('/heuristic', blockInDemo('Ranking'), wrap(async (req, res) 
 
 // POST /build-graph — the knowledge-graph run on its own (its own frontend
 // button). Long: an LLM call per packed batch of chunks.
-pipelineRouter.post('/build-graph', blockInDemo('Knowledge graph generation'), wrap(async (req, res) => {
+pipelineRouter.post('/build-graph', wrap(async (req, res) => {
   res.json(await STAGES.graph(req.collection).catch(err => { throw toHttp(err); }));
 }));
 
 // POST /run { threshold?, k?, force? } — the INDEXING stages (2–5) in order; a
 // failing stage stops the run and the response shows how far it got. The graph
 // is not part of this — POST /build-graph runs it.
-pipelineRouter.post('/run', blockInDemo('Running the pipeline'), wrap(async (req, res) => {
+pipelineRouter.post('/run', wrap(async (req, res) => {
   const {
     threshold = parseFloat(process.env.CATEGORIES_SIMILARITY || '0.75'),
     k         = parseInt(process.env.HEURISTIC_K || '2', 10),
