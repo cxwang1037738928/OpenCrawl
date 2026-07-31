@@ -55,6 +55,23 @@ const postJson = (url, payload) =>
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 export const register = (email, password) => postJson('/api/auth/register', { email, password });
+
+/**
+ * Deployment flags, readable WITHOUT a token — the Register control sits on the
+ * login screen, so the app needs this before it has a session.
+ *
+ * Cached module-side because both AuthPage (pre-auth) and DocumentViewer
+ * (post-auth) ask for it, and it cannot change while the tab is open. Failure
+ * resolves to demo:false: a network blip should leave the app fully usable
+ * rather than silently hiding every control.
+ */
+let _configPromise = null;
+export function getDeploymentConfig() {
+  _configPromise ??= fetch('/api/auth/config')
+    .then((response) => (response.ok ? response.json() : { demo: false }))
+    .catch(() => ({ demo: false }));
+  return _configPromise;
+}
 export const login    = (email, password) => postJson('/api/auth/login', { email, password });
 export const getMe    = () => request('/api/auth/me');
 

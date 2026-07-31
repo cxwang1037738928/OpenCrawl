@@ -595,18 +595,6 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   color: var(--accent-hover);
 }
 
-/* Document cited only by unverified [n!] markers — chip stays clickable but
-   carries the warning mark. */
-.source-chip-flagged {
-  border-color: var(--danger);
-}
-
-.chip-flag {
-  color: var(--danger);
-  font-weight: 700;
-  margin-left: 5px;
-}
-
 /* Delete a Q/A pair — bottom-right of the reply, quiet until hovered. */
 .msg-actions { display: flex; justify-content: flex-end; margin-top: 8px; min-height: 20px; }
 

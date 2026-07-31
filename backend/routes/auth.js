@@ -12,6 +12,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../db.js';
 import { signToken, userFromRequest } from '../middleware/auth.js';
+import { DEMO, blockInDemo } from '../middleware/demo.js';
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,7 +34,12 @@ function validateCredentials(body) {
 
 export const authRouter = Router();
 
-authRouter.post('/register', wrap(async (req, res) => {
+// Public on purpose: the Register control lives on the login screen, so the
+// frontend has to know whether registration is open BEFORE it holds a token.
+// Only the flag is exposed, nothing about the deployment.
+authRouter.get('/config', (req, res) => res.json({ demo: DEMO }));
+
+authRouter.post('/register', blockInDemo('Registration'), wrap(async (req, res) => {
   const { email, password } = validateCredentials(req.body);
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return res.status(409).json({ error: 'That email is already registered' });

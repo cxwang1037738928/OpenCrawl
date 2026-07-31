@@ -34,7 +34,7 @@ import os
 from pathlib import Path
 
 from entity_resolution import resolution_key
-from graph_merge import apply_merge_map, clusters_from_map
+from graph_merge import apply_merge_map, clusters_from_map, fold_clusters
 
 # Share of a short form's definitions that one expansion must hold before the
 # merge is trusted. High on purpose: an acronym with a genuinely split meaning
@@ -140,11 +140,10 @@ def merge_abbreviations(graph: dict, data_dir: Path,
 
     clusters = clusters_from_map(merge_map)
     # Fold into the entity clusters the lexical pass already recorded, so one
-    # field explains every entity merge regardless of which pass made it.
-    existing = merged.get("entityClusters") or {}
-    for representative, members in clusters.items():
-        existing[representative] = sorted(set(existing.get(representative, [])) | set(members))
-    merged["entityClusters"] = existing
+    # field explains every entity merge regardless of which pass made it. This
+    # pass runs second, so it can merge away a name the lexical pass made a
+    # representative — fold_clusters absorbs that group rather than orphaning it.
+    merged["entityClusters"] = fold_clusters(merged.get("entityClusters") or {}, clusters)
 
     stats["groups"] = len(clusters)
     stats["definitions"] = len(definitions)

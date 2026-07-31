@@ -18,6 +18,7 @@ collapses relations has to carry it.
 Contents:
   Counting     name_counts
   Grouping     choose_representative, merge_map_from_groups, clusters_from_map
+  Recording    fold_clusters
   Provenance   sources_by_relation, aligned_sources
   Applying     apply_merge_map
 """
@@ -65,6 +66,36 @@ def clusters_from_map(merge_map: dict[str, str]) -> dict[str, list[str]]:
     for name, representative in merge_map.items():
         clusters[representative].append(name)
     return {representative: sorted(members) for representative, members in clusters.items()}
+
+
+def fold_clusters(existing: dict[str, list[str]],
+                  new: dict[str, list[str]]) -> dict[str, list[str]]:
+    """Merge `new` clusters into `existing`, following names that were themselves
+    representatives.
+
+    A pass running after another one can merge away a name the earlier pass had
+    already made a representative: abbreviations fold 'AI' into 'artificial
+    intelligence', but 'AI' was already representing {A.I., AI}. Appending alone
+    would leave 'AI' as a key naming a node that no longer exists, and strand
+    'A.I.' under it — so the group is absorbed and the dead key dropped, keeping
+    every key a live entity and every lineage in one place.
+
+    Absorption is transitive: two passes can only chain two deep, but a third
+    entity pass would compound, and following the chain costs nothing.
+    """
+    folded = dict(existing)
+    for representative, members in new.items():
+        group = set(folded.get(representative, ())) | set(members)
+        pending = [member for member in group if member != representative]
+        while pending:
+            member = pending.pop()
+            if member == representative or member not in folded:
+                continue
+            absorbed = set(folded.pop(member))
+            pending.extend(absorbed - group)
+            group |= absorbed
+        folded[representative] = sorted(group)
+    return folded
 
 
 def sources_by_relation(graph: dict) -> dict[tuple, set[str]]:

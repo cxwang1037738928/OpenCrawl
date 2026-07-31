@@ -6,12 +6,16 @@ DoclingDocument.  Digital PDFs go through docling's standard pipeline;
 scanned/mixed PDFs use docling's OCR pipeline backed by Tesseract.
 
 GROBID (CRF models) runs alongside docling on the same PDF: docling owns
-text/markdown/sections/tables, GROBID owns metadata + references. The old
-docling/LLM heuristics remain as fallbacks when the GROBID server is down.
+text/markdown/sections/tables, GROBID owns metadata + references. GROBID is
+REQUIRED, not preferred: it is the only source of authors and parsed
+references, so extraction raises when the server is unreachable rather than
+producing documents that look complete but carry no authors and no citation
+edges. Title and abstract still fall back to the document's own section
+structure when GROBID's header model leaves them empty.
 
 Orchestration + config only: the pure parsing primitives (sections, tables,
 references, TEI/date scanning, docling-label metadata) live in
-extract_utils.py; this file owns the converters, the GROBID/Ollama network
+extract_utils.py; this file owns the converters, the GROBID network
 calls, the tunables, and the per-document pipeline glue.
 
 Output: data/doclings.json  — dict keyed by docId, each entry holds:
@@ -23,7 +27,8 @@ Output: data/doclings.json  — dict keyed by docId, each entry holds:
   parsedReferences : [{title, authors, raw}] structured refs (GROBID CRF) —
                      lets heuristic.py skip its LLM reference-parsing pass
   metadata         : {title, authors, abstract, created} (GROBID header
-                     model; docling/LLM fallback; abstract falls back to the
+                     model; structural fallback for title/abstract only —
+                     authors come from GROBID alone; abstract falls back to the
                      first 200 words of body text as a last resort — Crossref
                      enrichment overwrites it when a real abstract exists),
                      plus doi added later by doi_regex.js.
@@ -65,7 +70,6 @@ ROOT         = Path(__file__).resolve().parents[3]
 DATA_DIR     = ROOT / os.environ.get("DATA_DIR", "data")
 DOCUMENTS_META = DATA_DIR / "documents.json"
 DOCLINGS_OUT   = DATA_DIR / "doclings.json"
-ENHANCED_DIR   = Path(os.environ.get("ENHANCED_DIR", str(DATA_DIR / "enhanced")))
 
 # OCR_PATH: directory containing the Tesseract binary (e.g. C:\Program Files\Tesseract-OCR\).
 # When unset, assumes "tesseract" is already on the system PATH (Linux/Docker).
@@ -76,38 +80,19 @@ if _ocr_dir:
 else:
     TESSERACT_CMD = "tesseract"
 
-OLLAMA_URL       = os.environ.get("OLLAMA_URL",       "http://localhost:11434")
-EXTRACTION_MODEL = os.environ.get("EXTRACTION_MODEL", "ministral:3b")
-METADATA_MODEL   = os.environ.get("METADATA_MODEL",   "ministral:3b")
 METADATA_WORDS   = int(os.environ.get("METADATA_WORDS", "800"))
 # Last-resort abstract: first N words of body text when nothing else yielded one.
 ABSTRACT_FALLBACK_WORDS = int(os.environ.get("EXTRACT_ABSTRACT_FALLBACK_WORDS", "200"))
+# Text-layer probe (_choose_converter): pages sampled and the character count
+# that marks a PDF as digital. A scanned document is scanned throughout, so a
+# few pages settle it; measured on 192 papers, digital ones yield thousands of
+# characters in the first three pages and scans yield essentially none.
+TEXT_LAYER_SAMPLE_PAGES = int(os.environ.get("EXTRACT_TEXT_LAYER_PAGES", "3"))
+TEXT_LAYER_MIN_CHARS    = int(os.environ.get("EXTRACT_TEXT_LAYER_MIN_CHARS", "200"))
 # First-page region scanned for a creation date. Body text is full of in-text
 # citation years, so the scan is capped to the front matter.
 CREATED_SCAN_CHARS = int(os.environ.get("EXTRACT_CREATED_SCAN_CHARS", "3000"))
 
-# ---------------------------------------------------------------------------
-# Prompts — every LLM prompt lives in /prompts/prompts.json, one entry per
-# prompt: {prompt, created, function}. Same file backend/prompts.js reads on
-# the Node side.
-# ---------------------------------------------------------------------------
-
-_PROMPTS_PATH = ROOT / "prompts" / "prompts.json"
-_prompt_entries: dict | None = None
-
-
-def _get_prompt(name: str, **substitutions: str) -> str:
-    """The `prompt` template of entry `name` in prompts/prompts.json with each
-    {key} replaced. Plain replace of the named keys only (not str.format) —
-    the prompts contain literal JSON braces .format() would treat as fields."""
-    global _prompt_entries
-    if _prompt_entries is None:
-        loaded: dict = json.loads(_PROMPTS_PATH.read_text(encoding="utf-8"))
-        _prompt_entries = loaded
-    text = _prompt_entries[name]["prompt"]
-    for key, value in substitutions.items():
-        text = text.replace("{" + key + "}", value)
-    return text
 
 # GROBID server (CRF models — run the lightweight image):
 #   docker run -d --name grobid --restart unless-stopped -p 8070:8070 \
@@ -136,7 +121,6 @@ from extract_utils import (
     extract_references,
     extract_sections,
     extract_tables,
-    parse_json,
     scan_created,
     strip_nul,
     tei_persname,
@@ -176,34 +160,59 @@ _converter_digital = _make_converter(ocr=False)
 _converter_ocr     = _make_converter(ocr=True)
 
 
+def _has_text_layer(pdf_path: str) -> bool:
+    """Does this PDF carry extractable text, or is it page images?
+
+    Sampled, not exhaustive: a scanned document is scanned throughout, and a
+    250-page book would otherwise cost more to classify than to convert. Uses
+    pypdfium2, which docling already depends on, so this adds no dependency and
+    costs ~15ms per document (measured: 0.09s across six papers).
+    """
+    try:
+        import pypdfium2 as pdfium
+    except ImportError:                       # no backend → assume the safe path
+        return False
+    try:
+        pdf = pdfium.PdfDocument(pdf_path)
+    except Exception:
+        return False
+    try:
+        characters = 0
+        for page_index in range(min(TEXT_LAYER_SAMPLE_PAGES, len(pdf))):
+            characters += len(pdf[page_index].get_textpage().get_text_bounded().strip())
+            if characters >= TEXT_LAYER_MIN_CHARS:
+                return True
+        return False
+    except Exception:
+        return False
+    finally:
+        pdf.close()
+
+
 def _choose_converter(doc_meta: dict) -> DocumentConverter:
+    """Digital pipeline for PDFs with a text layer, OCR for the rest.
+
+    This used to read a per-document page report from enhance_pdf.js and fall
+    back to OCR when none existed. That stage is deprecated and no longer runs,
+    so the fallback became unconditional: every digital paper was OCR'd page by
+    page, at roughly a minute each and producing nothing but Tesseract "Too few
+    characters" noise, because the text was already there to read.
     """
-    Check the enhance_pdf report (data/enhanced/<docId>.json) to see if
-    the majority of pages are scanned/mixed.  Fall back to OCR converter
-    if the report doesn't exist yet.
-    """
-    doc_id = doc_meta.get("docId", "")
-    report_path = ENHANCED_DIR / f"{doc_id}.json"
-    if report_path.exists():
-        try:
-            enhance_report = json.loads(report_path.read_text(encoding='utf-8'))
-            pages = enhance_report.get("pages", [])
-            scanned_count = sum(1 for page in pages if page.get("pageType") != "digital")
-            if pages and scanned_count / len(pages) < 0.3:
-                return _converter_digital
-        except Exception:
-            pass
-    return _converter_ocr
+    file_path = doc_meta.get("filePath", "")
+    return _converter_digital if _has_text_layer(file_path) else _converter_ocr
 
 
 # ---------------------------------------------------------------------------
-# LLM metadata extraction via Ollama (fallback when GROBID lacks a field)
+# Structural metadata (fills fields GROBID's header model left empty)
 # ---------------------------------------------------------------------------
 
-def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> dict | None:
-    """Title/abstract structurally (small LLMs are unreliable at 'is this the
-    title?'); authors via Ollama, which separates them from affiliations.
-    need_authors=False skips the LLM call when GROBID already found authors."""
+def _structural_metadata(sections: list[dict]) -> dict | None:
+    """Title and abstract from the document's own section structure.
+
+    No model involved. Title/abstract were always found this way — small LLMs
+    are unreliable at 'is this the title?' — and the Ollama author pass that
+    used to sit here is gone, so GROBID is the only author source.
+    """
     if not sections:
         return None
 
@@ -222,38 +231,13 @@ def _llm_extract_metadata(sections: list[dict], need_authors: bool = True) -> di
             abstract = (section.get("text") or "").strip() or None
             break
 
-    authors: list[str] = []
-    candidate_parts: list[str] = []
-    if need_authors:
-        for section in sections[:5]:
-            section_text = (section.get("text") or "").strip()
-            if section_text:
-                candidate_parts.append(" ".join(section_text.split()[:300]))
-                if len(candidate_parts) >= 2:
-                    break
-
-    if candidate_parts:
-        header_text = "\n".join(candidate_parts)
-        prompt = _get_prompt("extract_authors", header_text=header_text)
-        try:
-            response = requests.post(
-                f"{OLLAMA_URL}/api/generate",
-                json={"model": METADATA_MODEL, "prompt": prompt, "stream": False,
-                      "options": {"temperature": 0}},
-                timeout=60,
-            )
-            response.raise_for_status()
-            llm_response = response.json().get("response", "").strip()
-            parsed_authors = parse_json(llm_response)
-            if isinstance(parsed_authors, list):
-                authors = [author for author in parsed_authors
-                           if isinstance(author, str) and author.strip()]
-        except Exception:
-            pass
-
-    if title is None and not authors and abstract is None:
+    if title is None and abstract is None:
         return None
-    return {"title": title, "authors": authors, "abstract": abstract}
+    # No authors: separating a name list from its affiliations is what the LLM
+    # was for, and structure alone cannot do it. GROBID's CRF header model is now
+    # the only author source, and extract_document raises when it is unavailable,
+    # so there is nothing left for a guess to rescue.
+    return {"title": title, "authors": [], "abstract": abstract}
 
 
 # ---------------------------------------------------------------------------
@@ -376,20 +360,29 @@ def _grobid_references(pdf_path: str) -> tuple[list[str], list[dict]] | None:
 
 
 def _grobid_extract(pdf_path: str) -> dict | None:
-    """Header + references in one call. None when the server is unreachable
-    OR returned no usable content (e.g. an image-only scan — GROBID does not
-    OCR, so a PDF without a text layer yields an empty header and a 204 from
-    processReferences). Either way convert_document falls back to the
-    docling/LLM path wholesale."""
+    """Header + references in one call.
+
+    RAISES when the server is unreachable. GROBID is now the only source of
+    authors and structured references, so continuing without it would silently
+    produce documents with no authors and no citation edges — a corpus that
+    looks complete and quietly cannot support a citation graph. Failing the run
+    is recoverable; a plausible-looking empty corpus is not.
+
+    Still returns None when the server is UP but has nothing for this PDF (an
+    image-only scan: GROBID does not OCR, so the header comes back empty and
+    processReferences 204s). That is one bad document, not a broken pipeline, so
+    the structural/docling path handles it.
+    """
     if not _grobid_alive():
-        print("[extract]   GROBID server unreachable — falling back to docling/LLM parsing",
-              file=sys.stderr)
-        return None
+        raise RuntimeError(
+            f"GROBID is not answering at {GROBID_URL}. It is the only source of "
+            f"authors and parsed references — start it (docker compose up -d grobid) "
+            f"and re-run.")
     header = _grobid_header(pdf_path)
     refs   = _grobid_references(pdf_path)
     if header is None and refs is None:
         print("[extract]   GROBID returned no content (scanned PDF with no text "
-              "layer? GROBID does not OCR) — falling back to docling/LLM parsing",
+              "layer? GROBID does not OCR) — falling back to structural parsing",
               file=sys.stderr)
         return None
     raw_refs, parsed = refs if refs is not None else ([], [])
@@ -430,10 +423,9 @@ def convert_document(doc_meta: dict) -> dict:
     abstract = grobid_meta.get("abstract")
 
     if not (title and authors and abstract):
-        llm_meta = _llm_extract_metadata(sections, need_authors=not authors) or {}
-        title    = title    or llm_meta.get("title")
-        authors  = authors  or llm_meta.get("authors") or []
-        abstract = abstract or llm_meta.get("abstract")
+        structural_meta = _structural_metadata(sections) or {}
+        title    = title    or structural_meta.get("title")
+        abstract = abstract or structural_meta.get("abstract")
     if not (title and authors and abstract):
         docling_meta = extract_metadata(doc)
         title    = title    or docling_meta.get("title")

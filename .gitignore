@@ -32,3 +32,5 @@ models/
 
 # Per-chat pipeline scratch (Postgres is canonical; these are stage exchange files)
 data/collections/
+# Output of the deprecated enhance_pdf.js stage — no longer in the pipeline
+data/enhanced/

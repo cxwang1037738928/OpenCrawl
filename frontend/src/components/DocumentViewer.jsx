@@ -33,6 +33,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   getDocuments, getChunk, documentPdfUrl,
   uploadDocuments, deleteDocument, runPipeline, buildGraph, authHeaders,
+  getDeploymentConfig,
 } from '../api.js';
 import {
   normWords, indexPage, itemsInRange, matchOnPage, pickSentences, embedFocus,
@@ -138,6 +139,10 @@ export default function DocumentViewer({
   // the action buttons' disabled state; 'index' and 'graph' are also reported
   // upward, where they lock app navigation for the duration.
   const [busyJob, setBusyJob] = useState(null);
+  // Declared with the other state, ABOVE the control markup: collectionControls
+  // is a const evaluated during render and reads `demo`, so a later declaration
+  // is a temporal-dead-zone throw that unmounts the whole app.
+  const [demo, setDemo] = useState(false);
   const pageEls = useRef(new Map());
   const pendingScrollPage = useRef(null);               // pageNum to scroll to once its element mounts
   const fileInputRef = useRef(null);
@@ -150,6 +155,12 @@ export default function DocumentViewer({
   useEffect(() => {
     if (collectionId) refreshDocs();
   }, [collectionId]);   // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    let live = true;
+    getDeploymentConfig().then((config) => { if (live) setDemo(Boolean(config.demo)); });
+    return () => { live = false; };
+  }, []);
 
   // Upload the picked PDFs into this collection, then refresh the list. The
   // corpus only sees them after the pipeline runs.
@@ -452,7 +463,9 @@ export default function DocumentViewer({
     <div className="collection-list">
       <div className="control-label chat-list-head">
         Collections
-        <button className="chat-new" onClick={onCreateCollection} title="New collection">+</button>
+        {!demo && (
+          <button className="chat-new" onClick={onCreateCollection} title="New collection">+</button>
+        )}
       </div>
       {(collections || []).map((collection) => (
         <div
@@ -465,26 +478,34 @@ export default function DocumentViewer({
         >
           <span className="orb" style={{ background: collection.color }} />
           <span className="chat-item-title" title={collection.name}>{collection.name}</span>
-          <button
-            className="chat-delete"
-            title="Delete collection (and everything in it)"
-            onClick={(event) => { event.stopPropagation(); onDeleteCollection(collection); }}
-          >
-            ×
-          </button>
+          {!demo && (
+            <button
+              className="chat-delete"
+              title="Delete collection (and everything in it)"
+              onClick={(event) => { event.stopPropagation(); onDeleteCollection(collection); }}
+            >
+              ×
+            </button>
+          )}
         </div>
       ))}
       {(!collections || collections.length === 0) && (
-        <div className="doc-list-error">No collections yet — hit + to create one.</div>
+        <div className="doc-list-error">
+          {demo ? 'No collections in this demo.' : 'No collections yet — hit + to create one.'}
+        </div>
       )}
     </div>
   );
 
   const jobBusy = busyJob !== null;
 
+  // Demo deployments serve a fixed corpus: no upload, no pipeline, no deletion.
+  // The routes 403 anyway (middleware/demo.js); hiding the controls keeps the UI
+  // from advertising actions that cannot succeed.
   const documentControls = collectionId && (
     <div className="doc-list">
       <div className="control-label">Documents</div>
+      {!demo && (
       <div className="doc-actions">
         <button className="btn btn-small" onClick={() => fileInputRef.current?.click()}>
           Upload PDFs
@@ -514,6 +535,7 @@ export default function DocumentViewer({
           onChange={onFilesPicked}
         />
       </div>
+      )}
       {jobStatus && <div className="doc-job-status">{jobStatus}</div>}
       {error && <div className="doc-list-error">{error}</div>}
       <input
@@ -543,20 +565,24 @@ export default function DocumentViewer({
           {doc.authors?.length > 0 && (
             <span className="doc-item-authors">{doc.authors.slice(0, 3).join(', ')}</span>
           )}
-          <button
-            className="doc-delete"
-            title="Remove from this chat"
-            onClick={(event) => { event.stopPropagation(); removeDoc(doc); }}
-          >
-            ×
-          </button>
+          {!demo && (
+            <button
+              className="doc-delete"
+              title="Remove from this chat"
+              onClick={(event) => { event.stopPropagation(); removeDoc(doc); }}
+            >
+              ×
+            </button>
+          )}
         </div>
       ))}
       {docs?.length > 0 && shownDocs.length === 0 && (
         <div className="doc-list-error">No document matches “{search.trim()}”.</div>
       )}
       {docs && docs.length === 0 && (
-        <div className="doc-list-error">No documents yet — upload PDFs, then index them.</div>
+        <div className="doc-list-error">
+          {demo ? 'No documents in this collection.' : 'No documents yet — upload PDFs, then index them.'}
+        </div>
       )}
     </div>
   );

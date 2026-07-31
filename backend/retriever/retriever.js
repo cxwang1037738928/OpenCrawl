@@ -46,6 +46,14 @@ const SCORE_FLOOR = parseFloat(process.env.RETRIEVER_SCORE_FLOOR || '0.5');
 // reset this on every token. A long answer is more work, not a hang — a fixed
 // deadline killed perfectly healthy 110s generations.
 const OLLAMA_IDLE_TIMEOUT = parseInt(process.env.OLLAMA_IDLE_TIMEOUT_MS || '60000', 10);
+// Penalty on tokens the reply has already used. Measured on Phi-4-mini-instruct
+// at temperature 0.2 with no penalty set: an answer fell into a token loop
+// mid-sentence ("and and and 2 and…") and ran on for ~1,500 characters of
+// nothing. A small model at low temperature has little to pull it out of a loop,
+// and nothing in the request discouraged reuse. Deliberately NOT paired with a
+// max_tokens cap: a cap truncates the collapse but also cuts off a legitimately
+// long synthesis mid-sentence, and the penalty addresses the cause instead.
+const FREQUENCY_PENALTY = parseFloat(process.env.RETRIEVER_FREQUENCY_PENALTY || '0.3');
 
 // ---------------------------------------------------------------------------
 // Corpus cache (per collection, invalidated when corpusUpdatedAt changes)
@@ -238,7 +246,7 @@ export async function retrieveFacts(collection, queryText, options = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Answer synthesis — Azure AI Foundry when configured, else Ollama
+// Answer synthesis — provider chosen by REASONING_MODEL's id
 // ---------------------------------------------------------------------------
 
 // Foundry exposes an OpenAI-compatible API at <resource>/openai/v1. The .env
@@ -248,21 +256,54 @@ const AZURE_PROJECT_ENDPOINT = (process.env.MICROSOFT_AZURE_PROJECT_ENDPOINT || 
 const AZURE_API_KEY = (process.env.MICROSOFT_AZURE_API_KEY || '').trim();
 const AZURE_DEPLOYMENT = (process.env.AZURE_DEPLOYMENT_NAME || '').trim();
 
+// Google serves an OpenAI-compatible endpoint, so Gemini reuses this file's
+// streaming, abort and idle-timer handling rather than adding a second SDK.
+const GOOGLE_BASE_URL = (process.env.GEMINI_BASE_URL
+  || 'https://generativelanguage.googleapis.com/v1beta/openai/').trim();
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
+// Gemini's thinking budget, as the OpenAI-compatible layer spells it.
+const CHAT_REASONING_EFFORT = (process.env.CHAT_REASONING_EFFORT || 'low').trim();
+
 const azureConfigured = () =>
   Boolean(AZURE_PROJECT_ENDPOINT && AZURE_API_KEY && AZURE_DEPLOYMENT);
 
+/**
+ * Which provider serves `model`, decided by the id alone.
+ *
+ * The id IS the setting: the Models tab writes REASONING_MODEL and nothing
+ * else, so a global "Azure wins when configured" rule would let a user pick
+ * Gemini and still be answered by the Foundry deployment. Azure credentials
+ * staying in .env is therefore no longer enough to route there — the model has
+ * to name it.
+ */
+function chatProvider(model) {
+  if (/^gemini[/-]/i.test(model)) return 'google';
+  if (AZURE_DEPLOYMENT && model === AZURE_DEPLOYMENT) return 'azure';
+  return 'ollama';
+}
+
+/** litellm-style "gemini/gemini-3.1-flash-lite" → the bare id Google's API wants. */
+const googleModelId = (model) => model.replace(/^gemini\//i, '');
+
+// maxRetries 0 on both hosted clients: the SDK's default retry on 429 waits
+// BEFORE the stream starts, so no token ever arrives to reset the inactivity
+// timer — the request is aborted at OLLAMA_IDLE_TIMEOUT and the real cause (a
+// rate limit, with a clear remedy) is reported as "Request was aborted".
 let _azureClient = null;
 async function azureClient() {
   if (_azureClient) return _azureClient;
   const { default: OpenAI } = await import('openai');
   const baseURL = `${new URL(AZURE_PROJECT_ENDPOINT).origin}/openai/v1`;
-  // maxRetries 0 because the SDK's default retry on 429 waits BEFORE the stream
-  // starts, so no token ever arrives to reset the inactivity timer — the request
-  // is aborted at OLLAMA_IDLE_TIMEOUT and the real cause (a rate limit, with a
-  // clear remedy) is reported as "Request was aborted". Failing fast tells the
-  // caller what to fix.
   _azureClient = new OpenAI({ baseURL, apiKey: AZURE_API_KEY, maxRetries: 0 });
   return _azureClient;
+}
+
+let _googleClient = null;
+async function googleClient() {
+  if (_googleClient) return _googleClient;
+  const { default: OpenAI } = await import('openai');
+  _googleClient = new OpenAI({ baseURL: GOOGLE_BASE_URL, apiKey: GEMINI_API_KEY, maxRetries: 0 });
+  return _googleClient;
 }
 
 /**
@@ -279,36 +320,88 @@ async function azureClient() {
  * The LATEST user turn, not the first: in a long conversation the prompt would
  * otherwise drift far from the question it governs. The cost is resending the
  * context every turn, which is the reliable side of that trade.
+ *
+ * `reminder` is appended AFTER the question. Folding puts the rules ahead of the
+ * entire context, which buries them: measured on Phi-4-mini-instruct with 10
+ * excerpts and 25 graph facts, the citation rule lands at character 97 and the
+ * question at 14,499, and the reply cites nothing at all. The same request with
+ * the rule restated after the question cites six times. Only the FORMAT is
+ * repeated, not the grounding policy — the policy is long, and the failure is
+ * the model forgetting the notation, not forgetting to stay grounded.
  */
-function foldSystemIntoLatestUser(system, messages) {
+function foldSystemIntoLatestUser(system, messages, reminder = '') {
   const folded = messages.map((message) => ({ ...message }));
+  const suffix = reminder ? `\n\n${reminder}` : '';
   for (let index = folded.length - 1; index >= 0; index--) {
     if (folded[index].role === 'user') {
-      folded[index].content = `${system}\n\n---\n\n${folded[index].content}`;
+      folded[index].content = `${system}\n\n---\n\n${folded[index].content}${suffix}`;
       return folded;
     }
   }
-  return [...folded, { role: 'user', content: system }];
+  return [...folded, { role: 'user', content: `${system}${suffix}` }];
 }
 
 /**
- * Stream a completion from Azure AI Foundry.
+ * Append the reminder after the latest user message, leaving `system` in its own
+ * role. For providers that honour a system message, so the rules are not pushed
+ * ahead of the whole context in the first place.
+ */
+function appendReminder(messages, reminder) {
+  const copy = messages.map((message) => ({ ...message }));
+  if (!reminder) return copy;
+  for (let index = copy.length - 1; index >= 0; index--) {
+    if (copy[index].role === 'user') {
+      copy[index].content = `${copy[index].content}\n\n${reminder}`;
+      return copy;
+    }
+  }
+  return copy;
+}
+
+/** The citation format, restated after the question. See foldSystemIntoLatestUser. */
+function citationReminder(factCount) {
+  const reminder = 'Reminder: cite every claim with its excerpt number in square '
+    + 'brackets, exactly like [1] or [2], or [1, 3] for several.';
+  // Included for the same reason, though it did NOT recover [G] in testing —
+  // that marker fails for its own reasons, not because the rule went unread.
+  return factCount
+    ? `${reminder} Append [G] to any claim that rests on one of the listed relationships.`
+    : reminder;
+}
+
+/**
+ * Stream a completion from an OpenAI-compatible hosted provider.
+ *
+ * Both Foundry and Google speak this shape, so the difference between them is
+ * data (client, model id, whether the system prompt survives as its own role,
+ * whether a thinking budget applies) rather than a second copy of the streaming
+ * and error handling.
  *
  * Hosted, so the 2048-token window Ollama silently imposes locally does not
  * apply — the deployment serves the model's real context. The failure mode moves
- * from truncation to rate limiting: a deployment's tokens-per-minute quota
- * rejects an oversized request outright with 429 rather than quietly dropping
- * the front of the prompt, which is the better of the two.
+ * from truncation to rate limiting: a quota rejects an oversized request outright
+ * with 429 rather than quietly dropping the front of the prompt, which is the
+ * better of the two.
  */
-async function completeViaAzure(system, messages, abortController, armIdleTimer) {
-  const client = await azureClient();
+async function completeViaHosted({ label, client, model, fold, reasoningEffort,
+                                   frequencyPenalty, system, messages, reminder,
+                                   abortController, armIdleTimer }) {
   let reply = '';
   armIdleTimer();
   try {
     const stream = await client.chat.completions.create({
-      model: AZURE_DEPLOYMENT,
-      messages: foldSystemIntoLatestUser(system, messages),
+      model,
+      // Providers that honour role:'system' keep it there, so the rules are not
+      // separated from the question by the whole context. Only the reminder is
+      // appended after the question in that case.
+      messages: fold
+        ? foldSystemIntoLatestUser(system, messages, reminder)
+        : [{ role: 'system', content: system }, ...appendReminder(messages, reminder)],
       temperature: 0.2,
+      // Omitted rather than zeroed where unsupported: Google's OpenAI layer
+      // rejects frequency_penalty outright with a bodyless 400.
+      ...(frequencyPenalty ? { frequency_penalty: frequencyPenalty } : {}),
+      ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
       stream: true,
     }, { signal: abortController.signal });
     for await (const part of stream) {
@@ -319,12 +412,12 @@ async function completeViaAzure(system, messages, abortController, armIdleTimer)
     const status = err.status;
     const httpError = new Error(
       status === 429
-        ? `Azure rate limit hit for deployment ${AZURE_DEPLOYMENT} — raise its tokens-per-minute quota or retrieve fewer chunks`
+        ? `${label} rate limit hit for ${model} — raise its quota or retrieve fewer chunks`
         : status === 401 || status === 403
-          ? 'Azure rejected MICROSOFT_AZURE_API_KEY'
+          ? `${label} rejected its API key`
           : err.name === 'AbortError'
-            ? `Azure sent nothing for ${OLLAMA_IDLE_TIMEOUT / 1000}s`
-            : `Azure request failed: ${err.message}`);
+            ? `${label} sent nothing for ${OLLAMA_IDLE_TIMEOUT / 1000}s`
+            : `${label} request failed: ${err.message}`);
     httpError.status = status === 429 ? 429 : 502;
     throw httpError;
   }
@@ -373,17 +466,49 @@ export async function answer(messages, chunks, facts = []) {
     idleTimer = setTimeout(() => abortController.abort(), OLLAMA_IDLE_TIMEOUT);
   };
 
-  if (azureConfigured()) {
+  const provider = chatProvider(model);
+
+  if (provider === 'google' || provider === 'azure') {
+    const google = provider === 'google';
+    if (google && !GEMINI_API_KEY) {
+      const err = new Error(`GEMINI_API_KEY is not set — ${model} cannot be reached`);
+      err.status = 503;
+      throw err;
+    }
+    if (!google && !azureConfigured()) {
+      const err = new Error(`${model} needs MICROSOFT_AZURE_PROJECT_ENDPOINT, `
+                          + 'MICROSOFT_AZURE_API_KEY and AZURE_DEPLOYMENT_NAME');
+      err.status = 503;
+      throw err;
+    }
     let reply;
     try {
-      reply = await completeViaAzure(system, messages, abortController, armIdleTimer);
+      reply = await completeViaHosted({
+        label:  google ? 'Google' : 'Azure',
+        client: await (google ? googleClient() : azureClient()),
+        model:  google ? googleModelId(model) : AZURE_DEPLOYMENT,
+        // Foundry deployments silently discard role:'system' (see
+        // foldSystemIntoLatestUser); Gemini honours it, so it keeps the rules
+        // out in front of the context rather than buried behind it.
+        fold:   !google,
+        // Thinking budget, Gemini only — Foundry's deployment rejects the field.
+        reasoningEffort: google ? CHAT_REASONING_EFFORT : null,
+        // Repetition control, Azure only for the mirror-image reason. It exists
+        // for a 3.8B model that fell into a token loop; Gemini does not need it.
+        frequencyPenalty: google ? null : FREQUENCY_PENALTY,
+        system,
+        messages,
+        reminder: citationReminder(facts.length),
+        abortController,
+        armIdleTimer,
+      });
     } finally {
       clearTimeout(idleTimer);             // owned here, same as the Ollama path
     }
     const normalized = normalizeGraphMarkers(
       normalizeCitations(reply.trim(), chunks.length), facts.length);
     const { text, quotesByChunk } = await repairCitations(normalized, chunks);
-    return { reply: text, model: AZURE_DEPLOYMENT, quotesByChunk };
+    return { reply: text, model: google ? model : AZURE_DEPLOYMENT, quotesByChunk };
   }
 
   let response;
@@ -397,7 +522,9 @@ export async function answer(messages, chunks, facts = []) {
         model,
         stream: true,
         messages: [{ role: 'system', content: system }, ...messages],
-        options: { temperature: 0.2 },
+        // Same knob, Ollama's spelling of it; unknown options are ignored, so an
+        // older build simply behaves as before rather than erroring.
+        options: { temperature: 0.2, frequency_penalty: FREQUENCY_PENALTY },
       }),
     });
   } catch (err) {

@@ -27,6 +27,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import { UMAP } from 'umap-js';
 import { prisma } from '../db.js';
+import { blockInDemo } from '../middleware/demo.js';
 
 const ROOT     = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ENV_PATH = path.join(ROOT, '.env');
@@ -48,6 +49,45 @@ export const MODEL_ROLES = {
   KG_MODEL:               'Knowledge-graph construction (kg-gen, kg_graph.py)',
   REASONING_MODEL:        'Answer synthesis over retrieved chunks (/api/chat)',
 };
+
+/**
+ * Where each role's pick-list comes from:
+ *
+ *   chat   — the three supported models (see chatModels)
+ *   ollama — extract.py and parse_user_query.js speak only to Ollama, so these
+ *            roles list installed tags and nothing else
+ *
+ * KG_MODEL shares the chat list by explicit request. Note that kg_graph.py
+ * reaches models through dspy+litellm, which has no Azure route — so the Azure
+ * deployment is selectable here but will fail when the graph stage runs. The
+ * other two work.
+ */
+const ROLE_SOURCES = {
+  METADATA_MODEL:         'ollama',
+  EXTRACTION_MODEL:       'ollama',
+  QUERY_CLASSIFIER_MODEL: 'ollama',
+  KG_MODEL:               'chat',
+  REASONING_MODEL:        'chat',
+};
+
+/**
+ * The models /api/chat can be served by. Curated, not discovered: Ollama's tags,
+ * Foundry's deployments and Google's catalog share no endpoint to enumerate.
+ *
+ * The Azure entry is built from AZURE_DEPLOYMENT_NAME rather than hard-coded,
+ * because retriever.js's chatProvider() routes to Azure by matching that exact
+ * value — a literal here would silently fall through to Ollama if the deployment
+ * were ever renamed.
+ */
+function chatModels() {
+  const models = [
+    { id: 'ministral-3:3b-instruct-2512-q4_K_M', name: 'Ministral 3B Instruct (local, Ollama)' },
+    { id: 'gemini/gemini-3.1-flash-lite',        name: 'Gemini 3.1 Flash Lite (hosted, Google)' },
+  ];
+  const deployment = (process.env.AZURE_DEPLOYMENT_NAME || '').trim();
+  if (deployment) models.push({ id: deployment, name: `${deployment} (hosted, Azure AI Foundry)` });
+  return models;
+}
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -258,12 +298,27 @@ modelsRouter.get('/models', wrap(async (req, res) => {
   const [installed, kgModels] = await Promise.all([ollamaModels(), knowledgeGraphModels()]);
   const roles = {};
   for (const key of Object.keys(MODEL_ROLES)) roles[key] = process.env[key] || null;
+
+  // Context windows live in one place (the graph catalog); reuse them wherever
+  // an id matches so the chat picker can show them too.
+  const contextById = new Map(kgModels.map((model) => [model.id, model.contextLength]));
+  const withContext = (models) => models.map((model) => ({
+    ...model, contextLength: model.contextLength ?? contextById.get(model.id) ?? null,
+  }));
+  const byRole = {
+    chat:   () => withContext(chatModels()),
+    ollama: () => (installed || []).map((name) => ({ id: name, name, contextLength: null })),
+  };
+  const roleOptions = {};
+  for (const [key, source] of Object.entries(ROLE_SOURCES)) roleOptions[key] = byRole[source]();
+
   res.json({
     ollamaUp: installed !== null,
     ollamaUrl: OLLAMA_URL,
     installed: installed || [],
     kgModels,
     roles,
+    roleOptions,
     descriptions: MODEL_ROLES,
   });
 }));
@@ -275,7 +330,7 @@ modelsRouter.get('/models', wrap(async (req, res) => {
  * new values without a server restart. Temp-file + rename so a crash mid-write
  * can't truncate .env.
  */
-modelsRouter.post('/settings', wrap(async (req, res) => {
+modelsRouter.post('/settings', blockInDemo('Changing model settings'), wrap(async (req, res) => {
   const updates = req.body || {};
   const roleKeys = Object.keys(updates);
   if (roleKeys.length === 0) throw httpError(400, 'Empty settings payload');
