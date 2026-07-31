@@ -113,37 +113,31 @@ function CitedText({ text, sources, query, onCitation }) {
 function Sources({ sources, reply, query, onCitation }) {
   if (!sources?.length) return null;
   // Chips are the documents the answer cites — a retrieved but uncited chunk
-  // is not a source. A document cited ONLY by flagged [n!] markers still gets
-  // a chip (the reader can open it), but it carries the warning mark since
-  // nothing verified pointed at it.
+  // is not a source. Both verified [n] and flagged [n!] markers earn a chip;
+  // the flag belongs on the CLAIM, in the message text, not on the document,
+  // which is the same document either way.
   const { verified, flagged } = citedMarkerNumbers(reply);
 
   // One chip per document, best-scoring cited chunk first (sources arrive in
-  // score order). One verified citation anywhere clears the doc's flag.
-  const chipByDoc = new Map();   // docId -> { source, hasVerifiedCite }
+  // score order).
+  const chipByDoc = new Map();   // docId -> source
   sources.forEach((source, sourceIdx) => {
     const excerptNumber = sourceIdx + 1;
     if (!verified.has(excerptNumber) && !flagged.has(excerptNumber)) return;
-    const chip = chipByDoc.get(source.docId);
-    if (!chip) chipByDoc.set(source.docId, { source, hasVerifiedCite: verified.has(excerptNumber) });
-    else if (verified.has(excerptNumber)) chip.hasVerifiedCite = true;
+    if (!chipByDoc.has(source.docId)) chipByDoc.set(source.docId, source);
   });
   if (!chipByDoc.size) return null;
 
   return (
     <div className="msg-sources">
-      {[...chipByDoc.values()].map(({ source, hasVerifiedCite }) => (
+      {[...chipByDoc.values()].map((source) => (
         <button
-          className={`source-chip${hasVerifiedCite ? '' : ' source-chip-flagged'}`}
+          className="source-chip"
           key={source.docId}
-          title={`${source.heading || 'document'} · score ${source.score} — open in Documents${
-            hasVerifiedCite ? '' : ' · cited only by unverified citations'}`}
+          title={`${source.heading || 'document'} · score ${source.score} — open in Documents`}
           onClick={() => onCitation?.(source, query)}
         >
           {source.filename.replace(/\.pdf$/i, '')}
-          {!hasVerifiedCite && (
-            <span className="chip-flag" aria-label="cited only by unverified citations">!</span>
-          )}
         </button>
       ))}
     </div>

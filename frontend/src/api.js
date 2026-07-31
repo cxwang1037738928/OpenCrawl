@@ -55,6 +55,7 @@ const postJson = (url, payload) =>
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 export const register = (email, password) => postJson('/api/auth/register', { email, password });
+
 export const login    = (email, password) => postJson('/api/auth/login', { email, password });
 export const getMe    = () => request('/api/auth/me');
 
@@ -94,8 +95,12 @@ export function uploadDocuments(collectionId, files) {
 
 // ── Pipeline (per collection) ────────────────────────────────────────────────
 
+// Indexing only: extract → embed → categorize → rank. The knowledge graph is
+// a separate, much longer job with its own endpoint (and its own button).
 export const runPipeline       = (collectionId, params = {}) =>
   postJson(`/api/collections/${collectionId}/pipeline/run`, params);
+export const buildGraph        = (collectionId) =>
+  postJson(`/api/collections/${collectionId}/pipeline/build-graph`, {});
 export const getPipelineStatus = (collectionId) =>
   request(`/api/collections/${collectionId}/pipeline/status`);
 

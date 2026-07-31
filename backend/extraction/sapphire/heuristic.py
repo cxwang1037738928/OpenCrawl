@@ -76,7 +76,10 @@ OUTPUT_PATH     = DATA_DIR / "heuristic_output.json"
 # spawned by the pipeline with the env inherited, but a bare `python
 # heuristic.py` gets no .env at all and falls back to these.
 K              = int(os.environ.get("HEURISTIC_K", "2"))                   # top-k documents to select
-ALPHA          = float(os.environ.get("HEURISTIC_ALPHA", "0.25"))          # weight of the BM25 component vs. PageRank
+ALPHA          = float(os.environ.get("HEURISTIC_ALPHA", "0.5"))           # weight of the BM25 component vs. PageRank
+                                                                           # 0.5: both signals inform on a densely-cited corpus.
+                                                                           # Raise it when intra-corpus citations are sparse —
+                                                                           # PageRank goes near-constant there (see .env)
 NOVELTY_WEIGHT = float(os.environ.get("HEURISTIC_NOVELTY_WEIGHT", "0.2"))  # how much rare vocabulary boosts the final score
 
 BM25_K1        = float(os.environ.get("HEURISTIC_BM25_K1", "1.5"))         # term-frequency saturation

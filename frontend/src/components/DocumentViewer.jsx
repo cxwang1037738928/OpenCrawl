@@ -4,8 +4,11 @@
  *
  * The sidebar (via portal) lists the owner's collections (colored orb each;
  * + adds one, hover × deletes with a warning). Clicking a collection opens
- * its document list with upload / delete / run-pipeline controls; the main
- * pane renders the selected PDF with pdf.js, pages lazily rendered on scroll.
+ * its document list with upload / delete controls and the two run buttons —
+ * "Index documents" (extract → embed → categorize → rank) and "Build knowledge
+ * graph", kept separate because the graph is a far longer LLM run that nothing
+ * else depends on. The main pane renders the selected PDF with pdf.js, pages
+ * lazily rendered on scroll.
  *
  * Citation deep-links: App passes `target` = { docId, chunkId, quotes, citing,
  * query, nonce } when a [n] marker (or source chip) is clicked in Chat. The
@@ -29,7 +32,7 @@ import { createPortal } from 'react-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import {
   getDocuments, getChunk, documentPdfUrl,
-  uploadDocuments, deleteDocument, runPipeline, authHeaders,
+  uploadDocuments, deleteDocument, runPipeline, buildGraph, authHeaders,
 } from '../api.js';
 import {
   normWords, indexPage, itemsInRange, matchOnPage, pickSentences, embedFocus,
@@ -131,6 +134,10 @@ export default function DocumentViewer({
   const [status, setStatus] = useState(null);
   const [search, setSearch] = useState('');             // sidebar filter text
   const [jobStatus, setJobStatus] = useState(null);     // upload/pipeline progress line
+  // Which long job is in flight: 'upload' | 'index' | 'graph' | null. Drives
+  // the action buttons' disabled state; 'index' and 'graph' are also reported
+  // upward, where they lock app navigation for the duration.
+  const [busyJob, setBusyJob] = useState(null);
   const pageEls = useRef(new Map());
   const pendingScrollPage = useRef(null);               // pageNum to scroll to once its element mounts
   const fileInputRef = useRef(null);
@@ -151,36 +158,63 @@ export default function DocumentViewer({
     event.target.value = '';                       // same files re-pickable later
     if (!files.length) return;
     setJobStatus(`uploading ${files.length} file(s)…`);
+    setBusyJob('upload');
     try {
       const { results } = await uploadDocuments(collectionId, files);
       const failed = results.filter((result) => !result.ok);
       setJobStatus(failed.length
         ? `${failed.length} rejected — ${failed[0].filename}: ${failed[0].error}`
-        : `${results.length} uploaded — run the pipeline to index them`);
+        : `${results.length} uploaded — index them next`);
       refreshDocs();
     } catch (err) {
       setJobStatus(`upload failed: ${err.message}`);
+    } finally {
+      setBusyJob(null);
     }
   }
 
-  // Full pipeline (extract → embed → categorize → heuristic → graph) for this
-  // collection. Extraction is the slow stage — minutes for large PDFs.
-  async function runFullPipeline() {
-    setJobStatus('running pipeline… (extraction can take minutes)');
-    onBusyChange?.(true);   // locks app navigation until the run settles
+  // Indexing pipeline (extract → embed → categorize → heuristic) for this
+  // collection. Extraction is the slow stage — minutes for large PDFs. The
+  // knowledge graph is NOT part of this: it's a much longer LLM run that
+  // nothing else depends on, so it has its own button below.
+  async function runIndexPipeline() {
+    setJobStatus('indexing… (extraction can take minutes)');
+    setBusyJob('index');
+    onBusyChange?.('index');   // locks app navigation until the run settles
     try {
       const { stages } = await runPipeline(collectionId);
       const failedStage = Object.entries(stages).find(([, stage]) => !stage.ok);
       setJobStatus(failedStage
         ? `${failedStage[0]} failed: ${failedStage[1].error}`
-        : 'pipeline complete — corpus indexed');
+        : 'indexing complete — build the knowledge graph next');
       refreshDocs();
       // Tell the app so the embedding-space / knowledge-graph tabs refetch.
       if (!failedStage) onPipelineDone?.();
     } catch (err) {
-      setJobStatus(`pipeline failed: ${err.message}`);
+      setJobStatus(`indexing failed: ${err.message}`);
     } finally {
-      onBusyChange?.(false);
+      setBusyJob(null);
+      onBusyChange?.(null);
+    }
+  }
+
+  // Knowledge graph, on its own. Needs the indexing run first (it reads the
+  // embed stage's chunks); the backend answers 503 when those are missing.
+  async function runGraphBuild() {
+    setJobStatus('building knowledge graph… (an LLM call per batch of chunks)');
+    setBusyJob('graph');
+    onBusyChange?.('graph');
+    try {
+      const result = await buildGraph(collectionId);
+      setJobStatus(
+        `graph built — ${result.entities} entities, ${result.relations} relations ` +
+        `over ${result.fullTextDocs} full-text + ${result.summaryDocs} summarized document(s)`);
+      onPipelineDone?.();
+    } catch (err) {
+      setJobStatus(`graph build failed: ${err.message}`);
+    } finally {
+      setBusyJob(null);
+      onBusyChange?.(null);
     }
   }
 
@@ -446,6 +480,8 @@ export default function DocumentViewer({
     </div>
   );
 
+  const jobBusy = busyJob !== null;
+
   const documentControls = collectionId && (
     <div className="doc-list">
       <div className="control-label">Documents</div>
@@ -455,11 +491,19 @@ export default function DocumentViewer({
         </button>
         <button
           className="btn btn-small"
-          onClick={runFullPipeline}
-          disabled={/^(uploading|running)/.test(jobStatus || '') || !docs?.length}
-          title="Extract, embed, categorize, rank and graph this chat's PDFs"
+          onClick={runIndexPipeline}
+          disabled={jobBusy || !docs?.length}
+          title="Extract, embed, categorize and rank this collection's PDFs"
         >
-          Run pipeline
+          Index documents
+        </button>
+        <button
+          className="btn btn-small"
+          onClick={runGraphBuild}
+          disabled={jobBusy || !docs?.length}
+          title="Build the knowledge graph from the indexed chunks (long — one LLM call per batch)"
+        >
+          Build knowledge graph
         </button>
         <input
           ref={fileInputRef}
@@ -512,7 +556,7 @@ export default function DocumentViewer({
         <div className="doc-list-error">No document matches “{search.trim()}”.</div>
       )}
       {docs && docs.length === 0 && (
-        <div className="doc-list-error">No documents yet — upload PDFs, then run the pipeline.</div>
+        <div className="doc-list-error">No documents yet — upload PDFs, then index them.</div>
       )}
     </div>
   );
@@ -530,7 +574,7 @@ export default function DocumentViewer({
       {!collectionId ? (
         <div className="viz-empty">
           <h2>Collections</h2>
-          <p>Select a collection in the sidebar — or hit + to create one — then upload PDFs and run the pipeline.</p>
+          <p>Select a collection in the sidebar — or hit + to create one — then upload PDFs, index them, and build the knowledge graph.</p>
         </div>
       ) : !selectedDocId ? (
         <div className="viz-empty">

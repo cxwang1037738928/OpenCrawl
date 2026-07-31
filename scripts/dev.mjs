@@ -1,9 +1,11 @@
 /**
  * dev.mjs — the whole stack in one command: `npm run dev:all`
  *
- *   Ollama   — started only if nothing is answering on OLLAMA_URL, then
- *              REASONING_MODEL is preloaded so the first chat isn't paying a
- *              cold model load on top of generation
+ *   Ollama   — SKIPPED when Azure AI Foundry is configured, since chat answers
+ *              come from the hosted deployment. Otherwise started only if
+ *              nothing is answering on OLLAMA_URL, then REASONING_MODEL is
+ *              preloaded so the first chat isn't paying a cold model load on
+ *              top of generation
  *   Backend  — node --watch-path=backend backend/server.js
  *              (:3000, DATA_DIR=tests/test-output)
  *   Frontend — vite dev server                  (:5173, proxies /api + /models)
@@ -38,6 +40,16 @@ const OLLAMA_URL      = process.env.OLLAMA_URL || 'http://localhost:11434';
 const REASONING_MODEL = (process.env.REASONING_MODEL || '').trim();
 const PORT            = process.env.PORT || '3000';
 const DATA_DIR        = DATA_DIR_FROM_CLI || 'tests/test-output';
+
+// Chat answers come from Azure AI Foundry when these three are set (see
+// retriever.js), so there is nothing to start or preload locally. Ollama is
+// still what serves a LOCAL KG_MODEL and extract.py's author fallback, so it is
+// skipped rather than removed — a clone without Azure credentials still gets the
+// old behaviour.
+const AZURE_CHAT = Boolean(
+  (process.env.MICROSOFT_AZURE_PROJECT_ENDPOINT || '').trim()
+  && (process.env.MICROSOFT_AZURE_API_KEY || '').trim()
+  && (process.env.AZURE_DEPLOYMENT_NAME || '').trim());
 
 const log = (message) => console.log(`\x1b[35m[dev]\x1b[0m ${message}`);
 
@@ -119,7 +131,16 @@ process.on('SIGTERM', shutdown);
 
 await warmAtimes(path.join(ROOT, 'backend'));
 
-if (await ollamaUp()) {
+if (AZURE_CHAT) {
+  log(`chat → Azure AI Foundry (${process.env.AZURE_DEPLOYMENT_NAME}) — not starting ollama`);
+  // Not fatal, only worth knowing: these degrade quietly rather than failing.
+  // extract.py's LLM author fallback swallows the connection error, and the
+  // Models tab simply reports ollamaUp:false.
+  if (!(await ollamaUp())) {
+    log('note: ollama is not running. A LOCAL KG_MODEL and extract.py\'s author');
+    log('      fallback need it — start it with "ollama serve" before a pipeline run.');
+  }
+} else if (await ollamaUp()) {
   log(`ollama already up at ${OLLAMA_URL}`);
 } else {
   log('starting ollama serve…');
@@ -147,7 +168,10 @@ if (await ollamaUp()) {
   log(`ollama up at ${OLLAMA_URL}`);
 }
 
-if (!REASONING_MODEL) {
+if (AZURE_CHAT) {
+  // Nothing to preload: the deployment is always warm, and REASONING_MODEL is
+  // not consulted on the Azure path.
+} else if (!REASONING_MODEL) {
   log('WARNING: REASONING_MODEL is unset — chat will 503 until you pick one in the Models tab.');
 } else {
   log(`preloading ${REASONING_MODEL}…`);

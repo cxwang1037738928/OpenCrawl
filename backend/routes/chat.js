@@ -25,7 +25,7 @@ import { Router } from 'express';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { retrieve, answer } from '../retriever/retriever.js';
+import { retrieve, retrieveFacts, answer } from '../retriever/retriever.js';
 import { prisma } from '../db.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -84,7 +84,10 @@ chatRouter.post('/', wrap(async (req, res) => {
   ];
 
   const chunks = await retrieve(req.chat.collection, queryEmbedding, content);
-  const { reply, model, quotesByChunk } = await answer(messages, chunks);
+  // Graph facts are additive: chunk retrieval is untouched, and a collection
+  // with no graph (or a question naming no known entity) answers exactly as before.
+  const { facts } = await retrieveFacts(req.chat.collection, content);
+  const { reply, model, quotesByChunk } = await answer(messages, chunks, facts);
 
   if (req.user.isAdmin) logChatTrio({ question: content, chunks, reply, model });
 

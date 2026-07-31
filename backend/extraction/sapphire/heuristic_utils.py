@@ -236,8 +236,19 @@ def build_connectivity(doclings: dict, min_key_length: int,
       Phase 1 — exact DOI match on crossrefReferences (certain edges).
       Phase 2 — fuzzy title match on GROBID parsedReferences: bidirectional
         containment (_titles_match) + shared author surname when both sides
-        have authors + created-year sanity check (a paper can't cite a
-        target created more than a year after it).
+        have authors.
+
+    There is deliberately NO created-year check. One used to reject a target
+    dated more than a year after the citing paper, on the theory that a paper
+    cannot cite the future. It cost more than it caught: extract.py's `created`
+    comes from a date scanned out of the PDF's front matter, and arXiv re-stamps
+    its PDFs, so preprints carry the regeneration date rather than the
+    publication date. Measured on this corpus, three cond-mat papers were dated
+    2018/2018/2021 for work published in 2002/2003/2006, and that silently
+    deleted a correct edge — an exact title match with five shared author
+    surnames AND a Crossref-resolved DOI — because the target looked 2 years
+    "newer" than the paper citing it. Title + author agreement is far stronger
+    evidence than a scraped date, so the date no longer gets a vote.
 
     Phase-2 candidates come from an exact-title hash join plus an inverted
     token index (>= 2 shared informative tokens, or 1 for single-token
@@ -248,7 +259,6 @@ def build_connectivity(doclings: dict, min_key_length: int,
     title_lookup: dict[str, str] = {}          # normalized title -> doc_id
     doi_lookup: dict[str, str] = {}
     surnames_of: dict[str, set[str]] = {}      # doc_id -> author surnames
-    year_of: dict[str, int] = {}               # doc_id -> created year
 
     for doc_id, docling_entry in doclings.items():
         metadata = docling_entry.get("metadata", {})
@@ -269,9 +279,6 @@ def build_connectivity(doclings: dict, min_key_length: int,
         norm_doi = _norm_doi(metadata.get("doi") or "")
         if norm_doi:
             doi_lookup[norm_doi] = doc_id
-        created = metadata.get("created") or {}
-        if isinstance(created, dict) and created.get("year"):
-            year_of[doc_id] = created["year"]
 
     # Inverted token index over corpus titles (phase-2 candidate generation).
     title_of: dict[str, str] = {target_id: norm_title
@@ -300,7 +307,6 @@ def build_connectivity(doclings: dict, min_key_length: int,
 
     # Phase 2: fuzzy title matching
     for doc_id, docling_entry in doclings.items():
-        source_year = year_of.get(doc_id)
         for reference in (docling_entry.get("parsedReferences") or []):
             ref_title = _norm_title(reference.get("title") or "")
             if not ref_title or len(ref_title) < min_key_length:
@@ -330,10 +336,6 @@ def build_connectivity(doclings: dict, min_key_length: int,
                 if target_id == doc_id:
                     continue
                 if not _titles_match(title_of[target_id], ref_title, min_contained_length):
-                    continue
-                # +1 year of slack absorbs preprint-vs-published skew
-                target_year = year_of.get(target_id)
-                if source_year and target_year and target_year > source_year + 1:
                     continue
                 # No extracted authors on the target → accept the title match
                 # alone rather than silently dropping the edge.

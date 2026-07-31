@@ -1,0 +1,24 @@
+{
+  "models": [
+    {
+      "id": "ministral-3:3b-instruct-2512-q4_K_M",
+      "name": "Ministral 3B Instruct (local, Ollama)",
+      "context_length": 131072
+    },
+    {
+      "id": "gemini/gemini-3.6-flash",
+      "name": "Gemini 3.6 Flash (hosted, Google)",
+      "context_length": 1048576
+    },
+    {
+      "id": "gemini/gemini-3.1-flash-lite",
+      "name": "Gemini 3.1 Flash Lite (hosted, Google)",
+      "context_length": 1048576
+    },
+    {
+      "id": "gemini/gemini-flash-latest",
+      "name": "Gemini Flash (hosted, Google — tracks latest)",
+      "context_length": 1048576
+    }
+  ]
+}

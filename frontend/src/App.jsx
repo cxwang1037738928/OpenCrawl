@@ -122,8 +122,10 @@ export default function App() {
   const [tab, setTab] = useState('chat');
   // A pipeline run is one long request tied to the mounted Documents tab, so
   // while it's in flight we lock navigation (switching collection/chat/tab
-  // would unmount it and orphan the request). DocumentViewer drives this.
-  const [pipelineBusy, setPipelineBusy] = useState(false);
+  // would unmount it and orphan the request). DocumentViewer drives this, and
+  // names the job — 'index' or 'graph' — so the scrim can say which is running.
+  const [runningJob, setRunningJob] = useState(null);
+  const pipelineBusy = runningJob !== null;
   const [controlsEl, setControlsEl] = useState(null);
   const [docTarget, setDocTarget] = useState(null);   // { docId, chunkId, quotes, citing, query, nonce }
   // Bumped when a pipeline run finishes so the embedding-space and
@@ -354,7 +356,7 @@ export default function App() {
                   onCreateCollection={newCollection}
                   onDeleteCollection={removeCollection}
                   onPipelineDone={() => setCorpusVersion((version) => version + 1)}
-                  onBusyChange={setPipelineBusy}
+                  onBusyChange={setRunningJob}
                   controlsEl={controlsEl}
                   active={tab === 'docs'}
                   target={docTarget}
@@ -392,6 +394,7 @@ export default function App() {
 
       {pipelineBusy && (
         <PipelineOverlay
+          job={runningJob}
           collectionName={collections.find((c) => c.id === selectedCollectionId)?.name}
         />
       )}

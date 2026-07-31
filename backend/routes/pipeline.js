@@ -16,6 +16,13 @@
  *                   only (not persisted)
  *   6. graph      — kg-gen entity/relation graph over the embed stage's
  *                   chunks → Collection.knowledgeGraph + .knowledgeGraphHtml
+ *
+ * /run covers 2–5 (INDEX_STAGE_ORDER) ONLY. The graph is its own endpoint,
+ * /build-graph, because it is a different kind of job: indexing is minutes and
+ * every later stage depends on it, while the graph is a long LLM run that
+ * nothing else depends on and that you re-run on its own when you change
+ * KG_MODEL or the full-text fraction. Bundling them meant no one could re-index
+ * without paying for the graph, and the frontend exposes them as two buttons.
  */
 
 import 'dotenv/config';
@@ -80,6 +87,11 @@ function spawnAsync(cmd, args, collectionId, { onLine } = {}) {
         // Don't drop .pyc files into backend/ — under `npm run dev:all` a new
         // file there restarts the watch server mid-run (see scripts/dev.mjs).
         PYTHONDONTWRITEBYTECODE: '1',
+        // Python block-buffers stdout when it is a pipe, so per-document
+        // progress sat in an 8KB buffer while a multi-hour stage ran: the log
+        // showed one document while the worker was many further on, and a
+        // healthy run was indistinguishable from a hung one.
+        PYTHONUNBUFFERED: '1',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -131,7 +143,11 @@ function toHttp(err) {
 // Each runner takes (collection, params), runs export → stage → ingest, and returns
 // the JSON summary the route responds with. /run reuses them verbatim.
 
-export const STAGE_ORDER = ['extract', 'embed', 'categorize', 'heuristic', 'graph'];
+// What /run executes, in order. 'graph' is deliberately NOT here — see the
+// file header. STAGE_ORDER is the full dependency chain, for anything that
+// needs to reason about the pipeline as a whole.
+export const INDEX_STAGE_ORDER = ['extract', 'embed', 'categorize', 'heuristic'];
+export const STAGE_ORDER = [...INDEX_STAGE_ORDER, 'graph'];
 
 export const STAGES = {
   async extract(collection, { force = false } = {}) {
@@ -178,7 +194,15 @@ export const STAGES = {
   async heuristic(collection, { k = parseInt(process.env.HEURISTIC_K || '2', 10) } = {}) {
     await exportDoclings(collection);
     await exportCategories(collection);
-    await spawnAsync(PYTHON, [HEURISTIC_PY, '--k', String(k)], collection.id);
+    // The graph stage reads this ranking to decide which documents it reads in
+    // full (the top KG_FULL_TEXT_FRACTION of the corpus). A ranking shorter
+    // than that quota leaves kg_graph.py filling the gap in arbitrary order, so
+    // rank at least that many here — k stays whichever is larger, and an
+    // explicit k from the caller can still raise it.
+    const documentCount = await prisma.document.count({ where: { collectionId: collection.id } });
+    const graphNeeds = Math.ceil(documentCount * parseFloat(process.env.KG_FULL_TEXT_FRACTION || '0.4'));
+    const rankedK = Math.max(k, graphNeeds);
+    await spawnAsync(PYTHON, [HEURISTIC_PY, '--k', String(rankedK)], collection.id);
     const output = await readScratchJson(collection.id, 'heuristic_output.json');
     // Not persisted for now — printed here only.
     console.log(`[heuristic] collection ${collection.id} output:\n${JSON.stringify(output, null, 2)}`);
@@ -192,6 +216,10 @@ export const STAGES = {
     // marker ingests that partial into the DB, so a multi-hour run is saved
     // incrementally instead of only on completion.
     await exportEmbeddings(collection);
+    // Doclings too: the documents graphed as title+abstract+conclusion take
+    // their abstract from docling metadata, because a paper's abstract is
+    // usually front matter rather than a section, so it never became a chunk.
+    await exportDoclings(collection);
 
     // Serialize the per-call ingests onto one chain: two Collection.update
     // calls never overlap, and a transient failure is swallowed (the next
@@ -214,6 +242,10 @@ export const STAGES = {
       edges:        graph.edges.length,
       relations:    graph.relations.length,
       docs:         graph.sourceDocIds.length,
+      // How the corpus was split: full-text documents sent every chunk,
+      // summarized ones only title + abstract + conclusion.
+      fullTextDocs: graph.fullTextDocIds?.length ?? graph.sourceDocIds.length,
+      summaryDocs:  graph.summaryDocIds?.length ?? 0,
       chunks:       graph.chunksProcessed,
       // Chunks are packed many-per-call now, so failures count CALLS: one
       // failed call drops every chunk batched into it.
@@ -282,13 +314,15 @@ pipelineRouter.post('/heuristic', wrap(async (req, res) => {
   res.json(await STAGES.heuristic(req.collection, { k }));
 }));
 
-// POST /build-graph
+// POST /build-graph — the knowledge-graph run on its own (its own frontend
+// button). Long: an LLM call per packed batch of chunks.
 pipelineRouter.post('/build-graph', wrap(async (req, res) => {
   res.json(await STAGES.graph(req.collection).catch(err => { throw toHttp(err); }));
 }));
 
-// POST /run { threshold?, k?, force? } — stages 2–6 in order; a failing stage
-// stops the run and the response shows how far it got.
+// POST /run { threshold?, k?, force? } — the INDEXING stages (2–5) in order; a
+// failing stage stops the run and the response shows how far it got. The graph
+// is not part of this — POST /build-graph runs it.
 pipelineRouter.post('/run', wrap(async (req, res) => {
   const {
     threshold = parseFloat(process.env.CATEGORIES_SIMILARITY || '0.75'),
@@ -305,11 +339,10 @@ pipelineRouter.post('/run', wrap(async (req, res) => {
     embed:      { force },
     categorize: { threshold },
     heuristic:  { k },
-    graph:      {},
   };
 
   const stages = {};
-  for (const stageName of STAGE_ORDER) {
+  for (const stageName of INDEX_STAGE_ORDER) {
     try {
       // Re-read the collection row: earlier stages update fields later ones export.
       const collection = await prisma.collection.findUnique({ where: { id: req.collection.id } });

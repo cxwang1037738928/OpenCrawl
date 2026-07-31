@@ -38,7 +38,7 @@ export default function KnowledgeGraph({ collectionId, corpusVersion, controlsEl
       <div className="viz-empty">
         <h2>No knowledge graph yet</h2>
         <p>{error}</p>
-        <p>Run the pipeline through the build-graph stage.</p>
+        <p>Index the collection in the Documents tab, then hit “Build knowledge graph”.</p>
       </div>
     );
   }
@@ -60,6 +60,17 @@ export default function KnowledgeGraph({ collectionId, corpusVersion, controlsEl
         <div className="legend-row">
           <span className="legend-title">{graphSummary.sourceDocIds.length} documents</span>
         </div>
+        {/* How much of each document was read: full text for the top-ranked
+            share of the corpus, title + abstract + conclusion for the rest.
+            Absent on graphs built before the split existed. */}
+        {graphSummary.fullTextDocIds && (
+          <div className="legend-row">
+            <span className="legend-title">
+              {graphSummary.fullTextDocIds.length} full text ·{' '}
+              {graphSummary.summaryDocIds?.length ?? 0} summarized
+            </span>
+          </div>
+        )}
       </div>
       <p style={{ color: 'var(--ink-muted)', fontSize: 12, marginTop: 10 }}>
         {graphSummary.model}

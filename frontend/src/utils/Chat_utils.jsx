@@ -27,8 +27,18 @@ export const FLAGGED_NUMBERS_RE = /^\[\s*(\d+(?:\s*,\s*\d+)*)\s*!\s*\]$/;
 export const UNSUPPORTED_TIP =
   'This information is possibly hallucinated. No retrieved excerpt contains this exact sentence.';
 
+// [G] (retriever.js) — the claim leaned on a knowledge-graph triple rather than
+// excerpt text. Not a hallucination flag: the fact has documents behind it, but
+// a triple is machine-extracted, so it carries no verbatim text to verify
+// against and is exempt from the excerpt grounding check.
+export const GRAPH_MARKER = '[G]';
+export const GRAPH_MARKER_RE = /\[G\]/;
+export const GRAPH_TIP =
+  'This information was synthesized with triplets from the Knowledge graph and could contain errors';
+
 // One capture group, so split() hands markers back interleaved with the prose.
-export const SEGMENT_RE = new RegExp(`(${CITE_MARKER_RE.source}|${FLAGGED_CITE_RE.source}|\\[!\\])`, 'g');
+export const SEGMENT_RE = new RegExp(
+  `(${CITE_MARKER_RE.source}|${FLAGGED_CITE_RE.source}|\\[!\\]|${GRAPH_MARKER_RE.source})`, 'g');
 
 // The disclaimer tooltip is position:fixed and placed here on hover/focus: the
 // chat scroller clips overflow, so centering it on the marker pushed it off the
@@ -100,9 +110,28 @@ export function unsupportedMark(key) {
 }
 
 /**
+ * Yellow, non-clickable "!" marking a claim built on graph triples. Deliberately
+ * not a link: a triple cites documents rather than a span in one, so there is no
+ * single place in a PDF to open.
+ */
+export function graphMark(key) {
+  return (
+    <span className="citation-graph" key={key}
+          tabIndex={0} role="img" aria-label={GRAPH_TIP}
+          onMouseEnter={positionTip} onFocus={positionTip}>
+      !
+      <span className="unsupported-tip" role="tooltip" aria-hidden="true">
+        {GRAPH_TIP}
+      </span>
+    </span>
+  );
+}
+
+/**
  * [n] → a blue button opening the cited chunk. [n!] → the same blue button(s)
  * followed by a red non-clickable "!" flagging it unverified. [!] → the flag
- * alone, with no chunk to open.
+ * alone, with no chunk to open. [G] → a yellow "!" marking graph-derived
+ * synthesis, which may trail an excerpt citation as [3][G].
  * `claimCursor` = { claims, next }: the block's citing sentences, consumed one
  * per marker in document order so each marker carries its own claim.
  */
@@ -112,6 +141,9 @@ export function citeInline(text, sources, query, onCitation, keyBase, claimCurso
       if (claimCursor) claimCursor.next += 1;   // [!] is a marker occurrence too
       return unsupportedMark(`${keyBase}u${partIdx}`);
     }
+    // [G] does NOT advance the claim cursor: it annotates the same claim as any
+    // [n] beside it, so consuming a slot would misalign every later marker.
+    if (part === GRAPH_MARKER) return graphMark(`${keyBase}g${partIdx}`);
     const flaggedMatch = part.match(FLAGGED_NUMBERS_RE);
     const citeMatch = flaggedMatch || part.match(CITE_NUMBERS_RE);
     if (!citeMatch) return part;                        // plain prose
