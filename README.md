@@ -262,9 +262,8 @@ Reference build — a 192-document machine-learning and materials-science corpus
 |---|---|
 | Documents indexed | 192 PDFs → 6,628 searchable chunks |
 | Knowledge graph | 20,301 entities · 22,260 relations |
-| Extraction reliability | 1,145 LLM calls, **0 failed** |
 | Cleanup effect | distinct relationship types 3,824 → 2,581 (−32%) |
-| Author noise removed | 1,195 nodes |
+| Author noise | 1,195 nodes removed|
 
 ---
 
@@ -274,18 +273,6 @@ Reference build — a 192-document machine-learning and materials-science corpus
 **Backend** Node 22 · Express · PostgreSQL 16 · Prisma · JWT
 **Processing** Python 3.11 · Docling · Tesseract · GROBID · NetworkX · kg-gen · DSPy
 **Models** MiniLM-L12-v2 embeddings · NLI cross-encoder · Ollama, Gemini, or Azure AI Foundry
-
----
-
-## Limitations
-
-- Claims the model states *without* citing anything are not grounded-checked.
-- Semantic similarity cannot distinguish a claim from its negation; the verbatim and lexical
-  checks reduce this but do not eliminate it.
-- Smaller local models use graph facts but often omit the `[G]` marker.
-- Corroboration across documents is a weak signal in practice — most extracted facts appear in
-  only one paper.
-- Only the research-paper ingestion profile is implemented.
 
 ---
 
