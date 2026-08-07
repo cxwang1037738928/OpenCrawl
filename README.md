@@ -4,11 +4,8 @@
 
 Upload PDFs — scanned or digital — and OpenCrawl extracts them, maps how they cite each other,
 builds a knowledge graph over the whole corpus, and answers questions in chat. Every citation is
-verified against the source text before you see it, and clicking one opens the PDF with the
+verified against the source text before being displayed, and clicking one opens the PDF with the
 supporting sentences highlighted.
-
-The design principle is verifiability over fluency: an answer that cannot be traced to a source
-is treated as a defect, not a feature.
 
 ---
 
