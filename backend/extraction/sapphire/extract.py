@@ -97,6 +97,15 @@ ABSTRACT_FALLBACK_WORDS = int(os.environ.get("EXTRACT_ABSTRACT_FALLBACK_WORDS", 
 # characters in the first three pages and scans yield essentially none.
 TEXT_LAYER_SAMPLE_PAGES = int(os.environ.get("EXTRACT_TEXT_LAYER_PAGES", "3"))
 TEXT_LAYER_MIN_CHARS    = int(os.environ.get("EXTRACT_TEXT_LAYER_MIN_CHARS", "200"))
+# EXTRACT_FORCE_OCR: re-read every page from its rasterized image, ignoring the
+# text layer the PDF already carries. Off by default because the text layer is
+# normally the better source. It exists for legacy scans — a PDF from "Acrobat
+# Scan Plug-in" or "Paper Capture" ships decades-old OCR output *as* its text
+# layer, so the probe below calls it digital and the pipeline inherits those
+# transcription errors verbatim ("Table 1." as "Tahle l.", "0/5" as "0/s").
+# Whether re-OCR is an improvement depends on the scan, so this is a knob to
+# measure with, not a default: run a corpus both ways and compare.
+FORCE_OCR = os.environ.get("EXTRACT_FORCE_OCR", "").strip().lower() not in ("", "0", "false")
 # First-page region scanned for a creation date. Body text is full of in-text
 # citation years, so the scan is capped to the front matter.
 CREATED_SCAN_CHARS = int(os.environ.get("EXTRACT_CREATED_SCAN_CHARS", "3000"))
@@ -159,18 +168,21 @@ if _page_batch:
 # Converters (built once, reused across documents)
 # ---------------------------------------------------------------------------
 
-def _make_converter(ocr: bool) -> DocumentConverter:
+def _make_converter(ocr: bool, force_full_page: bool = False) -> DocumentConverter:
     pipeline_options = PdfPipelineOptions()
     pipeline_options.do_ocr = ocr
     if ocr:
         pipeline_options.ocr_options = TesseractCliOcrOptions(
-            force_full_page_ocr=False, tesseract_cmd=TESSERACT_CMD)
+            force_full_page_ocr=force_full_page, tesseract_cmd=TESSERACT_CMD)
     return DocumentConverter(
         format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)}
     )
 
 _converter_digital = _make_converter(ocr=False)
 _converter_ocr     = _make_converter(ocr=True)
+# Built only when asked for: a converter holds its own model weights, and this
+# one is idle on every normal run.
+_converter_force_ocr = _make_converter(ocr=True, force_full_page=True) if FORCE_OCR else None
 
 
 def _has_text_layer(pdf_path: str) -> bool:
@@ -210,7 +222,14 @@ def _choose_converter(doc_meta: dict) -> DocumentConverter:
     so the fallback became unconditional: every digital paper was OCR'd page by
     page, at roughly a minute each and producing nothing but Tesseract "Too few
     characters" noise, because the text was already there to read.
+
+    EXTRACT_FORCE_OCR overrides the probe entirely. Note that the plain OCR
+    converter would NOT do this: force_full_page_ocr=False leaves docling to OCR
+    only the regions that lack text, so a page carrying a legacy text layer is
+    passed through untouched no matter which of the two converters sees it.
     """
+    if _converter_force_ocr is not None:      # non-None exactly when FORCE_OCR
+        return _converter_force_ocr
     file_path = doc_meta.get("filePath", "")
     return _converter_digital if _has_text_layer(file_path) else _converter_ocr
 

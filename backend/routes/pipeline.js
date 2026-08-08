@@ -85,7 +85,7 @@ const KG_GRAPH_SAVED = '@@KG_GRAPH_SAVED@@';
  * catch the KG_GRAPH_SAVED marker) — stdout is still forwarded verbatim for
  * display, this only adds line-boundary detection on top.
  */
-function spawnAsync(cmd, args, collectionId, { onLine, crawler } = {}) {
+function spawnAsync(cmd, args, collectionId, { onLine, crawler, forceOcr } = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd: ROOT,
@@ -95,6 +95,10 @@ function spawnAsync(cmd, args, collectionId, { onLine, crawler } = {}) {
         // Which crawler this run belongs to. extract.py consults GROBID only
         // for sapphire; kg_graph.py picks its summary strategy from it.
         CRAWLER: crawler || 'sapphire',
+        // Per-run, so one collection can be re-OCR'd while another indexes
+        // normally. Only spelled out when set — otherwise extract.py's own
+        // default (off) applies, and an inherited '' would read as unset anyway.
+        ...(forceOcr ? { EXTRACT_FORCE_OCR: '1' } : {}),
         ENHANCED_DIR,
         // Don't drop .pyc files into backend/ — under `npm run dev:all` a new
         // file there restarts the watch server mid-run (see scripts/dev.mjs).
@@ -177,11 +181,11 @@ export const INDEX_STAGE_ORDER = SAPPHIRE_INDEX_STAGES;
 export const STAGE_ORDER = [...INDEX_STAGE_ORDER, 'graph'];
 
 export const STAGES = {
-  async extract(collection, { force = false } = {}) {
+  async extract(collection, { force = false, forceOcr = false } = {}) {
     await exportDocumentsMeta(collection);
     await exportDoclings(collection);           // lets extract.py skip done docs
     await spawnAsync(PYTHON, [EXTRACT_PY, ...(force ? ['--force'] : [])], collection.id,
-                     { crawler: collection.crawler });
+                     { crawler: collection.crawler, forceOcr });
     // DOI regex + Crossref lookup are academic enrichment: they resolve
     // reference strings to registered works, which is meaningless for a
     // document that has no reference list.
@@ -342,9 +346,12 @@ pipelineRouter.post('/enhance', wrap(async (req, res) => {
   res.json(await processDocument(doc.filePath, { docId, dpi }));
 }));
 
-// POST /extract { force? }
+// POST /extract { force?, forceOcr? }
 pipelineRouter.post('/extract', wrap(async (req, res) => {
-  res.json(await STAGES.extract(req.collection, { force: req.body?.force === true }));
+  res.json(await STAGES.extract(req.collection, {
+    force:    req.body?.force === true,
+    forceOcr: req.body?.forceOcr === true,
+  }));
 }));
 
 // POST /embed { force? }
@@ -384,14 +391,15 @@ pipelineRouter.post('/build-graph', wrap(async (req, res) => {
   res.json(await STAGES.graph(req.collection).catch(err => { throw toHttp(err); }));
 }));
 
-// POST /run { threshold?, k?, force? } — the INDEXING stages (2–5) in order; a
-// failing stage stops the run and the response shows how far it got. The graph
-// is not part of this — POST /build-graph runs it.
+// POST /run { threshold?, k?, force?, forceOcr? } — the INDEXING stages (2–5) in
+// order; a failing stage stops the run and the response shows how far it got.
+// The graph is not part of this — POST /build-graph runs it.
 pipelineRouter.post('/run', wrap(async (req, res) => {
   const {
     threshold = parseFloat(process.env.CATEGORIES_SIMILARITY || '0.75'),
     k         = parseInt(process.env.HEURISTIC_K || '2', 10),
     force     = false,
+    forceOcr  = false,
   } = req.body ?? {};
 
   if (typeof threshold !== 'number' || threshold <= 0 || threshold > 1) {
@@ -399,7 +407,7 @@ pipelineRouter.post('/run', wrap(async (req, res) => {
   }
 
   const params = {
-    extract:    { force },
+    extract:    { force, forceOcr },
     citations:  {},
     embed:      { force },
     categorize: { threshold },
