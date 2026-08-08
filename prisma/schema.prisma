@@ -41,6 +41,10 @@ model Collection {
   knowledgeGraph     Json?
   // kg-gen's standalone interactive page, served to the graph tab's iframe
   knowledgeGraphHtml String?
+  // sapphire/citations.py output: {generatedAt, edges:[{source, target}]} —
+  // "source cites target" across the corpus. Null for crawlers whose documents
+  // carry no reference lists.
+  citationGraph      Json?
   corpusUpdatedAt DateTime? // bumped on pipeline ingest — retrieval cache key
   userId          Int
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)

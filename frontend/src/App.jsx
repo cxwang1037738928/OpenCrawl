@@ -135,7 +135,9 @@ export default function App() {
   // produce distinct nonces or the second deep-link is silently ignored.
   const citationClickCount = useRef(0);
   const { crawler, setCrawler } = useCrawler();
-  const live = crawler === 'sapphire';
+  // Which crawlers have a pipeline behind them. Read from the crawler table
+  // rather than naming one, so shipping a crawler is a one-line change there.
+  const live = Boolean(CRAWLERS[crawler]?.ready);
 
   // Boot: validate any stored token; without a valid session the app shows
   // the login page. Data loads once a user is confirmed.

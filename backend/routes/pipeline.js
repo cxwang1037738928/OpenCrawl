@@ -10,14 +10,19 @@
  * Stage order and persistence:
  *   1. enhance    — per-document page enhancement (excluded from /run)
  *   2. extract    — docling PDF → Document.docling rows
- *   3. embed      — chunk + MiniLM encode → Chunk rows
- *   4. categorize — clusters → Collection.categories/.docVectors + Chunk.category
- *   5. heuristic  — BM25 + PageRank top-k: printed to the server console
- *                   only (not persisted)
- *   6. graph      — kg-gen entity/relation graph over the embed stage's
+ *   3. citations  — SAPPHIRE ONLY: reference lists → Collection.citationGraph
+ *   4. embed      — chunk + MiniLM encode → Chunk rows
+ *   5. categorize — clusters → Collection.categories/.docVectors + Chunk.category
+ *   6. heuristic  — BM25 (+ PageRank when a citation graph exists) top-k:
+ *                   printed to the server console only (not persisted)
+ *   7. graph      — kg-gen entity/relation graph over the embed stage's
  *                   chunks → Collection.knowledgeGraph + .knowledgeGraphHtml
  *
- * /run covers 2–5 (INDEX_STAGE_ORDER) ONLY. The graph is its own endpoint,
+ * Which stages run depends on the collection's CRAWLER — see indexStagesFor.
+ * Only sapphire's documents carry reference lists, so only sapphire builds a
+ * citation graph; other crawlers rank on BM25 alone and skip GROBID entirely.
+ *
+ * /run covers the indexing stages ONLY. The graph is its own endpoint,
  * /build-graph, because it is a different kind of job: indexing is minutes and
  * every later stage depends on it, while the graph is a long LLM run that
  * nothing else depends on and that you re-run on its own when you change
@@ -40,7 +45,8 @@ import { prisma } from '../db.js';
 import {
   scratchDir, readScratchJson,
   exportDocumentsMeta, exportDoclings, exportEmbeddings, exportCategories,
-  ingestDoclings, ingestChunks, ingestCategories, ingestGraph, ingestGraphProgress,
+  ingestDoclings, ingestChunks, ingestCategories, ingestCitations,
+  ingestGraph, ingestGraphProgress,
 } from '../pipeline/collectionStore.js';
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
@@ -48,7 +54,10 @@ import {
 const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const ROOT       = path.resolve(__dirname, '..', '..');
 const EXTRACT_PY   = path.join(ROOT, 'backend', 'extraction', 'sapphire', 'extract.py');
-const HEURISTIC_PY = path.join(ROOT, 'backend', 'extraction', 'sapphire', 'heuristic.py');
+// Ranking is crawler-agnostic and lives one level up; the citation graph it
+// used to build is sapphire-only and now has its own stage.
+const HEURISTIC_PY = path.join(ROOT, 'backend', 'extraction', 'heuristic.py');
+const CITATIONS_PY = path.join(ROOT, 'backend', 'extraction', 'sapphire', 'citations.py');
 const KG_GRAPH_PY  = path.join(ROOT, 'backend', 'extraction', 'kg_graph.py');
 const PYTHON     = process.env.PYTHON || 'python';
 // Enhancement reports are keyed by docId (content hash), so one global dir is
@@ -76,13 +85,16 @@ const KG_GRAPH_SAVED = '@@KG_GRAPH_SAVED@@';
  * catch the KG_GRAPH_SAVED marker) — stdout is still forwarded verbatim for
  * display, this only adds line-boundary detection on top.
  */
-function spawnAsync(cmd, args, collectionId, { onLine } = {}) {
+function spawnAsync(cmd, args, collectionId, { onLine, crawler } = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd: ROOT,
       env: {
         ...process.env,
         DATA_DIR: scratchDir(collectionId),
+        // Which crawler this run belongs to. extract.py consults GROBID only
+        // for sapphire; kg_graph.py picks its summary strategy from it.
+        CRAWLER: crawler || 'sapphire',
         ENHANCED_DIR,
         // Don't drop .pyc files into backend/ — under `npm run dev:all` a new
         // file there restarts the watch server mid-run (see scripts/dev.mjs).
@@ -146,23 +158,55 @@ function toHttp(err) {
 // What /run executes, in order. 'graph' is deliberately NOT here — see the
 // file header. STAGE_ORDER is the full dependency chain, for anything that
 // needs to reason about the pipeline as a whole.
-export const INDEX_STAGE_ORDER = ['extract', 'embed', 'categorize', 'heuristic'];
+//
+// Per crawler, because the stages a corpus needs depend on what its documents
+// ARE: 'citations' matches reference lists against corpus titles and DOIs, which
+// only sapphire's documents have. Declared as lists rather than decided by
+// conditionals inside the runners so what actually executes stays readable.
+// Citations must follow extract — doi_regex.js and search_doi.js populate
+// crossrefReferences there, and that is the DOI phase's only input.
+const SAPPHIRE_INDEX_STAGES = ['extract', 'citations', 'embed', 'categorize', 'heuristic'];
+const GENERAL_INDEX_STAGES  = ['extract', 'embed', 'categorize', 'heuristic'];
+
+export const indexStagesFor = (crawler) =>
+  (crawler === 'sapphire' ? SAPPHIRE_INDEX_STAGES : GENERAL_INDEX_STAGES);
+
+// Superset, for callers reasoning about the pipeline as a whole (route
+// registration, status). No collection runs every one of these.
+export const INDEX_STAGE_ORDER = SAPPHIRE_INDEX_STAGES;
 export const STAGE_ORDER = [...INDEX_STAGE_ORDER, 'graph'];
 
 export const STAGES = {
   async extract(collection, { force = false } = {}) {
     await exportDocumentsMeta(collection);
     await exportDoclings(collection);           // lets extract.py skip done docs
-    await spawnAsync(PYTHON, [EXTRACT_PY, ...(force ? ['--force'] : [])], collection.id);
-    await annotateDois(scratchDir(collection.id));
-    try {
-      await enrichDoclings(scratchDir(collection.id));   // network enrichment — never fatal
-    } catch (err) {
-      console.warn(`[pipeline] Crossref enrichment skipped: ${err.message}`);
+    await spawnAsync(PYTHON, [EXTRACT_PY, ...(force ? ['--force'] : [])], collection.id,
+                     { crawler: collection.crawler });
+    // DOI regex + Crossref lookup are academic enrichment: they resolve
+    // reference strings to registered works, which is meaningless for a
+    // document that has no reference list.
+    if (collection.crawler === 'sapphire') {
+      await annotateDois(scratchDir(collection.id));
+      try {
+        await enrichDoclings(scratchDir(collection.id));   // network enrichment — never fatal
+      } catch (err) {
+        console.warn(`[pipeline] Crossref enrichment skipped: ${err.message}`);
+      }
     }
     await ingestDoclings(collection);
     const report = await readScratchJson(collection.id, 'extract_report.json');
     return { extracted: report.extracted.length, skipped: report.skipped, errors: report.errors };
+  },
+
+  // Sapphire only. Pure function of doclings, so it needs nothing but the
+  // extract stage's output — and produces the citations.json the ranker blends
+  // PageRank from when it exists.
+  async citations(collection) {
+    await exportDoclings(collection);
+    await spawnAsync(PYTHON, [CITATIONS_PY], collection.id, { crawler: collection.crawler });
+    await ingestCitations(collection);
+    const output = await readScratchJson(collection.id, 'citations.json');
+    return { edges: output.edges.length };
   },
 
   async embed(collection, { force = false } = {}) {
@@ -194,6 +238,10 @@ export const STAGES = {
   async heuristic(collection, { k = parseInt(process.env.HEURISTIC_K || '2', 10) } = {}) {
     await exportDoclings(collection);
     await exportCategories(collection);
+    // Chunk text, no vectors: the ranker scores every chunk against its
+    // cluster's keywords and never looks at an embedding, and the float arrays
+    // are the great majority of this file's bytes.
+    await exportEmbeddings(collection, { vectors: false });
     // The graph stage reads this ranking to decide which documents it reads in
     // full (the top KG_FULL_TEXT_FRACTION of the corpus). A ranking shorter
     // than that quota leaves kg_graph.py filling the gap in arbitrary order, so
@@ -202,11 +250,16 @@ export const STAGES = {
     const documentCount = await prisma.document.count({ where: { collectionId: collection.id } });
     const graphNeeds = Math.ceil(documentCount * parseFloat(process.env.KG_FULL_TEXT_FRACTION || '0.4'));
     const rankedK = Math.max(k, graphNeeds);
-    await spawnAsync(PYTHON, [HEURISTIC_PY, '--k', String(rankedK)], collection.id);
+    await spawnAsync(PYTHON, [HEURISTIC_PY, '--k', String(rankedK)], collection.id,
+                     { crawler: collection.crawler });
     const output = await readScratchJson(collection.id, 'heuristic_output.json');
-    // Not persisted for now — printed here only.
-    console.log(`[heuristic] collection ${collection.id} output:\n${JSON.stringify(output, null, 2)}`);
-    return { k: output.k, topK: output.topK, edges: output.edges.length };
+    // Not persisted for now — printed here only. chunkScores is omitted from
+    // the log: it holds one entry per chunk (16k+ on a large corpus) and would
+    // bury the ranking it accompanies.
+    const { chunkScores, ...loggable } = output;
+    console.log(`[heuristic] collection ${collection.id} output:\n${JSON.stringify(loggable, null, 2)}`);
+    return { k: output.k, topK: output.topK,
+             chunksScored: Object.keys(chunkScores || {}).length };
   },
 
   async graph(collection) {
@@ -232,7 +285,8 @@ export const STAGES = {
         .catch(err => console.warn(`[pipeline] partial graph ingest skipped: ${err.message}`));
     };
 
-    await spawnAsync(PYTHON, [KG_GRAPH_PY], collection.id, { onLine });
+    await spawnAsync(PYTHON, [KG_GRAPH_PY], collection.id,
+                     { onLine, crawler: collection.crawler });
     await ingestChain;              // let the last partial ingest settle
     await ingestGraph(collection);  // final: graph + kg_view.html, authoritative
     const graph = await readScratchJson(collection.id, 'graph.json');
@@ -270,6 +324,7 @@ pipelineRouter.get('/status', wrap(async (req, res) => {
     doclings:   newestDoc?.extractedAt ?? null,
     embeddings: req.collection.embeddingsMeta?.updated ?? null,
     categories: req.collection.categories?.generatedAt ?? null,
+    citations:  req.collection.citationGraph?.generatedAt ?? null,
     heuristic:  null,   // printed only, not persisted
     graph:      req.collection.knowledgeGraph?.createdAt ?? null,
   });
@@ -307,6 +362,15 @@ pipelineRouter.post('/categorize', wrap(async (req, res) => {
   res.json(await STAGES.categorize(req.collection, { threshold }).catch(err => { throw toHttp(err); }));
 }));
 
+// POST /citations — sapphire only; the corpus citation graph on its own.
+pipelineRouter.post('/citations', wrap(async (req, res) => {
+  if (req.collection.crawler !== 'sapphire') {
+    throw httpError(400, `Citation graphs need reference lists — the ${req.collection.crawler} `
+                       + 'crawler does not extract them');
+  }
+  res.json(await STAGES.citations(req.collection).catch(err => { throw toHttp(err); }));
+}));
+
 // POST /heuristic { k? }
 pipelineRouter.post('/heuristic', wrap(async (req, res) => {
   const k = parseInt(req.body?.k ?? process.env.HEURISTIC_K ?? '2', 10);
@@ -336,13 +400,16 @@ pipelineRouter.post('/run', wrap(async (req, res) => {
 
   const params = {
     extract:    { force },
+    citations:  {},
     embed:      { force },
     categorize: { threshold },
     heuristic:  { k },
   };
 
   const stages = {};
-  for (const stageName of INDEX_STAGE_ORDER) {
+  // Which stages this corpus needs depends on its crawler — a general-document
+  // collection has no references, so no citation stage.
+  for (const stageName of indexStagesFor(req.collection.crawler)) {
     try {
       // Re-read the collection row: earlier stages update fields later ones export.
       const collection = await prisma.collection.findUnique({ where: { id: req.collection.id } });

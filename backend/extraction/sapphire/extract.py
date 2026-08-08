@@ -6,12 +6,20 @@ DoclingDocument.  Digital PDFs go through docling's standard pipeline;
 scanned/mixed PDFs use docling's OCR pipeline backed by Tesseract.
 
 GROBID (CRF models) runs alongside docling on the same PDF: docling owns
-text/markdown/sections/tables, GROBID owns metadata + references. GROBID is
-REQUIRED, not preferred: it is the only source of authors and parsed
-references, so extraction raises when the server is unreachable rather than
-producing documents that look complete but carry no authors and no citation
-edges. Title and abstract still fall back to the document's own section
-structure when GROBID's header model leaves them empty.
+text/markdown/sections/tables, GROBID owns metadata + references. For the
+SAPPHIRE crawler GROBID is REQUIRED, not preferred: it is the only good source
+of authors and the only source of parsed references, so extraction raises when
+the server is unreachable rather than producing documents that look complete
+but carry no authors and no citation edges. Title and abstract still fall back
+to the document's own section structure when GROBID's header model leaves them
+empty.
+
+Other crawlers (CRAWLER != sapphire) skip GROBID entirely. Its CRF models are
+trained on scientific articles, so on a report or a manual the header model
+returns noise and processReferences returns nothing — and those crawlers build
+no citation graph, which is the only reason the requirement is hard. Metadata
+then comes from the document's own structure and docling's labels, which is
+weaker but costs no external service.
 
 Orchestration + config only: the pure parsing primitives (sections, tables,
 references, TEI/date scanning, docling-label metadata) live in
@@ -101,6 +109,11 @@ CREATED_SCAN_CHARS = int(os.environ.get("EXTRACT_CREATED_SCAN_CHARS", "3000"))
 # the container's JVM under newer Docker Desktop/WSL2 — keep it if recreating.
 # The full grobid/grobid image swaps in deep-learning models; we
 # deliberately use the CRF-only image for speed and low memory.
+# Which crawler this run belongs to, injected by routes/pipeline.js. Only
+# sapphire consults GROBID; see the module docstring.
+CRAWLER        = os.environ.get("CRAWLER", "sapphire").strip().lower()
+USE_GROBID     = CRAWLER == "sapphire"
+
 GROBID_URL     = os.environ.get("GROBID_URL", "http://localhost:8070")
 GROBID_TIMEOUT = int(os.environ.get("GROBID_TIMEOUT", "120"))
 
@@ -403,12 +416,14 @@ def convert_document(doc_meta: dict) -> dict:
         raise FileNotFoundError(f"PDF not found: {file_path}")
 
     # GROBID and docling consume the same PDF in parallel: GROBID runs on its
-    # server over HTTP while docling churns locally in this process.
+    # server over HTTP while docling churns locally in this process. Non-sapphire
+    # crawlers skip it and take the same path a scanned PDF already takes — the
+    # per-field merge below was written to fill every gap from docling.
     converter = _choose_converter(doc_meta)
     with ThreadPoolExecutor(max_workers=1) as pool:
-        grobid_future = pool.submit(_grobid_extract, file_path)
+        grobid_future = pool.submit(_grobid_extract, file_path) if USE_GROBID else None
         conversion = converter.convert(file_path)
-        grobid = grobid_future.result()
+        grobid = grobid_future.result() if grobid_future else None
 
     doc = conversion.document
 

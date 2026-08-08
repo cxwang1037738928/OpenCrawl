@@ -278,6 +278,13 @@ _SUMMARY_HEADINGS = tuple(
     if heading.strip()
 )
 _ABSTRACT_HEADING = "abstract"
+
+# Which crawler this run belongs to (injected by routes/pipeline.js). Sapphire
+# summarises by section heading; anything else has no such vocabulary and
+# summarises by the ranking stage's chunk scores instead.
+_CRAWLER = os.environ.get("CRAWLER", "sapphire").strip().lower()
+# Share of a summary document's chunks kept when selecting by score.
+_SUMMARY_CHUNK_FRACTION = float(os.environ.get("KG_SUMMARY_CHUNK_FRACTION", "0.4"))
 # Chars one summary document may contribute. A real abstract plus conclusion is
 # well under this; the cap matters when docling folded the BIBLIOGRAPHY into the
 # conclusion section (no separate 'References' heading to filter on), which
@@ -404,6 +411,22 @@ def _ranked_doc_ids(data_dir: Path) -> list[str]:
     except (json.JSONDecodeError, ValueError):
         return []
     return [entry["docId"] for entry in top_k if entry.get("docId")]
+
+
+def _chunk_scores(data_dir: Path) -> dict[str, float]:
+    """{chunkId: score} from the ranking stage, or {} when unavailable.
+
+    Only the non-sapphire summary path uses these. Empty is a valid state — an
+    older heuristic_output.json predates the field — and the caller then falls
+    back to heading-based summaries.
+    """
+    heuristic_path = data_dir / "heuristic_output.json"
+    if not heuristic_path.exists():
+        return {}
+    try:
+        return json.loads(heuristic_path.read_text(encoding="utf-8")).get("chunkScores") or {}
+    except (json.JSONDecodeError, ValueError):
+        return {}
 
 
 def _split_documents(chunk_doc_ids: list[str], ranked_doc_ids: list[str],
@@ -573,6 +596,52 @@ def _full_text_entries(doc_chunks: list[dict]) -> list[tuple[str, str]]:
             for chunk in doc_chunks]
 
 
+def _scored_summary_entries(doc_chunks: list[dict], abstract: str,
+                            chunk_scores: dict[str, float]) -> list[tuple[str, str]]:
+    """(heading, body) for a summary document, chosen by SCORE rather than heading.
+
+    For crawlers whose documents have no academic section vocabulary. Heading
+    matching finds nothing in a manual or a report, which would leave those
+    documents contributing only the metadata abstract — and for a non-academic
+    document that abstract is itself just the first 200 words of body text, so
+    the graph would see a snippet of every document past the full-text quota.
+
+    Takes the document's best _SUMMARY_CHUNK_FRACTION of chunks by the ranking
+    stage's BM25-against-cluster-keywords score, then restores document order so
+    the model reads them the way they were written. Falls back to the heading
+    path when the ranker produced no scores.
+    """
+    scored = [chunk for chunk in doc_chunks if chunk.get("id") in chunk_scores]
+    if not scored:
+        return _summary_entries(doc_chunks, abstract)
+
+    keep_count = max(1, round(len(scored) * _SUMMARY_CHUNK_FRACTION))
+    best_ids = {
+        chunk["id"] for chunk in
+        sorted(scored, key=lambda chunk: -chunk_scores[chunk["id"]])[:keep_count]
+    }
+
+    entries: list[tuple[str, str]] = []
+    if abstract:
+        entries.append(("Abstract", abstract))
+    used_chars = len(abstract or "")
+    for chunk in doc_chunks:                      # document order, not score order
+        if chunk.get("id") not in best_ids:
+            continue
+        body = _clean_body(chunk)
+        if not body:
+            continue
+        if entries and used_chars + len(body) > _SUMMARY_MAX_CHARS:
+            break
+        entries.append(((chunk.get("heading") or "").strip(), body))
+        used_chars += len(body)
+
+    if not entries and doc_chunks:
+        entries.append(((doc_chunks[0].get("heading") or "").strip(),
+                        _clean_body(doc_chunks[0])))
+    return [(heading, body) for heading, body in entries if body]
+
+
 def _summary_entries(doc_chunks: list[dict], abstract: str) -> list[tuple[str, str]]:
     """(heading, body) for a SUMMARY document: abstract + conclusion only.
 
@@ -618,7 +687,8 @@ def _summary_entries(doc_chunks: list[dict], abstract: str) -> list[tuple[str, s
 
 
 def _call_batches(chunks: list[dict], full_ids: list[str], summary_ids: list[str],
-                  abstracts: dict[str, str], max_chars: int) -> tuple[list[dict], int]:
+                  abstracts: dict[str, str], max_chars: int,
+                  chunk_scores: dict[str, float] | None = None) -> tuple[list[dict], int]:
     """Structured per-call batches for the whole corpus, bibliography chunks
     dropped. Documents are batched independently and emitted full-text first
     (rank order), so no batch ever spans two documents and the incremental flush
@@ -642,8 +712,15 @@ def _call_batches(chunks: list[dict], full_ids: list[str], summary_ids: list[str
         if not doc_chunks:
             continue
         is_full_text = doc_id in full_text_ids
-        entries = (_full_text_entries(doc_chunks) if is_full_text
-                   else _summary_entries(doc_chunks, abstracts.get(doc_id, "")))
+        if is_full_text:
+            entries = _full_text_entries(doc_chunks)
+        elif _CRAWLER == "sapphire":
+            # A paper's abstract and conclusion are the author's own summary of
+            # the argument, which scoring is unlikely to improve on.
+            entries = _summary_entries(doc_chunks, abstracts.get(doc_id, ""))
+        else:
+            entries = _scored_summary_entries(doc_chunks, abstracts.get(doc_id, ""),
+                                              chunk_scores or {})
         entries = [(heading, body) for heading, body in entries if body]
         if not entries:
             continue
@@ -910,12 +987,20 @@ def build_kg(data_dir: Path = DATA_DIR) -> dict:
         print(f"[kg_graph] ranking decided {rank_driven} of {len(full_ids)} full-text "
               f"slot(s); the rest were filled in chunk-store order — raise HEURISTIC_K "
               f"to keep the choice rank-driven", file=sys.stderr)
+    summary_style = ("title+abstract+conclusion" if _CRAWLER == "sapphire"
+                     else f"title + best {_SUMMARY_CHUNK_FRACTION:.0%} of chunks by score")
     print(f"[kg_graph] {len(chunk_doc_ids)} document(s): {len(full_ids)} full text "
-          f"({FULL_TEXT_FRACTION:.0%}), {len(summary_ids)} title+abstract+conclusion")
+          f"({FULL_TEXT_FRACTION:.0%}), {len(summary_ids)} {summary_style}")
 
     abstracts = _abstracts(data_dir)
+    chunk_scores = {} if _CRAWLER == "sapphire" else _chunk_scores(data_dir)
+    if _CRAWLER != "sapphire" and not chunk_scores:
+        print("[kg_graph] no chunkScores in heuristic_output.json — summary documents "
+              "fall back to heading matching, which finds little outside papers",
+              file=sys.stderr)
     batches, chunks_used = _call_batches(chunks, full_ids, summary_ids,
-                                         abstracts, profile["callMaxChars"])
+                                         abstracts, profile["callMaxChars"],
+                                         chunk_scores=chunk_scores)
     if not batches:
         raise ValueError("no chunk text available — nothing to build a graph from")
 

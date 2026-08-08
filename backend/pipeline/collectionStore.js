@@ -63,8 +63,16 @@ export async function exportDoclings(collection) {
   await writeJson(path.join(scratchDir(collection.id), 'doclings.json'), doclings);
 }
 
-/** embeddings.json — chunk store; lets embed.js skip fresh docs. */
-export async function exportEmbeddings(collection) {
+/**
+ * embeddings.json — chunk store; lets embed.js skip fresh docs.
+ *
+ * `vectors: false` omits the embedding arrays. They are the great majority of
+ * this file's bytes — 207 MB of a 281 MB scratch directory on the 192-document
+ * corpus — and the stages that only need chunk TEXT (the ranker scoring chunks
+ * against cluster keywords) would otherwise pay to write and parse all of it.
+ * embed.js still needs them to decide which documents are already fresh.
+ */
+export async function exportEmbeddings(collection, { vectors = true } = {}) {
   const rows = await prisma.chunk.findMany({
     where: { collectionId: collection.id },
     orderBy: [{ docId: 'asc' }, { chunkIndex: 'asc' }],
@@ -81,7 +89,7 @@ export async function exportEmbeddings(collection) {
       sectionIndex: row.sectionIndex,
       chunkType:    row.chunkType,
       text:         row.text,
-      embedding:    row.embedding,
+      ...(vectors ? { embedding: row.embedding } : {}),
       ingestedAt:   row.ingestedAt.toISOString(),
     })),
     metadata: collection.embeddingsMeta ?? {},
@@ -176,6 +184,22 @@ export async function ingestCategories(collection) {
       data: { category: label },
     });
   }
+}
+
+/**
+ * citations.json → Collection.citationGraph.
+ *
+ * Persisted rather than left in the scratch dir like the ranking output: the
+ * edges used to be rebuilt on every run and discarded, and separating the
+ * citation graph from ranking is only worth doing if the graph outlives the run
+ * that produced it.
+ */
+export async function ingestCitations(collection) {
+  const citations = await readScratchJson(collection.id, 'citations.json');
+  await prisma.collection.update({
+    where: { id: collection.id },
+    data: { citationGraph: citations, corpusUpdatedAt: new Date() },
+  });
 }
 
 /** graph.json + kg_view.html → Collection.knowledgeGraph/.knowledgeGraphHtml. */

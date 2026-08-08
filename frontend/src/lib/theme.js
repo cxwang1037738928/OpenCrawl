@@ -52,7 +52,7 @@ export const CRAWLERS = {
     name: 'Topaz',
     accent: '#e8b058',
     tagline: 'general documents',
-    ready: false,
+    ready: true,
   },
 };
 
