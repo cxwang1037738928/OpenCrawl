@@ -34,6 +34,20 @@ import { prisma } from '../db.js';
 const OLLAMA_URL     = process.env.OLLAMA_URL || 'http://localhost:11434';
 // per matched category keyword, multiplicative
 const KEYWORD_BOOST  = parseFloat(process.env.RETRIEVER_KEYWORD_BOOST || '1.05');
+// Multiplier on chunks of a document the query names outright. A corpus of
+// near-identical studies gives the vector channel nothing to separate them
+// ("1.4 Vitro_geno" and "2.7 Vitro_geno" are the same assay), and tokenise()
+// drops digits so BM25 cannot either — measured on a 20-report corpus, only
+// 10% of retrieved chunks came from the study the question named. A boost
+// rather than a filter: a name recognised in the question is a guess, so a
+// wrong one should cost ranking, not hide the corpus. Set to 1 to disable.
+//
+// Measured on that corpus (220 questions, top-10): 1.5 → 57% of retrieved
+// chunks from the named study, 2.0 → 75%, 3.0 → 87% but the retrieved set
+// starts shrinking, because a boosted top score drags SCORE_FLOOR up with it
+// and prunes the rest of the corpus away. 2.0 is the last value that still
+// returns a full top-K.
+const DOC_BOOST      = parseFloat(process.env.RETRIEVER_DOC_BOOST || '2.0');
 const LEXICAL_WEIGHT = parseFloat(process.env.RETRIEVER_LEXICAL_WEIGHT || '0.3');
 const BM25_K1        = parseFloat(process.env.RETRIEVER_BM25_K1 || '1.5');   // term-frequency saturation
 const BM25_B         = parseFloat(process.env.RETRIEVER_BM25_B  || '0.75');  // length normalization strength
@@ -69,9 +83,14 @@ async function loadCorpus(collection) {
   // The graph rides this cache rather than being loaded per query: it is on the
   // same Collection row, and ingestGraph bumps corpusUpdatedAt on every write,
   // which is already this cache's invalidation key. No second staleness path.
-  const { knowledgeGraph } = await prisma.collection.findUniqueOrThrow({
+  const { knowledgeGraph, documents } = await prisma.collection.findUniqueOrThrow({
     where:  { id: collection.id },
-    select: { knowledgeGraph: true },
+    select: {
+      knowledgeGraph: true,
+      // Names ride this same read so resolving "regarding 1.4 Vitro_geno" to a
+      // docId costs no extra query and is invalidated with the rest of the cache.
+      documents: { select: { docId: true, filename: true, title: true } },
+    },
   });
   if (rows.length === 0) {
     const err = new Error('This collection has no indexed chunks — upload PDFs and run the pipeline first');
@@ -94,6 +113,7 @@ async function loadCorpus(collection) {
     dims: collection.embeddingsMeta?.dimensions,
     chunks,
     categories: collection.categories?.categories || [],   // absent → no keyword boost
+    docIndex: buildDocIndex(documents),
     lexical: buildLexicalIndex(chunks),
     // null when the collection has no graph yet — graph facts are then skipped
     // and the chat behaves exactly as it did before.
@@ -169,6 +189,67 @@ function dot(vecA, vecB) {
   return sum;
 }
 
+// ---------------------------------------------------------------------------
+// Named-document resolution
+// ---------------------------------------------------------------------------
+
+// Filenames are never part of chunk text and tokenise() discards digits, so on
+// their own neither channel can tell "1.1 Dermal_sens.pdf" from "2.10
+// Dermal_sens.pdf" — both reduce to ["dermal","sens","pdf"]. Everything below
+// works on the raw query instead, keeping the numbers that do the separating.
+
+const wordsIn   = (text) => new Set(String(text || '').toLowerCase().match(/[a-z]+/g) || []);
+const numbersIn = (text) => new Set(String(text || '').match(/\d+(?:\.\d+)+|\d+/g) || []);
+
+/** Filename with separators flattened: "1.10_Oral_Repd.pdf" → "1.10 oral repd". */
+const normalizeDocName = (text) => String(text || '')
+  .toLowerCase().replace(/\.pdf$/, '').replace(/[_\s]+/g, ' ').trim();
+
+/**
+ * One entry per document: the flattened filename, its leading number, the words
+ * of its name, and its title only when the title is long and wordy enough to be
+ * worth matching. Extraction frequently yields "ORIGINAL", "Gentlemen:" or an
+ * OCR smear, and those must never be match candidates; a verbatim hit on a long
+ * title, by contrast, is safe by construction.
+ */
+function buildDocIndex(documents = []) {
+  return documents.map((doc) => {
+    const name = normalizeDocName(doc.filename);
+    const [first, ...rest] = name.split(' ');
+    const numbered = /^\d+(?:\.\d+)*$/.test(first);
+    const title = String(doc.title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const letters = (title.match(/[a-z ]/g) || []).length;
+    return {
+      docId:  doc.docId,
+      name:   name.length >= 5 ? name : null,     // a 2-char name would match anything
+      number: numbered ? first : null,
+      words:  (numbered ? rest : name.split(' ')).filter((word) => word.length > 2),
+      title:  title.length >= 25 && letters / title.length >= 0.6 ? title : null,
+    };
+  });
+}
+
+/**
+ * The documents a query names outright, as a Set of docIds. Empty unless the
+ * evidence is strong: the whole filename, or its number together with one of
+ * its own words, or a long title verbatim. A bare "dermal" must never match —
+ * most of a toxicology corpus shares it. A query naming three or more documents
+ * resolves to none rather than collapsing onto one of them.
+ */
+export function resolveDocIds(queryText, docIndex = []) {
+  if (!docIndex.length || !queryText) return new Set();
+  const query   = normalizeDocName(queryText);
+  const words   = wordsIn(queryText);
+  const numbers = numbersIn(queryText);
+
+  const matched = docIndex.filter((doc) =>
+    (doc.name && query.includes(doc.name))
+    || (doc.number && numbers.has(doc.number) && doc.words.some((word) => words.has(word)))
+    || (doc.title && query.includes(doc.title)));
+
+  return new Set(matched.length <= 2 ? matched.map((doc) => doc.docId) : []);
+}
+
 /**
  * Per-doc multiplicative boost from category keyword matches:
  * 1.05^(query tokens ∩ category keywords) for every doc in that category.
@@ -191,9 +272,13 @@ function keywordBoosts(queryText, categories) {
  * @param {object}   collection     — Collection row (id, corpusUpdatedAt, categories, embeddingsMeta)
  * @param {number[]} queryEmbedding — L2-normalized, same model/dims as the corpus
  * @param {string}   queryText      — raw question, for keyword matching
+ * @param {string[]} [opts.docIds]  — documents the caller asserts the query is about.
+ *                                    Present: a hard scope, nothing else is considered.
+ *                                    Omitted: names found in queryText are boosted instead.
  * @returns top-K [{docId, filename, heading, text, sim, boost, score}]
  */
-export async function retrieve(collection, queryEmbedding, queryText, { topK = DEFAULT_TOP_K } = {}) {
+export async function retrieve(collection, queryEmbedding, queryText,
+  { topK = DEFAULT_TOP_K, docIds } = {}) {
   const corpus = await getCorpus(collection);
   if (corpus.dims && queryEmbedding.length !== corpus.dims) {
     const err = new Error(`query embedding has ${queryEmbedding.length} dims; corpus uses ${corpus.dims}`);
@@ -201,18 +286,45 @@ export async function retrieve(collection, queryEmbedding, queryText, { topK = D
     throw err;
   }
 
-  const boostByDocId = keywordBoosts(queryText, corpus.categories);
-  // Normalize BM25 to the query's best chunk so the blend weight is stable
-  // across queries of different rarity.
-  const bm25 = bm25Scores(tokenise(queryText || ''), corpus.lexical);
-  const bm25Max = Math.max(...bm25) || 1;
+  // Two different claims, deliberately handled differently. An explicit docIds
+  // is the caller asserting scope — honour it exactly, because a question like
+  // "does this study name a test guideline?" is answered wrongly, not partially,
+  // if another study's guidelines are in the context. A name merely recognised
+  // in the question text is a guess, so it only boosts.
+  const scope    = Array.isArray(docIds) && docIds.length ? new Set(docIds) : null;
+  const targeted = scope ? null : resolveDocIds(queryText, corpus.docIndex);
+  const inScope  = (chunk) => !scope || scope.has(chunk.docId);
 
-  const scored = corpus.chunks.map((chunk, chunkIdx) => {
-    const sim   = dot(queryEmbedding, chunk.embedding);
-    const boost = boostByDocId.get(chunk.docId) || 1;
-    const lex   = bm25[chunkIdx] / bm25Max;
-    return { chunk, sim, boost, lex, score: sim * boost + LEXICAL_WEIGHT * lex };
+  const boostByDocId = keywordBoosts(queryText, corpus.categories);
+  const bm25 = bm25Scores(tokenise(queryText || ''), corpus.lexical);
+  // Normalize BM25 to the query's best chunk so the blend weight is stable
+  // across queries of different rarity — measured within the scope, since a
+  // strong match in an excluded document would otherwise flatten the lexical
+  // channel for everything that survives the filter.
+  let bm25Max = 0;
+  corpus.chunks.forEach((chunk, chunkIdx) => {
+    if (inScope(chunk) && bm25[chunkIdx] > bm25Max) bm25Max = bm25[chunkIdx];
   });
+  bm25Max = bm25Max || 1;
+
+  const scored = [];
+  corpus.chunks.forEach((chunk, chunkIdx) => {
+    if (!inScope(chunk)) return;              // out of scope — skip the dot product too
+    const sim   = dot(queryEmbedding, chunk.embedding);
+    const boost = (boostByDocId.get(chunk.docId) || 1)
+      * (targeted?.has(chunk.docId) ? DOC_BOOST : 1);
+    const lex   = bm25[chunkIdx] / bm25Max;
+    scored.push({ chunk, sim, boost, lex, score: sim * boost + LEXICAL_WEIGHT * lex });
+  });
+
+  // Silently answering from the whole corpus would be worse than failing: the
+  // caller asked for specific documents and would not know it did not get them.
+  if (scope && !scored.length) {
+    const err = new Error(`no indexed chunks for the requested documents: ${[...scope].join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+
   scored.sort((a, b) => b.score - a.score);
 
   // Drop the long tail below the floor; the top chunk always survives.

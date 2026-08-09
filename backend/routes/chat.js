@@ -66,7 +66,7 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 export const chatRouter = Router();
 
 chatRouter.post('/', wrap(async (req, res) => {
-  const { content, queryEmbedding } = req.body ?? {};
+  const { content, queryEmbedding, docIds } = req.body ?? {};
 
   if (typeof content !== 'string' || !content.trim()) {
     return res.status(400).json({ error: '"content" must be a non-empty string' });
@@ -74,6 +74,13 @@ chatRouter.post('/', wrap(async (req, res) => {
   if (!Array.isArray(queryEmbedding)
       || queryEmbedding.some((component) => typeof component !== 'number')) {
     return res.status(400).json({ error: '"queryEmbedding" must be a number array (computed in the browser)' });
+  }
+  // Optional: the documents this question is about. Present, it is a hard
+  // retrieval scope — no other document reaches the model. Omitted, the
+  // retriever infers document names from the question and only boosts them.
+  if (docIds !== undefined
+      && (!Array.isArray(docIds) || docIds.some((docId) => typeof docId !== 'string' || !docId.trim()))) {
+    return res.status(400).json({ error: '"docIds" must be an array of document id strings' });
   }
 
   // LLM history = stored conversation (roles + text only) + the new question.
@@ -83,7 +90,7 @@ chatRouter.post('/', wrap(async (req, res) => {
     { role: 'user', content },
   ];
 
-  const chunks = await retrieve(req.chat.collection, queryEmbedding, content);
+  const chunks = await retrieve(req.chat.collection, queryEmbedding, content, { docIds });
   // Graph facts are additive: chunk retrieval is untouched, and a collection
   // with no graph (or a question naming no known entity) answers exactly as before.
   const { facts } = await retrieveFacts(req.chat.collection, content);
