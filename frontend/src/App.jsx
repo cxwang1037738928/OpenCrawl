@@ -106,7 +106,11 @@ function ChatList({ chats, selectedChatId, onSelect, onNew, onDelete, disabled }
         </div>
       ))}
       {chats.length === 0 && (
-        <div className="chat-list-empty">No chats yet — pick a collection in Documents, then hit +.</div>
+        // Filtered to the active crawler, so "none" is scoped to it — the
+        // account may well have chats under another.
+        <div className="chat-list-empty">
+          No chats for this crawler — pick a collection in Documents, then hit +.
+        </div>
       )}
     </div>
   );
@@ -139,6 +143,23 @@ export default function App() {
   // rather than naming one, so shipping a crawler is a one-line change there.
   const live = Boolean(CRAWLERS[crawler]?.ready);
 
+  // The crawler scopes the whole workspace, not just the theme: a corpus built
+  // by sapphire's pipeline and one built by topaz's are different kinds of
+  // thing, and mixing them in one list made them indistinguishable. Chats ride
+  // along because a chat is only meaningful against its own collection —
+  // showing one whose corpus is hidden would let a click swap the list underfoot.
+  const visibleCollections = collections.filter((item) => item.crawler === crawler);
+  const visibleChats = chats.filter((chat) => chat.collection?.crawler === crawler);
+
+  /** Switch crawler, dropping a selection that belongs to the outgoing one. */
+  const switchCrawler = (next) => {
+    if (next === crawler) return;
+    setCrawler(next);
+    setSelectedCollectionId(null);
+    setSelectedChatId(null);
+    setDocTarget(null);          // targets point into the outgoing corpus
+  };
+
   // Boot: validate any stored token; without a valid session the app shows
   // the login page. Data loads once a user is confirmed.
   useEffect(() => {
@@ -167,8 +188,11 @@ export default function App() {
         await Promise.all([getCollections(), getChats()]);
       setCollections(loadedCollections);
       setChats(loadedChats);
+      // Both paths go through the selectors, which sync the crawler to whatever
+      // was resumed. Setting the id bare would leave the sidebar filtered to one
+      // crawler while a collection from another stayed selected.
       if (loadedChats.length) selectChat(loadedChats[0]);
-      else if (loadedCollections.length) setSelectedCollectionId(loadedCollections[0].id);
+      else if (loadedCollections.length) selectCollection(loadedCollections[0]);
     } catch (err) {
       console.error('[app] could not load collections/chats:', err);
     }
@@ -213,7 +237,9 @@ export default function App() {
 
   // New collection: name is required; then the user lands in the upload UI.
   const newCollection = async () => {
-    const name = window.prompt('Collection name:');
+    // Name the crawler: the new collection lands under whichever one is active,
+    // and it is the only one whose list will show it.
+    const name = window.prompt(`Collection name (${CRAWLERS[crawler]?.name ?? crawler}):`);
     if (name === null) return;
     if (!name.trim()) { window.alert('A collection needs a name.'); return; }
     const { collection } = await createCollection(name.trim(), crawler);
@@ -290,7 +316,7 @@ export default function App() {
         <hr className="sidebar-divider" />
 
         <ChatList
-          chats={chats}
+          chats={visibleChats}
           selectedChatId={selectedChatId}
           onSelect={(chat) => { selectChat(chat); setTab('chat'); }}
           onNew={newChat}
@@ -316,7 +342,7 @@ export default function App() {
             <button
               key={crawlerId}
               className={`crawler-btn ${crawler === crawlerId ? 'active' : ''}`}
-              onClick={() => setCrawler(crawlerId)}
+              onClick={() => switchCrawler(crawlerId)}
               disabled={pipelineBusy}
               title={`${crawlerInfo.name} — ${crawlerInfo.tagline}${crawlerInfo.ready ? '' : ' (coming soon)'}`}
             >
@@ -353,7 +379,8 @@ export default function App() {
                 <DocumentViewer
                   key={selectedCollectionId ?? 'none'}
                   collectionId={selectedCollectionId}
-                  collections={collections}
+                  collections={visibleCollections}
+                  crawlerName={CRAWLERS[crawler]?.name ?? crawler}
                   onSelectCollection={selectCollection}
                   onCreateCollection={newCollection}
                   onDeleteCollection={removeCollection}

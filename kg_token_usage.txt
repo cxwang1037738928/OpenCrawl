@@ -1,0 +1,80 @@
+KG token usage - document-selection ablation
+==============================================================================
+
+Generated 2026-08-09 16:51:55 UTC
+Model: gemini/gemini-3.6-flash, identical across arms, as were all KG_* knobs.
+Corpus: 20 scanned toxicology reports, 1008 chunks.
+
+Collections 30/31/32 are row-level clones of 28, verified identical by md5
+over chunk text, chunk ids and the categories payload. Extraction, chunking,
+embedding and categorization are literally the same rows, not a reproduction,
+so all downstream difference is attributable to graph construction alone.
+
+
+READ THIS BEFORE USING THE MEASURED COLUMN
+------------------------------------------------------------------------------
+dspy caches completions keyed on prompt text, and cache hits are invisible to
+the usage tracker (kg_graph.py:872, :935). The identical substrate that makes
+this ablation clean also makes the prompts identical, so arms 2 and 3 replayed
+completions cached by collection 28's earlier run.
+
+Their MEASURED totals are therefore marginal cost against a warm cache, NOT
+what those arms cost to build from scratch. Collection 28 ran when these
+prompts were novel, so its figure is a true cold-cache cost - corroborated by
+the re-OCR arm of the earlier OCR benchmark (different text, also cold), which
+landed at 391,175. That collection has since been deleted; the figure is from
+its run log, recorded in commit 7e5dbdb.
+
+Prompt chars are a pure function of packing and are unaffected by caching, so
+they are the honest basis for comparing arms. ESTIMATED scales collection 28's
+cold cost by the prompt-char ratio.
+
+
+arm                            coll cache  prompt chars   MEASURED  ESTIMATED  calls  reqs  full  summ   ents   rels
+--------------------------------------------------------------------------------------------------------------------
+1  no graph                      30   n/a             0          0          0      0     0     0     0      0      0
+*  heuristic 40% (comparator)    28  cold       571,535    386,485   386,485*     27    54     8    12  1,261    719
+3  random 40% (seed 9178)        32  warm       498,655     12,249    337,202     25     6     8    12  1,180    675
+2  whole corpus                  31  warm       822,376    198,753    556,109     31    32    20     0  1,610    880
+
+  * the comparator's ESTIMATED equals its MEASURED by construction - it is the
+    cold run the other estimates are scaled from.
+
+
+COST PER RELATION (using ESTIMATED)
+------------------------------------------------------------------------------
+  1  no graph                             0 tokens    no graph built
+  *  heuristic 40% (comparator)     386,485 tokens     +0.0%      538 tokens/relation      306 tokens/entity
+  3  random 40% (seed 9178)         337,202 tokens    -12.8%      500 tokens/relation      286 tokens/entity
+  2  whole corpus                   556,109 tokens    +43.9%      632 tokens/relation      345 tokens/entity
+
+
+WHAT THE ARMS ACTUALLY SHOW
+------------------------------------------------------------------------------
+* Whole corpus buys 22% more relations (719 -> 880) and 28% more entities for
+  ~44% more tokens. Diminishing, but not badly so.
+* Random 40% is CHEAPER than heuristic 40% (498k vs 571k prompt chars) despite
+  the same 8/12 split, because the heuristic preferentially picks large,
+  representative documents while the draw took smaller ones. It returns 6%
+  fewer relations for 13% fewer tokens - close to proportional, which is weak
+  evidence that the ranking is not buying much per token on this corpus.
+* That random draw shares 5 of 8 documents with the heuristic pick (chance
+  expectation 3.2/8), so the contrast rests on only 3 swapped documents. One
+  draw is a sample of size 1; do not over-read it.
+
+
+CAVEATS
+------------------------------------------------------------------------------
+* chunksProcessed is not comparable across arms: kg_graph counts chunks for
+  full-text documents but ENTRIES for summarized ones (_call_batches:729).
+  Omitted from this table for that reason.
+* The whole-corpus arm packs 994 of 1008 chunks - bibliography and empty-body
+  chunks are dropped from every path (_call_batches:699-702).
+* Arm 1 spends zero tokens by construction. Retrieval still works there:
+  buildGraphIndex returns null on an absent graph and graphFacts short-circuits,
+  so the chat falls back to vector + BM25.
+* Entity resolution and predicate normalization run locally (NLI
+  cross-encoder), cost no API tokens, and do change the final counts here.
+* To replace ESTIMATED with measured cold numbers, clear ~/.dspy_cache and
+  rebuild arms 2 and 3. That regenerates their graphs, so the entity and
+  relation counts above would be resampled too.

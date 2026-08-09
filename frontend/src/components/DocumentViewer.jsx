@@ -122,7 +122,7 @@ function PdfPage({ pdf, pageNum, size, highlightIds, onPageEl }) {
 // ---------------------------------------------------------------------------
 
 export default function DocumentViewer({
-  collectionId, collections, onSelectCollection, onCreateCollection,
+  collectionId, collections, crawlerName, onSelectCollection, onCreateCollection,
   onDeleteCollection, onPipelineDone, onBusyChange, controlsEl, active, target,
 }) {
   const [docs, setDocs] = useState(null);
@@ -475,7 +475,12 @@ export default function DocumentViewer({
         </div>
       ))}
       {(!collections || collections.length === 0) && (
-        <div className="doc-list-error">No collections yet — hit + to create one.</div>
+        // Scoped wording: the list is filtered to the active crawler, so an
+        // empty one does not mean the account has no collections at all.
+        <div className="doc-list-error">
+          No {crawlerName || 'matching'} collections — hit + to create one,
+          or switch crawler above.
+        </div>
       )}
     </div>
   );
