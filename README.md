@@ -1,5 +1,7 @@
 # OpenCrawl
 
+Demo available at https://opencrawl-demo.onrender.com/
+
 **Ask questions about a library of research papers and get answers you can check.**
 
 Upload PDFs — scanned or digital — and OpenCrawl extracts them, maps how they cite each other,
