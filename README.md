@@ -1,5 +1,7 @@
 # OpenCrawl
 
+Demo available at https://opencrawl-demo.onrender.com/
+
 **Ask questions about a library of research papers and get answers you can check.**
 
 Upload PDFs — scanned or digital — and OpenCrawl extracts them, maps how they cite each other,
@@ -261,19 +263,3 @@ Reference build — a 192-document machine-learning and materials-science corpus
 | Knowledge graph | 20,301 entities · 22,260 relations |
 | Cleanup effect | distinct relationship types 3,824 → 2,581 (−32%) |
 | Author noise | 1,195 nodes removed|
-
----
-
-## Stack
-
-**Frontend** React 18 · Vite · Three.js · pdf.js · Transformers.js
-**Backend** Node 22 · Express · PostgreSQL 16 · Prisma · JWT
-**Processing** Python 3.11 · Docling · Tesseract · GROBID · NetworkX · kg-gen · DSPy
-**Models** MiniLM-L12-v2 embeddings · NLI cross-encoder · Ollama, Gemini, or Azure AI Foundry
-
----
-
-## Architecture
-
-Implementation detail — stage-by-stage design, the reasoning behind each threshold, and the
-measurements that motivated them — lives in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
