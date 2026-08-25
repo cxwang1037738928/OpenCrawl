@@ -36,3 +36,6 @@ models/
 data/collections/
 # Output of the deprecated enhance_pdf.js stage — no longer in the pipeline
 data/enhanced/
+
+# Per-machine Claude Code permissions (the skills/ dir is shared and tracked)
+.claude/settings.local.json
